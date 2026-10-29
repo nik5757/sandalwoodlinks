@@ -1,3 +1,4 @@
+// FILE: api/reward.js
 const { createClient } = require('@supabase/supabase-js');
 
 module.exports = async function handler(req, res) {
@@ -5,7 +6,7 @@ module.exports = async function handler(req, res) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    const { short_id } = req.body;
+    const { short_id, clicker_tg_id } = req.body;
 
     const supabaseUrl = process.env.SUPABASE_URL;
     const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
@@ -14,7 +15,6 @@ module.exports = async function handler(req, res) {
          return res.status(500).json({ error: 'Vercel ENV variables missing' });
     }
 
-    // URL Cleanup (safeguard)
     const cleanUrl = supabaseUrl.trim().replace(/\/rest\/v1\/?$/, "").replace(/\/$/, "");
 
     try {
@@ -24,18 +24,37 @@ module.exports = async function handler(req, res) {
         const { data: linkData, error: linkErr } = await supabase.from('links').select('*').eq('short_id', short_id).single();
         if (linkErr || !linkData) return res.status(404).json({ error: 'Link not found' });
 
-        // 2. Fetch Admin Settings (For LIVE CPM)
+        // 2. Check Duplicate Click in click_logs
+        if (clicker_tg_id && clicker_tg_id !== 0) {
+            const { data: existingLogs } = await supabase
+                .from('click_logs')
+                .select('id')
+                .eq('link_id', linkData.id)
+                .eq('clicker_tg_id', clicker_tg_id);
+
+            if (existingLogs && existingLogs.length > 0) {
+                return res.status(200).json({ success: false, message: 'Duplicate click ignored' });
+            }
+
+            // Log this click
+            await supabase.from('click_logs').insert([{
+                link_id: linkData.id,
+                clicker_tg_id: clicker_tg_id
+            }]);
+        }
+
+        // 3. Fetch Admin Settings (For LIVE CPM)
         const { data: adminSettings } = await supabase.from('settings').select('*').limit(1).single();
-        const cpm = adminSettings && adminSettings.cpm ? adminSettings.cpm : 200;
+        const cpm = adminSettings && adminSettings.cpm ? adminSettings.cpm : 2.0;
         const earn_amount = cpm / 1000;
 
-        // 3. Update LINK table
+        // 4. Update LINK table
         await supabase.from('links').update({
             clicks: (linkData.clicks || 0) + 1,
             earnings: (linkData.earnings || 0) + earn_amount
         }).eq('id', linkData.id);
 
-        // 4. Fetch and Update USER table (This fixes Home Page Views!)
+        // 5. Fetch and Update USER table
         const { data: userData } = await supabase.from('users').select('*').eq('id', linkData.user_id).single();
         
         if (userData) {
@@ -43,11 +62,11 @@ module.exports = async function handler(req, res) {
                 balance: (userData.balance || 0) + earn_amount,
                 today_earnings: (userData.today_earnings || 0) + earn_amount,
                 total_earnings: (userData.total_earnings || 0) + earn_amount,
-                total_clicks: (userData.total_clicks || 0) + 1,     // HOME PAGE VIEW FIX
+                total_clicks: (userData.total_clicks || 0) + 1,
                 today_clicks: (userData.today_clicks || 0) + 1
             }).eq('id', userData.id);
 
-            // 5. Referral Commission Logic (Perfectly Integrated)
+            // 6. Referral Commission Logic
             const referPercent = adminSettings && adminSettings.refer_percent ? adminSettings.refer_percent : 10;
             if (referPercent > 0) {
                 const { data: referralData } = await supabase.from('referrals').select('referrer_tg_id').eq('referred_tg_id', userData.telegram_id).single();
@@ -69,4 +88,4 @@ module.exports = async function handler(req, res) {
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }
-}
+};
