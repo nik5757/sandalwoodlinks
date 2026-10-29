@@ -4,10 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sandalwood_Links - Mini App</title>
+
+    <!-- ========================================== -->
+    <!-- === MONETAG AD CONFIGURATION (EASY EDIT) === -->
+    <!-- ========================================== -->
+    <script src='//libtl.com/sdk.js' data-zone='12144510' data-sdk='show_12144510'></script>
+    <script>
+        // If you change the data-sdk number above, change it here too:
+        const MONETAG_AD_FUNCTION = 'show_12144510'; 
+    </script>
+    <!-- ========================================== -->
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
@@ -574,46 +584,66 @@
             } catch(e) {}
         }
 
-        // AD FLOW LOGIC
+        // --- MONETAG AD FLOW LOGIC ---
         function startAdFlow() {
-            document.getElementById('ui-loading').classList.add('hidden'); document.getElementById('ui-ad-viewer').classList.remove('hidden'); setupAdStep();
+            document.getElementById('ui-loading').classList.add('hidden'); 
+            document.getElementById('ui-ad-viewer').classList.remove('hidden'); 
+            setupAdStep();
         }
 
         function setupAdStep() {
             document.getElementById('ad-progress-badge').innerText = `Ad ${currentAdStep} of ${totalAdsRequired}`;
-            document.getElementById('ad-timer-text').classList.remove('hidden'); document.getElementById('ad-loader-ring').classList.add('hidden');
+            document.getElementById('ad-timer-text').classList.remove('hidden'); 
+            document.getElementById('ad-loader-ring').classList.add('hidden');
+            
             let timeLeft = adminSettings.ad_timer || 5;
-            const btn = document.getElementById('btn-watch-ad'); const timerEl = document.getElementById('ad-timer-text');
-            btn.disabled = true; btn.className = "w-full bg-slate-800 text-slate-500 font-bold py-4 rounded-xl flex justify-center items-center shadow-inner";
+            const btn = document.getElementById('btn-watch-ad'); 
+            const timerEl = document.getElementById('ad-timer-text');
+            
+            btn.disabled = true; 
+            btn.className = "w-full bg-slate-800 text-slate-500 font-bold py-4 rounded-xl flex justify-center items-center shadow-inner";
             btn.innerHTML = `Wait ${timeLeft}s...`;
             
             const interval = setInterval(() => {
-                timeLeft--; timerEl.innerText = timeLeft; btn.innerHTML = `Wait ${timeLeft}s...`;
-                if (timeLeft <= 0) { clearInterval(interval); checkAdBlocker(btn, timerEl); }
+                timeLeft--; 
+                timerEl.innerText = timeLeft; 
+                btn.innerHTML = `Wait ${timeLeft}s...`;
+                if (timeLeft <= 0) { 
+                    clearInterval(interval); 
+                    checkAdBlocker(btn, timerEl); 
+                }
             }, 1000);
         }
 
         function checkAdBlocker(btn, timerEl) {
-            if (typeof window.Adsgram === 'undefined') {
+            // Checks if the Monetag function from the top of the file has loaded
+            if (typeof window[MONETAG_AD_FUNCTION] === 'undefined') {
                 document.getElementById('ad-blocker-warning').classList.remove('hidden');
                 document.getElementById('ad-step-title').innerText = "Action Required";
-                btn.classList.add('hidden'); timerEl.innerHTML = '<i class="fa-solid fa-ban text-red-500 text-xl"></i>';
+                btn.classList.add('hidden'); 
+                timerEl.innerHTML = '<i class="fa-solid fa-ban text-red-500 text-xl"></i>';
             } else {
                 timerEl.innerHTML = '<i class="fa-solid fa-play text-indigo-500"></i>';
-                btn.disabled = false; btn.className = "w-full primary-gradient text-white font-bold py-4 rounded-xl flex justify-center items-center shadow-lg shadow-indigo-500/30";
-                btn.innerHTML = "Click to Watch Ad"; btn.onclick = executeAdClick;
+                btn.disabled = false; 
+                btn.className = "w-full primary-gradient text-white font-bold py-4 rounded-xl flex justify-center items-center shadow-lg shadow-indigo-500/30";
+                btn.innerHTML = "Click to Watch Ad"; 
+                btn.onclick = executeAdClick;
             }
         }
 
         function executeAdClick() {
-            const btn = document.getElementById('btn-watch-ad'); btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Loading Ad...`;
-            document.getElementById('ad-loader-ring').classList.remove('hidden'); document.getElementById('ad-timer-text').classList.add('hidden');
-            if (window.Adsgram) {
-                const AdController = window.Adsgram.init({ blockId: "int-56611" });
-                AdController.show().then(() => {
+            const btn = document.getElementById('btn-watch-ad'); 
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Loading Ad...`;
+            document.getElementById('ad-loader-ring').classList.remove('hidden'); 
+            document.getElementById('ad-timer-text').classList.add('hidden');
+            
+            if (typeof window[MONETAG_AD_FUNCTION] === 'function') {
+                window[MONETAG_AD_FUNCTION]().then(() => {
                     handleAdSuccess();
-                }).catch(() => {
-                    handleAdSuccess();
+                }).catch((e) => {
+                    console.error("Ad error or closed early:", e);
+                    handleAdSuccess(); // Still proceed so user doesn't get stuck if no ads are available
                 });
             } else {
                 handleAdSuccess();
@@ -621,14 +651,22 @@
         }
 
         function handleAdSuccess() {
-            if (currentAdStep < totalAdsRequired) { currentAdStep++; setupAdStep(); } else { showFinalLink(); }
+            if (currentAdStep < totalAdsRequired) { 
+                currentAdStep++; 
+                setupAdStep(); 
+            } else { 
+                showFinalLink(); 
+            }
         }
 
         async function showFinalLink() {
-            document.getElementById('btn-watch-ad').classList.add('hidden'); document.getElementById('ad-timer-container').classList.add('hidden');
-            document.getElementById('ad-progress-badge').classList.add('hidden'); document.getElementById('ad-step-title').innerText = "Link Unlocked!";
+            document.getElementById('btn-watch-ad').classList.add('hidden'); 
+            document.getElementById('ad-timer-container').classList.add('hidden');
+            document.getElementById('ad-progress-badge').classList.add('hidden'); 
+            document.getElementById('ad-step-title').innerText = "Link Unlocked!";
             
-            const getLinkBtn = document.getElementById('btn-get-link'); getLinkBtn.classList.remove('hidden');
+            const getLinkBtn = document.getElementById('btn-get-link'); 
+            getLinkBtn.classList.remove('hidden');
             
             if (window.invalidClickReason === "self") {
                 safeAlert("⚠️ This is your own link! Earnings will not be added.");
@@ -636,7 +674,13 @@
                 safeAlert("⚠️ You already viewed this link! Earnings won't be duplicated.");
             } else {
                 let clickerId = tg.initDataUnsafe?.user?.id || 0;
-                try { fetch(`${VERCEL_API_URL}/reward`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ short_id: window.currentShortId, clicker_tg_id: clickerId }) }); } catch(e){}
+                try { 
+                    fetch(`${VERCEL_API_URL}/reward`, { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'application/json' }, 
+                        body: JSON.stringify({ short_id: window.currentShortId, clicker_tg_id: clickerId }) 
+                    }); 
+                } catch(e){}
             }
 
             const { data } = await dbClient.from('links').select('original_url').eq('short_id', window.currentShortId).single();
