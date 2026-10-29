@@ -1,1 +1,9 @@
 
+{
+  "name": "sandalwoodlinks-api",
+  "version": "1.0.0",
+  "description": "Backend API for SandalwoodLinks",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  }
+}
