@@ -5,7 +5,6 @@ const BOT_USERNAME = 'SandalwoodLinksBot';
 const APP_SHORT_NAME = 'httpssandalwoodlinksvercela';
 
 module.exports = async function handler(req, res) {
-    // Enable CORS for external developers & bots
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -14,7 +13,6 @@ module.exports = async function handler(req, res) {
         return res.status(200).end();
     }
 
-    // Support both GET (?api=...&url=...) and POST JSON body
     const api = req.query.api || req.body?.api;
     const url = req.query.url || req.body?.url;
     const alias = req.query.alias || req.body?.alias;
@@ -28,12 +26,9 @@ module.exports = async function handler(req, res) {
         });
     }
 
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-        return res.status(400).json({
-            status: 'error',
-            message: 'Invalid URL format. Must start with http:// or https://',
-            shortenedUrl: ''
-        });
+    let cleanDestUrl = String(url).trim();
+    if (!/^https?:\/\//i.test(cleanDestUrl)) {
+        cleanDestUrl = 'https://' + cleanDestUrl;
     }
 
     const supabaseUrl = process.env.SUPABASE_URL;
@@ -47,12 +42,34 @@ module.exports = async function handler(req, res) {
     const supabase = createClient(cleanUrl, supabaseKey.trim());
 
     try {
-        // 1. Authenticate User via API Token
-        const { data: user, error: userErr } = await supabase
+        const cleanApi = String(api).trim();
+
+        // 1. Authenticate User via Permanent API Token
+        let { data: users, error: userErr } = await supabase
             .from('users')
-            .select('id, is_blocked')
-            .eq('api_key', api.trim())
-            .single();
+            .select('id, telegram_id, is_blocked, api_key')
+            .eq('api_key', cleanApi)
+            .limit(1);
+
+        let user = users && users[0];
+
+        // Fallback: If token follows permanent deterministic format sw_<tg_id>_<hash>, bind it permanently if user had null api_key
+        if (!user && cleanApi.startsWith('sw_')) {
+            const parts = cleanApi.split('_');
+            const possibleTgId = parseInt(parts[1], 10);
+            if (possibleTgId && !isNaN(possibleTgId)) {
+                const { data: fallbackUsers } = await supabase
+                    .from('users')
+                    .select('id, telegram_id, is_blocked, api_key')
+                    .eq('telegram_id', possibleTgId)
+                    .limit(1);
+
+                if (fallbackUsers && fallbackUsers[0] && !fallbackUsers[0].api_key) {
+                    await supabase.from('users').update({ api_key: cleanApi }).eq('id', fallbackUsers[0].id);
+                    user = { ...fallbackUsers[0], api_key: cleanApi };
+                }
+            }
+        }
 
         if (userErr || !user) {
             return res.status(401).json({
@@ -71,7 +88,7 @@ module.exports = async function handler(req, res) {
         }
 
         // 2. Generate or Validate Custom Alias / Short ID
-        let shortId = alias ? alias.trim().replace(/[^a-zA-Z0-9_-]/g, '') : Math.random().toString(36).substring(2, 8);
+        let shortId = alias ? String(alias).trim().replace(/[^a-zA-Z0-9_-]/g, '') : Math.random().toString(36).substring(2, 8);
         if (!shortId || shortId.length < 3) {
             shortId = Math.random().toString(36).substring(2, 8);
         }
@@ -81,9 +98,9 @@ module.exports = async function handler(req, res) {
                 .from('links')
                 .select('id')
                 .eq('short_id', shortId)
-                .single();
+                .limit(1);
 
-            if (existing) {
+            if (existing && existing.length > 0) {
                 return res.status(400).json({
                     status: 'error',
                     message: 'Alias already exists. Choose another one.',
@@ -96,7 +113,7 @@ module.exports = async function handler(req, res) {
         const { error: insertErr } = await supabase
             .from('links')
             .insert([{
-                original_url: url.trim(),
+                original_url: cleanDestUrl,
                 short_id: shortId,
                 user_id: user.id
             }]);
@@ -111,13 +128,11 @@ module.exports = async function handler(req, res) {
 
         const shortUrl = `https://t.me/${BOT_USERNAME}/${APP_SHORT_NAME}?startapp=link_${shortId}`;
 
-        // Support plain text response if &format=text is used
         if (format === 'text') {
             res.setHeader('Content-Type', 'text/plain');
             return res.status(200).send(shortUrl);
         }
 
-        // Standard JSON response (Compatible with all Telegram Shortener Bots)
         return res.status(200).json({
             status: 'success',
             shortenedUrl: shortUrl
