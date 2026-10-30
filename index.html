@@ -8,6 +8,22 @@
     <!-- ========================================== -->
     <!-- === MONETAG AD CONFIGURATION (EASY EDIT) === -->
     <!-- ========================================== -->
+    <script>
+        // Intercept attachShadow & track all injected Monetag DOM nodes BEFORE the SDK loads
+        // so closed Shadow DOM overlays can be 100% destroyed when the timer hits 16s/34s/50s.
+        window.__trackedAdNodes = new Set();
+        window.__trackedShadowRoots = [];
+        window.__blockAllNewAds = false;
+
+        (function() {
+            const origAttachShadow = Element.prototype.attachShadow;
+            Element.prototype.attachShadow = function(init) {
+                const shadow = origAttachShadow.call(this, { ...init, mode: 'open' });
+                window.__trackedShadowRoots.push({ host: this, shadow: shadow });
+                return shadow;
+            };
+        })();
+    </script>
     <script src='//libtl.com/sdk.js' data-zone='12144510' data-sdk='show_12144510'></script>
     <script>
         // If you change the data-sdk number above, change it here too:
@@ -17,9 +33,14 @@
         const BANNER_AD_KEY = '44c6fbc4940c18fdf410b4e86343ecc7';
         const BANNER_AD_SCRIPT_SRC = 'https://bancadeltempoidea.org/22/44c6fbc4940c18fdf410b4e86343ecc7';
 
-        // Automation Timings
+        // Automation Timings (1 Ad = 16s, 2 Ads = 34s, 3 Ads = 50s)
         const AUTO_CLICK_VERIFY_DELAY_MS = 1000; // Wait 1s after countdown before auto-clicking "Verify & Continue"
-        const SECONDS_PER_AD_UNIT = 15;          // 1 ad = 15s, 2 ads = 30s, 3 ads = 45s (auto-detected)
+        const AD_DURATION_BY_COUNT = { 1: 16, 2: 34, 3: 50 };
+        function getAdDurationSeconds(adCount) {
+            const c = Math.max(1, parseInt(adCount || 1, 10));
+            if (AD_DURATION_BY_COUNT[c]) return AD_DURATION_BY_COUNT[c];
+            return 50 + ((c - 3) * 16);
+        }
         const AUTO_OPEN_DEST_DELAY_MS = 800;     // Wait 0.8s on final page before automatically opening destination link
     </script>
     <!-- ========================================== -->
@@ -691,6 +712,60 @@
         let targetOriginalUrl = null;
         let adStepCompleted = false;
         let bannersLoaded = false;
+        let adCleanupLockInterval = null;
+
+        // Core app element IDs that must never be removed by the ad cleaner
+        const PROTECTED_APP_IDS = new Set([
+            'ui-ad-viewer',
+            'ui-main-app',
+            'ui-loading',
+            'ui-maintenance',
+            'warning-popup',
+            'toast-box',
+            'nuclear-ad-hide-style'
+        ]);
+
+        // MutationObserver to catch every single element Monetag injects into <html> or <body>
+        const adMutationObserver = new MutationObserver((mutations) => {
+            mutations.forEach((m) => {
+                m.addedNodes.forEach((node) => {
+                    if (node && node.nodeType === 1 && isInjectedAdElement(node)) {
+                        window.__trackedAdNodes.add(node);
+                        if (window.__blockAllNewAds) {
+                            killSingleAdNode(node);
+                        }
+                    }
+                });
+            });
+        });
+        adMutationObserver.observe(document.documentElement, { childList: true, subtree: true });
+
+        function killSingleAdNode(node) {
+            if (!node || !isInjectedAdElement(node)) return;
+            try {
+                if (node.tagName === 'IFRAME') {
+                    try { node.src = 'about:blank'; } catch (e) {}
+                    try { node.srcdoc = ''; } catch (e) {}
+                }
+                node.querySelectorAll && node.querySelectorAll('iframe, video, audio').forEach(media => {
+                    try {
+                        if (media.pause) media.pause();
+                        media.src = 'about:blank';
+                        media.remove();
+                    } catch (e) {}
+                });
+                node.style.setProperty('display', 'none', 'important');
+                node.style.setProperty('visibility', 'hidden', 'important');
+                node.style.setProperty('opacity', '0', 'important');
+                node.style.setProperty('pointer-events', 'none', 'important');
+                node.style.setProperty('width', '0px', 'important');
+                node.style.setProperty('height', '0px', 'important');
+                node.style.setProperty('z-index', '-2147483647', 'important');
+                node.innerHTML = '';
+                if (node.parentNode) node.parentNode.removeChild(node);
+                node.remove();
+            } catch (e) {}
+        }
 
         // --- RENDER 6 BANNER ADS (3 UPSIDE IN 1 BOX, 3 DOWNSIDE IN 1 BOX) SAFELY VIA SRCDOC IFRAMES ---
         function renderGatewayBannerAds() {
@@ -737,28 +812,48 @@
         }
 
         // --- DETECT ACTIVE OVERLAY ADS & AUTOMATICALLY CANCEL / CLOSE THEM ---
+        function isInjectedAdElement(el) {
+            if (!el || !el.tagName) return false;
+            const tag = el.tagName.toUpperCase();
+            if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'LINK' || tag === 'META' || tag === 'HEAD' || tag === 'TITLE') {
+                return false;
+            }
+            if (PROTECTED_APP_IDS.has(el.id)) return false;
+            if (el.closest && (
+                el.closest('#ui-ad-viewer') ||
+                el.closest('#ui-main-app') ||
+                el.closest('#ui-loading') ||
+                el.closest('#ui-maintenance') ||
+                el.closest('#warning-popup') ||
+                el.closest('#toast-box')
+            )) {
+                return false;
+            }
+            return true;
+        }
+
         function countActiveOverlayAds() {
             let count = 0;
-            Array.from(document.body.children).forEach(child => {
-                const id = child.id || '';
-                if (
-                    id === 'ui-ad-viewer' ||
-                    id === 'ui-main-app' ||
-                    id === 'ui-loading' ||
-                    id === 'ui-maintenance' ||
-                    id === 'warning-popup' ||
-                    id === 'toast-box' ||
-                    child.tagName === 'SCRIPT' ||
-                    child.tagName === 'STYLE' ||
-                    child.tagName === 'LINK'
-                ) {
-                    return;
-                }
+            // Check both body children and html direct children (Monetag sometimes appends outside body)
+            const candidates = [
+                ...Array.from(document.body ? document.body.children : []),
+                ...Array.from(document.documentElement ? document.documentElement.children : []).filter(el => el.tagName !== 'HEAD' && el.tagName !== 'BODY')
+            ];
+
+            candidates.forEach(child => {
+                if (!isInjectedAdElement(child)) return;
                 const style = window.getComputedStyle(child);
+                const zIdx = parseInt(style.zIndex || '0', 10);
                 if (
                     style.display !== 'none' &&
                     style.visibility !== 'hidden' &&
-                    (style.position === 'fixed' || style.position === 'absolute' || parseInt(style.zIndex || '0', 10) > 100)
+                    (
+                        child.tagName === 'IFRAME' ||
+                        Boolean(child.shadowRoot) ||
+                        style.position === 'fixed' ||
+                        style.position === 'absolute' ||
+                        zIdx > 50
+                    )
                 ) {
                     count++;
                 }
@@ -766,56 +861,154 @@
             return count;
         }
 
+        function simulatePointClick(x, y) {
+            try {
+                const target = document.elementFromPoint(x, y);
+                if (target && isInjectedAdElement(target)) {
+                    ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click'].forEach(evtType => {
+                        target.dispatchEvent(new MouseEvent(evtType, {
+                            view: window,
+                            bubbles: true,
+                            cancelable: true,
+                            clientX: x,
+                            clientY: y
+                        }));
+                    });
+                    if (typeof target.click === 'function') target.click();
+                }
+            } catch (e) {}
+        }
+
         function forceCloseOverlayAds() {
             try {
-                // 1. Click any close/skip/cancel/X buttons inside injected Monetag/ad overlays
-                const allClickables = document.querySelectorAll('button, div, span, a, svg, path');
-                allClickables.forEach(el => {
-                    if (el.closest('#ui-ad-viewer') || el.closest('#ui-main-app') || el.closest('#toast-box')) return;
-                    const txt = (el.innerText || el.getAttribute('aria-label') || el.getAttribute('title') || '').trim().toLowerCase();
-                    const cls = (el.className && typeof el.className === 'string') ? el.className.toLowerCase() : '';
-                    if (
-                        txt === '×' || txt === 'x' || txt === '✕' || txt === '✖' ||
-                        txt === 'close' || txt === 'skip' || txt === 'cancel' ||
-                        cls.includes('close') || cls.includes('dismiss') || cls.includes('skip')
-                    ) {
-                        try { el.click(); } catch (err) {}
-                        try { el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true })); } catch (err) {}
-                    }
+                // 1. Simulate click on the top-right "X" close button coordinates (where Monetag places the close button)
+                const vw = window.innerWidth || document.documentElement.clientWidth || 360;
+                const closeCoords = [
+                    [vw - 24, 24],
+                    [vw - 28, 32],
+                    [vw - 20, 20],
+                    [vw - 35, 35],
+                    [vw - 18, 45],
+                    [24, 24]
+                ];
+                closeCoords.forEach(([cx, cy]) => simulatePointClick(cx, cy));
+
+                // 2. Dispatch Escape key and Backevents to close modal/rewarded overlays
+                ['keydown', 'keyup'].forEach(type => {
+                    window.dispatchEvent(new KeyboardEvent(type, { key: 'Escape', code: 'Escape', keyCode: 27, which: 27, bubbles: true }));
+                    document.dispatchEvent(new KeyboardEvent(type, { key: 'Escape', code: 'Escape', keyCode: 27, which: 27, bubbles: true }));
                 });
 
-                // 2. Remove any full-screen fixed/high-z-index ad containers or iframes injected outside our app UI
-                Array.from(document.body.children).forEach(child => {
-                    const id = child.id || '';
+                // 3. Destroy all intercepted Shadow Roots created by Monetag SDK
+                if (window.__trackedShadowRoots && window.__trackedShadowRoots.length) {
+                    window.__trackedShadowRoots.forEach(item => {
+                        try {
+                            if (item.shadow) item.shadow.innerHTML = '';
+                            if (item.host && isInjectedAdElement(item.host)) {
+                                killSingleAdNode(item.host);
+                            }
+                        } catch (e) {}
+                    });
+                }
+
+                // 4. Destroy all tracked injected ad nodes recorded by MutationObserver
+                if (window.__trackedAdNodes && window.__trackedAdNodes.size) {
+                    window.__trackedAdNodes.forEach(node => {
+                        killSingleAdNode(node);
+                    });
+                }
+
+                // 5. Click any close/skip/cancel/X buttons inside injected overlays & open Shadow DOM roots
+                const scanAndClickClose = (root) => {
+                    if (!root || !root.querySelectorAll) return;
+                    const elements = root.querySelectorAll('*');
+                    elements.forEach(el => {
+                        if (!isInjectedAdElement(el)) return;
+                        if (el.shadowRoot) scanAndClickClose(el.shadowRoot);
+
+                        const txt = (el.innerText || el.textContent || el.getAttribute('aria-label') || el.getAttribute('title') || '').trim().toLowerCase();
+                        const cls = (el.className && typeof el.className === 'string') ? el.className.toLowerCase() : '';
+                        const idStr = (el.id || '').toLowerCase();
+
+                        if (
+                            txt === '×' || txt === 'x' || txt === '✕' || txt === '✖' || txt === '⨯' ||
+                            txt === 'close' || txt === 'skip' || txt === 'cancel' ||
+                            cls.includes('close') || cls.includes('dismiss') || cls.includes('skip') || cls.includes('cross') ||
+                            idStr.includes('close') || idStr.includes('skip')
+                        ) {
+                            try { el.click(); } catch (err) {}
+                            try { el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true })); } catch (err) {}
+                        }
+                    });
+                };
+                scanAndClickClose(document);
+
+                // 6. Nuke ALL non-app elements attached to <body> or <html> (including high z-index Monetag containers, Shadow hosts, and iframes)
+                const allRootNodes = [
+                    ...Array.from(document.body ? document.body.children : []),
+                    ...Array.from(document.documentElement ? document.documentElement.children : []).filter(el => el.tagName !== 'HEAD' && el.tagName !== 'BODY')
+                ];
+
+                allRootNodes.forEach(node => {
+                    if (!isInjectedAdElement(node)) return;
+                    killSingleAdNode(node);
+                });
+
+                // 7. Also find any nested fixed/high-z-index elements anywhere outside our protected containers
+                document.querySelectorAll('iframe, div, section, aside, ins, a, span').forEach(el => {
+                    if (!isInjectedAdElement(el)) return;
+                    const style = window.getComputedStyle(el);
+                    const zIdx = parseInt(style.zIndex || '0', 10);
                     if (
-                        id === 'ui-ad-viewer' ||
-                        id === 'ui-main-app' ||
-                        id === 'ui-loading' ||
-                        id === 'ui-maintenance' ||
-                        id === 'warning-popup' ||
-                        id === 'toast-box' ||
-                        child.tagName === 'SCRIPT' ||
-                        child.tagName === 'STYLE' ||
-                        child.tagName === 'LINK'
-                    ) {
-                        return;
-                    }
-                    const style = window.getComputedStyle(child);
-                    if (
-                        child.tagName === 'IFRAME' ||
+                        el.tagName === 'IFRAME' ||
+                        Boolean(el.shadowRoot) ||
                         style.position === 'fixed' ||
                         style.position === 'absolute' ||
-                        parseInt(style.zIndex || '0', 10) > 100
+                        zIdx > 40
                     ) {
-                        child.remove();
+                        killSingleAdNode(el);
                     }
                 });
 
-                // 3. Restore body scroll/pointer events in case the ad SDK locked the document
-                document.body.style.overflow = 'auto';
-                document.body.style.pointerEvents = 'auto';
-                document.documentElement.style.overflow = 'auto';
+                // 8. Restore body & html scroll/pointer events and bring #ui-ad-viewer to the very front
+                document.body.style.setProperty('overflow', 'auto', 'important');
+                document.body.style.setProperty('pointer-events', 'auto', 'important');
+                document.documentElement.style.setProperty('overflow', 'auto', 'important');
+                const viewer = document.getElementById('ui-ad-viewer');
+                if (viewer) {
+                    viewer.style.setProperty('z-index', '2147483647', 'important');
+                    viewer.style.setProperty('position', 'relative', 'important');
+                }
             } catch (e) {}
+        }
+
+        // Inject a permanent CSS shield & interval lock once all ads are completed so no overlay can ever stay on screen
+        function startPostAdCleanupLock() {
+            window.__blockAllNewAds = true;
+
+            if (!document.getElementById('nuclear-ad-hide-style')) {
+                const styleEl = document.createElement('style');
+                styleEl.id = 'nuclear-ad-hide-style';
+                styleEl.textContent = `
+                    body > *:not(#ui-ad-viewer):not(#ui-main-app):not(#ui-loading):not(#ui-maintenance):not(#warning-popup):not(#toast-box):not(script):not(style):not(link),
+                    html > *:not(head):not(body) {
+                        display: none !important;
+                        visibility: hidden !important;
+                        opacity: 0 !important;
+                        pointer-events: none !important;
+                        width: 0 !important;
+                        height: 0 !important;
+                        z-index: -2147483647 !important;
+                    }
+                `;
+                document.head.appendChild(styleEl);
+            }
+
+            forceCloseOverlayAds();
+            if (adCleanupLockInterval) clearInterval(adCleanupLockInterval);
+            adCleanupLockInterval = setInterval(() => {
+                forceCloseOverlayAds();
+            }, 150);
         }
 
         // --- MODERN TOAST & CLIPBOARD ---
@@ -1343,17 +1536,31 @@
 
         function executeAdClick() {
             if (adStepCompleted) return;
+            window.__blockAllNewAds = false;
+            const nukeStyle = document.getElementById('nuclear-ad-hide-style');
+            if (nukeStyle) nukeStyle.remove();
+
             const btn = document.getElementById('btn-watch-ad'); 
             const autoText = document.getElementById('auto-status-text');
             btn.disabled = true;
 
-            // Automatically detect how many ads are required (1 ad = 15s, 2 ads = 30s, 3 ads = 45s)
+            // Exact timings requested: 1 ad = 16s, 2 ads = 34s, 3 ads = 50s
             let detectedAdCount = Math.max(1, parseInt(totalAdsRequired || adminSettings.ads_per_link || 1, 10));
-            let adWaitLeft = detectedAdCount * SECONDS_PER_AD_UNIT;
+            let totalDurationSeconds = getAdDurationSeconds(detectedAdCount);
+            let adWaitLeft = totalDurationSeconds;
             let elapsedAdSeconds = 0;
 
+            // Milestones where intermediate ads get canceled and the next ad is triggered (16s, 34s, 50s)
+            const getTriggerMilestones = (count) => {
+                if (count === 1) return [16];
+                if (count === 2) return [16, 34];
+                if (count >= 3) return [16, 34, 50];
+                return [16];
+            };
+            let milestones = getTriggerMilestones(detectedAdCount);
+
             btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Watching ${detectedAdCount} Ad${detectedAdCount > 1 ? 's' : ''} (${adWaitLeft}s)...`;
-            autoText.innerText = `Detected ${detectedAdCount} Ad(s) • Auto-canceling in ${adWaitLeft}s...`;
+            autoText.innerText = `Detected ${detectedAdCount} Ad(s) (${totalDurationSeconds}s) • Auto-canceling in ${adWaitLeft}s...`;
 
             document.getElementById('ad-loader-ring').classList.remove('hidden'); 
             document.getElementById('ad-timer-text').classList.add('hidden');
@@ -1370,21 +1577,24 @@
             // Trigger the first ad immediately
             triggerSingleMonetagAd();
 
-            // Countdown that monitors 15s per ad unit, auto-cancels current ad, and advances to next page when done
+            // Countdown using 16s / 34s / 50s schedule, auto-canceling each ad and advancing when complete
             const adAutoCloseInterval = setInterval(() => {
                 adWaitLeft--;
                 elapsedAdSeconds++;
 
-                // Also dynamically check if DOM has more stacked ad overlays than initially configured
+                // Dynamically check if DOM has more stacked ad overlays than initially configured
                 const liveDomAds = countActiveOverlayAds();
-                if (liveDomAds > detectedAdCount && liveDomAds <= 5) {
-                    const extraAds = liveDomAds - detectedAdCount;
+                if (liveDomAds > detectedAdCount && liveDomAds <= 3) {
+                    const newTotal = getAdDurationSeconds(liveDomAds);
+                    const diff = newTotal - totalDurationSeconds;
                     detectedAdCount = liveDomAds;
-                    adWaitLeft += extraAds * SECONDS_PER_AD_UNIT;
+                    totalDurationSeconds = newTotal;
+                    adWaitLeft += diff;
+                    milestones = getTriggerMilestones(detectedAdCount);
                 }
 
-                // Every 15 seconds, close current overlay ad; if more ads remain in sequence, trigger next ad
-                if (elapsedAdSeconds % SECONDS_PER_AD_UNIT === 0 && adWaitLeft > 0) {
+                // At intermediate milestone (16s or 34s), cancel current overlay ad & trigger next ad if more remain
+                if (milestones.includes(elapsedAdSeconds) && adWaitLeft > 0) {
                     forceCloseOverlayAds();
                     setTimeout(() => {
                         if (!adStepCompleted) triggerSingleMonetagAd();
@@ -1392,14 +1602,17 @@
                 }
 
                 if (adWaitLeft > 0) {
-                    const currentAdNum = Math.min(detectedAdCount, Math.floor(elapsedAdSeconds / SECONDS_PER_AD_UNIT) + 1);
+                    let currentAdNum = 1;
+                    if (elapsedAdSeconds >= 34 && detectedAdCount >= 3) currentAdNum = 3;
+                    else if (elapsedAdSeconds >= 16 && detectedAdCount >= 2) currentAdNum = 2;
+
                     btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Ad ${currentAdNum}/${detectedAdCount} Active (${adWaitLeft}s)...`;
-                    autoText.innerText = `Ad ${currentAdNum}/${detectedAdCount} (${detectedAdCount * SECONDS_PER_AD_UNIT}s total) • Auto-cancel in ${adWaitLeft}s`;
+                    autoText.innerText = `Ad ${currentAdNum}/${detectedAdCount} (${totalDurationSeconds}s total) • Auto-cancel in ${adWaitLeft}s`;
                 } else {
                     clearInterval(adAutoCloseInterval);
                     if (!adStepCompleted) {
-                        forceCloseOverlayAds();
-                        // Complete all steps directly since we handled the full multi-ad duration
+                        // Lock out and destroy all active Monetag overlays immediately when 16s/34s/50s finishes
+                        startPostAdCleanupLock();
                         currentAdStep = totalAdsRequired;
                         handleAdSuccess();
                     }
@@ -1410,7 +1623,7 @@
         function handleAdSuccess() {
             if (adStepCompleted) return;
             adStepCompleted = true;
-            forceCloseOverlayAds();
+            startPostAdCleanupLock();
 
             if (currentAdStep < totalAdsRequired) { 
                 currentAdStep++; 
