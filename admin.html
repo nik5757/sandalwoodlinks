@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sandalwood Links - Pro Admin Control Center</title>
+    <title>Sandalwood Links - Owner Admin Control Center</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -44,16 +44,16 @@
         </div>
     </div>
 
-    <!-- DOUBLE CONFIRMATION MODAL FOR ADMIN DELETE ALL LINKS (ASK 1 -> ASK 2) -->
+    <!-- OWNER DOUBLE CONFIRMATION MODAL FOR DELETING ALL LINKS (CREATOR OR GLOBAL) -->
     <div id="admin-del-all-modal" class="fixed inset-0 z-[90] bg-black/85 backdrop-blur-md flex items-center justify-center hidden p-5">
         <div class="glass-panel p-6 max-w-sm w-full border border-rose-500/40 text-center">
             <div class="w-16 h-16 bg-rose-500/15 rounded-2xl mx-auto flex items-center justify-center mb-4 border border-rose-500/30">
                 <i class="fa-solid fa-triangle-exclamation text-2xl text-rose-400"></i>
             </div>
-            <span id="admin-del-step-badge" class="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">Confirmation 1 of 2</span>
-            <h3 id="admin-del-title" class="text-lg font-extrabold text-white mt-2 mb-1.5">Delete All Platform Links?</h3>
+            <span id="admin-del-step-badge" class="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">Owner Confirmation 1 of 2</span>
+            <h3 id="admin-del-title" class="text-lg font-extrabold text-white mt-2 mb-1.5">Delete Links Permanently?</h3>
             <p id="admin-del-desc" class="text-xs text-slate-300 leading-relaxed mb-5">
-                First Check: Are you sure you want to permanently delete ALL shortened links across the platform?
+                First Check: Are you sure you want to permanently delete these shortened links?
             </p>
             <div class="grid grid-cols-2 gap-3">
                 <button onclick="closeAdminDeleteAllModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3 rounded-xl text-xs transition">Cancel</button>
@@ -66,12 +66,12 @@
     <div id="login-screen" class="absolute inset-0 z-50 bg-[#03060f] flex items-center justify-center p-4">
         <div class="glass-panel p-8 max-w-sm w-full text-center border border-indigo-500/30">
             <div class="w-16 h-16 mx-auto btn-primary rounded-2xl flex items-center justify-center mb-5 shadow-xl">
-                <i class="fa-solid fa-shield-halved text-2xl text-white"></i>
+                <i class="fa-solid fa-crown text-2xl text-white"></i>
             </div>
-            <h2 class="text-2xl font-extrabold mb-1">Admin Control</h2>
+            <h2 class="text-2xl font-extrabold mb-1">Owner Control</h2>
             <p class="text-xs text-slate-400 mb-6">Sandalwood Links Infrastructure v3.0</p>
-            <input type="password" id="admin-password" onkeydown="if(event.key==='Enter') document.getElementById('btn-login').click()" placeholder="Enter Admin Password" class="w-full bg-slate-950 border border-slate-800 text-white px-4 py-3.5 rounded-xl mb-4 focus:outline-none focus:border-indigo-500 text-center tracking-widest text-sm">
-            <button id="btn-login" class="w-full btn-primary hover:opacity-95 text-white font-extrabold py-3.5 rounded-xl transition-all text-sm">Unlock Dashboard</button>
+            <input type="password" id="admin-password" onkeydown="if(event.key==='Enter') document.getElementById('btn-login').click()" placeholder="Enter Owner Password" class="w-full bg-slate-950 border border-slate-800 text-white px-4 py-3.5 rounded-xl mb-4 focus:outline-none focus:border-indigo-500 text-center tracking-widest text-sm">
+            <button id="btn-login" class="w-full btn-primary hover:opacity-95 text-white font-extrabold py-3.5 rounded-xl transition-all text-sm">Unlock Owner Panel</button>
         </div>
     </div>
 
@@ -81,11 +81,11 @@
         <aside class="w-64 bg-slate-950/90 border-r border-slate-800/80 p-4 hidden md:flex flex-col">
             <div class="flex items-center space-x-3 px-2 mb-8 mt-1">
                 <div class="w-9 h-9 rounded-xl btn-primary flex items-center justify-center">
-                    <i class="fa-solid fa-bolt text-white"></i>
+                    <i class="fa-solid fa-crown text-white text-sm"></i>
                 </div>
                 <div>
                     <h1 class="text-sm font-extrabold text-white leading-none">Sandalwood</h1>
-                    <span class="text-[10px] text-indigo-400 font-bold uppercase">Admin Pro v3</span>
+                    <span class="text-[10px] text-emerald-400 font-bold uppercase">Owner Panel v3</span>
                 </div>
             </div>
 
@@ -94,7 +94,7 @@
                     <i class="fa-solid fa-chart-pie mr-3 w-5 text-center"></i> Overview & Stats
                 </button>
                 <button class="nav-btn w-full text-left p-3 rounded-xl hover:bg-slate-900 text-slate-400 transition flex items-center" onclick="switchTab('users', this)">
-                    <i class="fa-solid fa-users mr-3 w-5 text-center"></i> Creators & API Keys
+                    <i class="fa-solid fa-users mr-3 w-5 text-center"></i> Creators & Users
                 </button>
                 <button class="nav-btn w-full text-left p-3 rounded-xl hover:bg-slate-900 text-slate-400 transition flex items-center" onclick="switchTab('links', this)">
                     <i class="fa-solid fa-link mr-3 w-5 text-center"></i> Links Manager
@@ -119,13 +119,13 @@
         <div class="md:hidden flex flex-col w-full h-full">
             <header class="flex flex-col bg-slate-950 p-3 border-b border-slate-800 space-y-2.5">
                 <div class="flex justify-between items-center">
-                    <span class="font-extrabold text-sm text-white"><i class="fa-solid fa-bolt text-indigo-400 mr-1.5"></i>Sandalwood Admin</span>
+                    <span class="font-extrabold text-sm text-white"><i class="fa-solid fa-crown text-indigo-400 mr-1.5"></i>Sandalwood Owner</span>
                     <button onclick="location.reload()" class="text-xs text-rose-400 font-bold"><i class="fa-solid fa-power-off mr-1"></i>Lock</button>
                 </div>
                 <div class="flex space-x-1.5 text-xs font-bold overflow-x-auto whitespace-nowrap pb-1">
                     <button class="nav-btn bg-indigo-600 px-3 py-1.5 rounded-lg text-white" onclick="switchTab('dashboard', this)">Overview</button>
-                    <button class="nav-btn text-slate-400 px-3 py-1.5 rounded-lg" onclick="switchTab('users', this)">Users</button>
-                    <button class="nav-btn text-slate-400 px-3 py-1.5 rounded-lg" onclick="switchTab('links', this)">Links</button>
+                    <button class="nav-btn text-slate-400 px-3 py-1.5 rounded-lg" onclick="switchTab('users', this)">Creators/Users</button>
+                    <button class="nav-btn text-slate-400 px-3 py-1.5 rounded-lg" onclick="switchTab('links', this)">Links Manager</button>
                     <button class="nav-btn text-slate-400 px-3 py-1.5 rounded-lg" onclick="switchTab('withdrawals', this)">Payouts</button>
                     <button class="nav-btn text-slate-400 px-3 py-1.5 rounded-lg" onclick="switchTab('settings', this)">1-20 CPM</button>
                     <button class="nav-btn text-slate-400 px-3 py-1.5 rounded-lg" onclick="switchTab('broadcast', this)">Broadcast</button>
@@ -146,8 +146,8 @@
     <template id="tpl-dashboard">
         <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
             <div>
-                <h2 class="text-2xl font-extrabold text-white">Platform Command Center</h2>
-                <p class="text-xs text-slate-400">Live metrics across creators, links, views, payouts & monthly growth</p>
+                <h2 class="text-2xl font-extrabold text-white">Owner Command Center</h2>
+                <p class="text-xs text-slate-400">Live metrics across creators, normal users, links, views & payouts</p>
             </div>
             <button onclick="loadDashboard()" class="bg-slate-800 hover:bg-slate-700 text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-700 transition">
                 <i class="fa-solid fa-rotate mr-1.5 text-indigo-400"></i> Refresh Live Data
@@ -156,7 +156,7 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div class="glass-panel p-5 border-l-4 border-l-indigo-500 flex justify-between items-center">
-                <div><div class="text-slate-400 text-[11px] font-bold uppercase mb-1">Total Creators</div><div class="text-2xl font-extrabold text-white font-mono-code" id="stat-total-users">0</div></div>
+                <div><div class="text-slate-400 text-[11px] font-bold uppercase mb-1">Total Registered</div><div class="text-2xl font-extrabold text-white font-mono-code" id="stat-total-users">0</div></div>
                 <div class="bg-indigo-500/15 p-3 rounded-xl"><i class="fa-solid fa-users text-indigo-400 text-lg"></i></div>
             </div>
             <div class="glass-panel p-5 border-l-4 border-l-emerald-500 flex justify-between items-center">
@@ -189,7 +189,6 @@
             </div>
         </div>
 
-        <!-- PLATFORM MONTHLY & DAILY TRAFFIC REPORT -->
         <div class="glass-panel p-6">
             <div class="flex flex-wrap justify-between items-center gap-3 mb-4 pb-3 border-b border-slate-800">
                 <div>
@@ -203,64 +202,113 @@
         </div>
     </template>
 
-    <!-- TAB 2: USERS & PERMANENT API KEYS -->
+    <!-- TAB 2: CREATORS & USERS (2 OPTIONS: CREATORS vs NORMAL USERS) -->
     <template id="tpl-users">
-        <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
+        <div class="flex flex-wrap justify-between items-center gap-4 mb-5">
             <div>
-                <h2 class="text-2xl font-extrabold text-white">Creator Accounts & Permanent API Keys</h2>
-                <p class="text-xs text-slate-400">Manage balances, inspect locked API tokens, or suspend accounts</p>
+                <h2 class="text-2xl font-extrabold text-white">Creators & Users Directory</h2>
+                <p class="text-xs text-slate-400">Separate view for Creators (converted ≥ 1 link) and Normal Users (link openers)</p>
             </div>
-            <input type="text" id="admin-user-search" oninput="filterAdminUsers()" placeholder="Search name, TG ID or API key..." class="bg-slate-900 border border-slate-700 text-white rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-indigo-500 w-full sm:w-72">
+            <input type="text" id="admin-user-search" oninput="filterAdminUsers()" placeholder="Search name, @username, TG ID or API..." class="bg-slate-900 border border-slate-700 text-white rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-indigo-500 w-full sm:w-72">
         </div>
+
+        <!-- 2 OPTIONS TOGGLE: CREATORS vs USERS -->
+        <div class="grid grid-cols-2 gap-3 mb-5 max-w-lg">
+            <button id="btn-role-creators" onclick="setAdminUserRoleTab('creators')" class="p-3.5 rounded-2xl border border-indigo-500/50 bg-indigo-600/20 text-white text-left transition flex items-center justify-between">
+                <div>
+                    <div class="text-xs font-extrabold flex items-center"><i class="fa-solid fa-wand-magic-sparkles text-indigo-400 mr-2"></i>Creators</div>
+                    <div class="text-[10px] text-slate-300 mt-0.5">Converted ≥ 1 Link (API Unlocked)</div>
+                </div>
+                <span id="badge-count-creators" class="bg-indigo-500 text-white font-mono-code text-xs font-extrabold px-2.5 py-1 rounded-xl">0</span>
+            </button>
+
+            <button id="btn-role-users" onclick="setAdminUserRoleTab('users')" class="p-3.5 rounded-2xl border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-white text-left transition flex items-center justify-between">
+                <div>
+                    <div class="text-xs font-extrabold flex items-center"><i class="fa-solid fa-user text-emerald-400 mr-2"></i>Users</div>
+                    <div class="text-[10px] text-slate-400 mt-0.5">Link Openers (0 Links Converted)</div>
+                </div>
+                <span id="badge-count-users" class="bg-slate-800 text-slate-300 font-mono-code text-xs font-extrabold px-2.5 py-1 rounded-xl">0</span>
+            </button>
+        </div>
+
         <div class="glass-panel overflow-x-auto">
             <table class="w-full text-left text-xs whitespace-nowrap">
                 <thead class="bg-slate-950/90 text-slate-400 border-b border-slate-800 uppercase">
                     <tr>
-                        <th class="p-4">TG ID & Creator</th>
+                        <th class="p-4">TG ID & Name</th>
+                        <th class="p-4">Links Converted</th>
                         <th class="p-4">Permanent API Key</th>
-                        <th class="p-4">Views</th>
+                        <th class="p-4">Total Views</th>
                         <th class="p-4">Wallet Balance</th>
                         <th class="p-4">Status</th>
-                        <th class="p-4 text-right">Actions</th>
+                        <th class="p-4 text-right">Owner Actions</th>
                     </tr>
                 </thead>
                 <tbody id="admin-users-list" class="divide-y divide-slate-800/80">
-                    <tr><td colspan="6" class="p-8 text-center text-slate-400"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Loading users...</td></tr>
+                    <tr><td colspan="7" class="p-8 text-center text-slate-400"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Loading directory...</td></tr>
                 </tbody>
             </table>
         </div>
     </template>
 
-    <!-- TAB 3: GLOBAL LINKS MANAGER (WITH PERMANENT DELETE & DOUBLE CONFIRM DELETE ALL) -->
+    <!-- TAB 3: LINKS MANAGER (GROUPED BY CREATOR NAME -> CLICK CREATOR TO VIEW & DELETE LINKS) -->
     <template id="tpl-links">
-        <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
-            <div>
-                <h2 class="text-2xl font-extrabold text-white">Global Links Manager</h2>
-                <p class="text-xs text-slate-400">Inspect, search, or permanently delete shortened links</p>
+        <!-- VIEW A: CREATORS LIST IN LINKS MANAGER -->
+        <div id="links-manager-creators-view">
+            <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-white">Links Manager — Select Creator</h2>
+                    <p class="text-xs text-slate-400">Click on any Creator's name below to inspect or permanently delete their shortened links</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <input type="text" id="admin-creator-link-search" oninput="renderLinksManagerCreators()" placeholder="Search creator name or TG ID..." class="bg-slate-900 border border-slate-700 text-white rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-indigo-500 w-64">
+                    <button onclick="openOwnerDeleteModal('global')" class="btn-danger text-white font-extrabold px-4 py-2.5 rounded-xl text-xs transition flex items-center">
+                        <i class="fa-solid fa-trash-can mr-1.5"></i> Delete All Platform Links
+                    </button>
+                </div>
             </div>
-            <div class="flex flex-wrap items-center gap-2.5">
-                <input type="text" id="admin-link-search" oninput="filterAdminLinks()" placeholder="Search short code or URL..." class="bg-slate-900 border border-slate-700 text-white rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-indigo-500 w-60">
-                <button onclick="openAdminDeleteAllModal()" class="btn-danger text-white font-extrabold px-4 py-2.5 rounded-xl text-xs transition flex items-center">
-                    <i class="fa-solid fa-trash-can mr-1.5"></i> Delete All Platform Links
-                </button>
+
+            <div id="links-creators-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="col-span-full text-center p-10 text-slate-400 text-xs"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Loading creators...</div>
             </div>
         </div>
-        <div class="glass-panel overflow-x-auto">
-            <table class="w-full text-left text-xs whitespace-nowrap">
-                <thead class="bg-slate-950/90 text-slate-400 border-b border-slate-800 uppercase">
-                    <tr>
-                        <th class="p-4">Short ID</th>
-                        <th class="p-4">Destination URL</th>
-                        <th class="p-4">Views</th>
-                        <th class="p-4">Earnings</th>
-                        <th class="p-4">Created</th>
-                        <th class="p-4 text-right">Permanent Delete</th>
-                    </tr>
-                </thead>
-                <tbody id="admin-links-list" class="divide-y divide-slate-800/80">
-                    <tr><td colspan="6" class="p-8 text-center text-slate-400"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Loading links...</td></tr>
-                </tbody>
-            </table>
+
+        <!-- VIEW B: SELECTED CREATOR'S LINKS TABLE -->
+        <div id="links-manager-detail-view" class="hidden">
+            <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
+                <div class="flex items-center space-x-3">
+                    <button onclick="backToLinksCreatorsList()" class="bg-slate-800 hover:bg-slate-700 text-white px-3.5 py-2.5 rounded-xl text-xs font-extrabold border border-slate-700 transition flex items-center">
+                        <i class="fa-solid fa-arrow-left mr-1.5"></i> Back to Creators
+                    </button>
+                    <div>
+                        <h2 id="selected-creator-title" class="text-xl font-extrabold text-white">Creator's Links</h2>
+                        <p id="selected-creator-subtitle" class="text-xs text-indigo-400 font-mono-code">TG ID: ...</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <input type="text" id="admin-link-search" oninput="filterSelectedCreatorLinks()" placeholder="Search short code or URL..." class="bg-slate-900 border border-slate-700 text-white rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-indigo-500 w-60">
+                    <button onclick="openOwnerDeleteModal('creator')" class="btn-danger text-white font-extrabold px-4 py-2.5 rounded-xl text-xs transition flex items-center">
+                        <i class="fa-solid fa-trash-can mr-1.5"></i> Delete All Links of This Creator
+                    </button>
+                </div>
+            </div>
+
+            <div class="glass-panel overflow-x-auto">
+                <table class="w-full text-left text-xs whitespace-nowrap">
+                    <thead class="bg-slate-950/90 text-slate-400 border-b border-slate-800 uppercase">
+                        <tr>
+                            <th class="p-4">Short ID</th>
+                            <th class="p-4">Destination URL</th>
+                            <th class="p-4">Views</th>
+                            <th class="p-4">Earnings</th>
+                            <th class="p-4">Created</th>
+                            <th class="p-4 text-right">Owner Permanent Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-links-list" class="divide-y divide-slate-800/80">
+                    </tbody>
+                </table>
+            </div>
         </div>
     </template>
 
@@ -310,7 +358,6 @@
         </div>
 
         <div class="glass-panel p-6 md:p-8 max-w-4xl space-y-6">
-            <!-- 1 TO 20 ADS = 1 TO 20 CPM SYNCHRONIZED BOX -->
             <div class="bg-gradient-to-r from-indigo-950/60 via-slate-900 to-emerald-950/50 border border-emerald-500/30 rounded-2xl p-5">
                 <div class="flex flex-wrap justify-between items-center gap-4 mb-4">
                     <div>
@@ -432,10 +479,30 @@
 
         let dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let settingsId = null;
+
         let allAdminUsers = [];
         let allAdminLinks = [];
+        let userLinksCountMap = {}; // user_id -> number of links converted
+        let currentAdminUserRoleTab = 'creators'; // 'creators' (>=1 link) | 'users' (0 links)
+
+        // Links Manager State
+        let selectedCreatorForLinks = null; // user object when viewing a creator's links
         let pendingAdminLinkDeleteId = null;
         let adminDeleteAllStep = 0;
+        let adminDeleteMode = 'global'; // 'global' | 'creator'
+
+        function generatePermanentUserApiKey(telegramId, userId) {
+            const s = `sandalwood_perm_${telegramId || userId || 'creator'}_v3`;
+            let h1 = 0xdeadbeef ^ s.length, h2 = 0x41c6ce57 ^ s.length;
+            for (let i = 0, ch; i < s.length; i++) {
+                ch = s.charCodeAt(i);
+                h1 = Math.imul(h1 ^ ch, 2654435761);
+                h2 = Math.imul(h2 ^ ch, 1597334677);
+            }
+            h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+            h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+            return `sw_${telegramId || 'u'}_${(h2 >>> 0).toString(16).padStart(8, '0') + (h1 >>> 0).toString(16).padStart(8, '0')}`;
+        }
 
         function showAdminToast(msg, isError = false) {
             const box = document.getElementById('admin-toast');
@@ -456,7 +523,7 @@
                 document.getElementById('admin-dashboard').classList.remove('hidden');
                 switchTab('dashboard', document.querySelector('.nav-btn'));
             } else {
-                showAdminToast("Incorrect Admin Password!", true);
+                showAdminToast("Incorrect Owner Password!", true);
             }
         });
 
@@ -518,7 +585,6 @@
                 document.getElementById('stat-paid').innerText = `$${paid.toFixed(2)}`;
                 document.getElementById('stat-pending-amt').innerText = `$${pending.toFixed(2)}`;
 
-                // 6-Month Platform Traffic Report
                 const sixMonthsAgo = new Date(new Date().getFullYear(), new Date().getMonth() - 5, 1).toISOString();
                 const { data: clicksArchive } = await dbClient.from('click_logs').select('created_at').gte('created_at', sixMonthsAgo);
                 let monthCounts = {};
@@ -553,55 +619,113 @@
             } catch (e) {}
         }
 
-        // --- TAB 2: USERS & PERMANENT API KEYS ---
+        // --- TAB 2: CREATORS (CONVERTED >= 1 LINK) vs USERS (OPENERS / 0 LINKS) ---
         async function loadUsers() {
             const tbody = document.getElementById('admin-users-list');
             try {
-                const { data } = await dbClient.from('users').select('*').order('created_at', { ascending: false });
-                allAdminUsers = data || [];
-                renderAdminUsers(allAdminUsers);
+                const [{ data: usersData }, { data: linksData }] = await Promise.all([
+                    dbClient.from('users').select('*').order('created_at', { ascending: false }),
+                    dbClient.from('links').select('id, user_id')
+                ]);
+
+                allAdminUsers = usersData || [];
+                userLinksCountMap = {};
+                (linksData || []).forEach(l => {
+                    userLinksCountMap[l.user_id] = (userLinksCountMap[l.user_id] || 0) + 1;
+                });
+
+                // Ensure any Creator with >= 1 link has their permanent API key unlocked, and normal users with 0 links have no API key
+                for (const u of allAdminUsers) {
+                    const cnt = userLinksCountMap[u.id] || 0;
+                    if (cnt >= 1 && !u.api_key) {
+                        const newKey = generatePermanentUserApiKey(u.telegram_id, u.id);
+                        u.api_key = newKey;
+                        await dbClient.from('users').update({ api_key: newKey }).eq('id', u.id);
+                    }
+                }
+
+                updateRoleCountsUI();
+                filterAdminUsers();
             } catch (e) {}
         }
 
+        function updateRoleCountsUI() {
+            const creatorsCount = allAdminUsers.filter(u => (userLinksCountMap[u.id] || 0) >= 1).length;
+            const normalUsersCount = allAdminUsers.filter(u => (userLinksCountMap[u.id] || 0) === 0).length;
+            const cBadge = document.getElementById('badge-count-creators');
+            const uBadge = document.getElementById('badge-count-users');
+            if (cBadge) cBadge.innerText = creatorsCount;
+            if (uBadge) uBadge.innerText = normalUsersCount;
+        }
+
+        window.setAdminUserRoleTab = function(role) {
+            currentAdminUserRoleTab = role;
+            const btnC = document.getElementById('btn-role-creators');
+            const btnU = document.getElementById('btn-role-users');
+            if (role === 'creators') {
+                btnC.className = "p-3.5 rounded-2xl border border-indigo-500/50 bg-indigo-600/20 text-white text-left transition flex items-center justify-between";
+                btnU.className = "p-3.5 rounded-2xl border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-white text-left transition flex items-center justify-between";
+            } else {
+                btnU.className = "p-3.5 rounded-2xl border border-emerald-500/50 bg-emerald-600/20 text-white text-left transition flex items-center justify-between";
+                btnC.className = "p-3.5 rounded-2xl border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-white text-left transition flex items-center justify-between";
+            }
+            filterAdminUsers();
+        };
+
         window.filterAdminUsers = function() {
             const q = (document.getElementById('admin-user-search')?.value || '').toLowerCase();
-            const filtered = allAdminUsers.filter(u =>
+            const roleFiltered = allAdminUsers.filter(u => {
+                const linkCount = userLinksCountMap[u.id] || 0;
+                return currentAdminUserRoleTab === 'creators' ? linkCount >= 1 : linkCount === 0;
+            });
+
+            const searchFiltered = roleFiltered.filter(u =>
                 String(u.telegram_id || '').includes(q) ||
                 (u.first_name || '').toLowerCase().includes(q) ||
                 (u.username || '').toLowerCase().includes(q) ||
                 (u.api_key || '').toLowerCase().includes(q)
             );
-            renderAdminUsers(filtered);
+            renderAdminUsers(searchFiltered);
         };
 
         function renderAdminUsers(usersArr) {
             const tbody = document.getElementById('admin-users-list');
             if (!usersArr || usersArr.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-slate-500">No matching creators found.</td></tr>';
+                const emptyLabel = currentAdminUserRoleTab === 'creators'
+                    ? 'No Creators found (users who converted minimum 1 link).'
+                    : 'No Normal Users found (users with 0 converted links).';
+                tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-500">${emptyLabel}</td></tr>`;
                 return;
             }
             tbody.innerHTML = '';
             usersArr.forEach(u => {
+                const linkCnt = userLinksCountMap[u.id] || 0;
                 const statusBadge = u.is_blocked
                     ? '<span class="bg-rose-500/15 text-rose-400 border border-rose-500/30 px-2.5 py-0.5 rounded-md font-bold text-[10px]">SUSPENDED</span>'
                     : '<span class="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-md font-bold text-[10px]">ACTIVE</span>';
                 const blockBtn = u.is_blocked
                     ? `<button onclick="toggleBlock('${u.id}', false)" class="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 px-2.5 py-1.5 rounded-lg text-xs font-bold" title="Unblock"><i class="fa-solid fa-unlock"></i></button>`
                     : `<button onclick="toggleBlock('${u.id}', true)" class="bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 px-2.5 py-1.5 rounded-lg text-xs font-bold" title="Suspend"><i class="fa-solid fa-ban"></i></button>`;
-                const permKey = u.api_key || '🔒 Locked (0 Links Converted)';
+
+                const apiDisplay = linkCnt >= 1 && u.api_key
+                    ? `<div class="flex items-center space-x-2">
+                           <span class="font-mono-code text-[11px] text-amber-300 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800">${u.api_key}</span>
+                           <button onclick="copyAdminText('${u.api_key}')" class="text-slate-400 hover:text-white"><i class="fa-regular fa-copy"></i></button>
+                       </div>`
+                    : `<span class="text-[10px] text-slate-500 font-bold bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800"><i class="fa-solid fa-lock mr-1"></i>No API (Normal User)</span>`;
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-900/50">
                         <td class="p-4">
-                            <div class="font-bold text-white">${u.first_name || 'Creator'} ${u.username ? `<span class="text-slate-400 font-normal">@${u.username}</span>` : ''}</div>
+                            <div class="font-bold text-white">${u.first_name || 'User'} ${u.username ? `<span class="text-slate-400 font-normal">@${u.username}</span>` : ''}</div>
                             <div class="text-[10px] font-mono-code text-indigo-400">TG ID: ${u.telegram_id}</div>
                         </td>
                         <td class="p-4">
-                            <div class="flex items-center space-x-2">
-                                <span class="font-mono-code text-[11px] text-amber-300 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800">${permKey}</span>
-                                ${u.api_key ? `<button onclick="copyAdminText('${u.api_key}')" class="text-slate-400 hover:text-white"><i class="fa-regular fa-copy"></i></button>` : ''}
-                            </div>
+                            <span class="font-mono-code font-extrabold ${linkCnt >= 1 ? 'text-indigo-300 bg-indigo-500/15 border-indigo-500/30' : 'text-slate-500 bg-slate-900 border-slate-800'} border px-2.5 py-1 rounded-lg text-xs">
+                                ${linkCnt} ${linkCnt === 1 ? 'Link' : 'Links'}
+                            </span>
                         </td>
+                        <td class="p-4">${apiDisplay}</td>
                         <td class="p-4 font-mono-code font-bold text-slate-200">${u.total_clicks || 0}</td>
                         <td class="p-4">
                             <div class="flex items-center space-x-2">
@@ -611,12 +735,20 @@
                         </td>
                         <td class="p-4">${statusBadge}</td>
                         <td class="p-4 text-right space-x-1.5">
+                            ${linkCnt >= 1 ? `<button onclick="jumpToCreatorLinks('${u.id}')" class="bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 px-2.5 py-1.5 rounded-lg text-xs font-bold" title="View Creator Links"><i class="fa-solid fa-link mr-1"></i>Links</button>` : ''}
                             ${blockBtn}
-                            <button onclick="deleteUser('${u.id}')" class="bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 px-2.5 py-1.5 rounded-lg text-xs font-bold" title="Delete User"><i class="fa-solid fa-trash-can"></i></button>
+                            <button onclick="deleteUser('${u.id}')" class="bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 px-2.5 py-1.5 rounded-lg text-xs font-bold" title="Delete Permanently"><i class="fa-solid fa-trash-can"></i></button>
                         </td>
                     </tr>`;
             });
         }
+
+        window.jumpToCreatorLinks = async function(userId) {
+            const navBtn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick')?.includes("'links'"));
+            switchTab('links', navBtn);
+            await loadAdminLinks();
+            openCreatorLinksView(userId);
+        };
 
         window.editUserBalance = async function(userId, currentBal) {
             const input = prompt("Enter new wallet balance ($) for this user:", currentBal);
@@ -629,14 +761,14 @@
         };
 
         window.toggleBlock = async function(userId, blockStatus) {
-            if (!confirm(`Confirm ${blockStatus ? 'SUSPEND' : 'ACTIVATE'} this user account?`)) return;
+            if (!confirm(`Confirm ${blockStatus ? 'SUSPEND' : 'ACTIVATE'} this account?`)) return;
             await dbClient.from('users').update({ is_blocked: blockStatus }).eq('id', userId);
             showAdminToast(blockStatus ? "Account suspended" : "Account activated");
             loadUsers();
         };
 
         window.deleteUser = async function(userId) {
-            if (!confirm("WARNING: Permanently delete this user and all their links?")) return;
+            if (!confirm("WARNING: Permanently delete this account and all associated links?")) return;
             try {
                 const { data: uLinks } = await dbClient.from('links').select('id').eq('user_id', userId);
                 if (uLinks && uLinks.length > 0) {
@@ -645,35 +777,120 @@
                 }
                 const { error } = await dbClient.from('users').delete().eq('id', userId);
                 if (error) throw error;
-                showAdminToast("User permanently deleted!");
+                showAdminToast("Account permanently deleted!");
                 loadUsers();
             } catch (e) {
                 showAdminToast("Delete failed: " + e.message, true);
             }
         };
 
-        // --- TAB 3: GLOBAL LINKS MANAGER (PERMANENT DELETE + DOUBLE CONFIRM DELETE ALL) ---
+        // --- TAB 3: CREATOR-GROUPED LINKS MANAGER (SHOW CREATORS -> CLICK NAME -> VIEW & DELETE LINKS) ---
         async function loadAdminLinks() {
             try {
-                const { data } = await dbClient.from('links').select('*').order('created_at', { ascending: false }).limit(200);
-                allAdminLinks = data || [];
-                renderAdminLinks(allAdminLinks);
+                const [{ data: usersData }, { data: linksData }] = await Promise.all([
+                    dbClient.from('users').select('*').order('created_at', { ascending: false }),
+                    dbClient.from('links').select('*').order('created_at', { ascending: false })
+                ]);
+                allAdminUsers = usersData || [];
+                allAdminLinks = linksData || [];
+                renderLinksManagerCreators();
             } catch (e) {}
         }
 
-        window.filterAdminLinks = function() {
+        window.renderLinksManagerCreators = function() {
+            const grid = document.getElementById('links-creators-grid');
+            if (!grid) return;
+            const q = (document.getElementById('admin-creator-link-search')?.value || '').toLowerCase();
+
+            // Group links by user_id
+            const grouped = {};
+            allAdminLinks.forEach(l => {
+                if (!grouped[l.user_id]) grouped[l.user_id] = { count: 0, views: 0, earnings: 0 };
+                grouped[l.user_id].count += 1;
+                grouped[l.user_id].views += (l.clicks || 0);
+                grouped[l.user_id].earnings += parseFloat(l.earnings || 0);
+            });
+
+            // Filter only Creators who have >= 1 link
+            const creatorsWithLinks = allAdminUsers.filter(u => grouped[u.id] && grouped[u.id].count >= 1).filter(u =>
+                (u.first_name || '').toLowerCase().includes(q) ||
+                (u.username || '').toLowerCase().includes(q) ||
+                String(u.telegram_id || '').includes(q)
+            );
+
+            if (creatorsWithLinks.length === 0) {
+                grid.innerHTML = `<div class="col-span-full glass-panel p-10 text-center text-slate-500 text-xs">No creators with shortened links found.</div>`;
+                return;
+            }
+
+            grid.innerHTML = '';
+            creatorsWithLinks.forEach(u => {
+                const stats = grouped[u.id];
+                const initial = (u.first_name || 'C').charAt(0).toUpperCase();
+                grid.innerHTML += `
+                    <div onclick="openCreatorLinksView('${u.id}')" class="glass-panel p-5 border border-slate-800 hover:border-indigo-500/60 cursor-pointer transition group">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-3 truncate pr-2">
+                                <div class="w-11 h-11 rounded-2xl btn-primary flex items-center justify-center text-white font-extrabold text-base shrink-0 shadow-lg">
+                                    ${initial}
+                                </div>
+                                <div class="truncate">
+                                    <div class="font-extrabold text-sm text-white group-hover:text-indigo-300 transition truncate">
+                                        ${u.first_name || 'Creator'} ${u.username ? `<span class="text-xs text-slate-400 font-normal">@${u.username}</span>` : ''}
+                                    </div>
+                                    <div class="text-[10px] font-mono-code text-indigo-400">TG ID: ${u.telegram_id}</div>
+                                </div>
+                            </div>
+                            <span class="bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2.5 py-1 rounded-xl text-xs font-extrabold font-mono-code shrink-0">
+                                ${stats.count} ${stats.count === 1 ? 'Link' : 'Links'} <i class="fa-solid fa-chevron-right ml-1 text-[10px]"></i>
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 pt-3 border-t border-slate-800/80 text-xs">
+                            <div>
+                                <span class="text-slate-400 text-[10px] block uppercase font-bold">Total Views</span>
+                                <span class="font-mono-code font-extrabold text-white">${stats.views}</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-slate-400 text-[10px] block uppercase font-bold">Link Earnings</span>
+                                <span class="font-mono-code font-extrabold text-emerald-400">$${stats.earnings.toFixed(4)}</span>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+        };
+
+        window.openCreatorLinksView = function(userId) {
+            selectedCreatorForLinks = allAdminUsers.find(u => String(u.id) === String(userId)) || { id: userId, first_name: 'Creator', telegram_id: '...' };
+            document.getElementById('links-manager-creators-view').classList.add('hidden');
+            document.getElementById('links-manager-detail-view').classList.remove('hidden');
+
+            document.getElementById('selected-creator-title').innerText = `${selectedCreatorForLinks.first_name || 'Creator'}'s Shortened Links`;
+            document.getElementById('selected-creator-subtitle').innerText = `TG ID: ${selectedCreatorForLinks.telegram_id} ${selectedCreatorForLinks.username ? '• @' + selectedCreatorForLinks.username : ''}`;
+            filterSelectedCreatorLinks();
+        };
+
+        window.backToLinksCreatorsList = function() {
+            selectedCreatorForLinks = null;
+            pendingAdminLinkDeleteId = null;
+            document.getElementById('links-manager-detail-view').classList.add('hidden');
+            document.getElementById('links-manager-creators-view').classList.remove('hidden');
+            renderLinksManagerCreators();
+        };
+
+        window.filterSelectedCreatorLinks = function() {
+            if (!selectedCreatorForLinks) return;
             const q = (document.getElementById('admin-link-search')?.value || '').toLowerCase();
-            const filtered = allAdminLinks.filter(l =>
+            const creatorLinks = allAdminLinks.filter(l => String(l.user_id) === String(selectedCreatorForLinks.id)).filter(l =>
                 (l.short_id || '').toLowerCase().includes(q) ||
                 (l.original_url || '').toLowerCase().includes(q)
             );
-            renderAdminLinks(filtered);
+            renderSelectedCreatorLinksTable(creatorLinks);
         };
 
-        function renderAdminLinks(linksArr) {
+        function renderSelectedCreatorLinksTable(linksArr) {
             const tbody = document.getElementById('admin-links-list');
             if (!linksArr || linksArr.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-slate-500">No shortened links found.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-slate-500">No links found for this creator.</td></tr>';
                 return;
             }
             tbody.innerHTML = '';
@@ -683,27 +900,28 @@
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-900/50">
                         <td class="p-4 font-mono-code font-bold text-indigo-400">${l.short_id}</td>
-                        <td class="p-4 max-w-xs truncate text-slate-300">${l.original_url}</td>
+                        <td class="p-4 max-w-xs truncate text-slate-300"><a href="${l.original_url}" target="_blank" class="hover:underline">${l.original_url}</a></td>
                         <td class="p-4 font-mono-code font-bold text-white">${l.clicks || 0}</td>
                         <td class="p-4 font-mono-code font-bold text-emerald-400">$${parseFloat(l.earnings || 0).toFixed(4)}</td>
                         <td class="p-4 text-slate-400">${dateStr}</td>
                         <td class="p-4 text-right">
                             <button onclick="adminDeleteSingleLink('${l.id}')" class="${isConfirming ? 'btn-danger text-white' : 'bg-rose-500/15 hover:bg-rose-500/25 text-rose-400'} px-3 py-1.5 rounded-lg text-xs font-extrabold transition">
-                                ${isConfirming ? 'Confirm Delete?' : '<i class="fa-solid fa-trash-can mr-1"></i>Delete'}
+                                ${isConfirming ? 'Confirm Delete?' : '<i class="fa-solid fa-trash-can mr-1"></i>Delete Link'}
                             </button>
                         </td>
                     </tr>`;
             });
         }
 
+        // Owner Single Link Permanent Delete (2-Tap Confirmation)
         window.adminDeleteSingleLink = async function(linkId) {
             if (pendingAdminLinkDeleteId !== linkId) {
                 pendingAdminLinkDeleteId = linkId;
-                filterAdminLinks();
+                filterSelectedCreatorLinks();
                 setTimeout(() => {
                     if (pendingAdminLinkDeleteId === linkId) {
                         pendingAdminLinkDeleteId = null;
-                        filterAdminLinks();
+                        filterSelectedCreatorLinks();
                     }
                 }, 3500);
                 return;
@@ -711,21 +929,34 @@
             try {
                 pendingAdminLinkDeleteId = null;
                 await dbClient.from('click_logs').delete().eq('link_id', linkId);
-                await dbClient.from('links').delete().eq('id', linkId);
+                const { error } = await dbClient.from('links').delete().eq('id', linkId);
+                if (error) throw error;
                 allAdminLinks = allAdminLinks.filter(l => String(l.id) !== String(linkId));
-                filterAdminLinks();
-                showAdminToast("Link permanently deleted!");
+                filterSelectedCreatorLinks();
+                showAdminToast("Link permanently deleted by Owner!");
             } catch (e) {
                 showAdminToast("Failed to delete link", true);
             }
         };
 
-        window.openAdminDeleteAllModal = function() {
-            if (!allAdminLinks || allAdminLinks.length === 0) return showAdminToast("No links to delete!", true);
+        // Owner Double-Confirmation Delete All Links (Supports Single Creator OR Entire Platform)
+        window.openOwnerDeleteModal = function(mode) {
+            adminDeleteMode = mode; // 'creator' or 'global'
             adminDeleteAllStep = 1;
-            document.getElementById('admin-del-step-badge').innerText = "Confirmation 1 of 2";
-            document.getElementById('admin-del-title').innerText = "Delete All Platform Links?";
-            document.getElementById('admin-del-desc').innerText = "First Check: Are you sure you want to delete every shortened link on the platform? Click Continue for final verification.";
+
+            if (mode === 'creator' && selectedCreatorForLinks) {
+                const cLinks = allAdminLinks.filter(l => String(l.user_id) === String(selectedCreatorForLinks.id));
+                if (cLinks.length === 0) return showAdminToast("This creator has no links to delete!", true);
+                document.getElementById('admin-del-step-badge').innerText = "Owner Confirmation 1 of 2";
+                document.getElementById('admin-del-title').innerText = `Delete All ${cLinks.length} Links of ${selectedCreatorForLinks.first_name || 'Creator'}?`;
+                document.getElementById('admin-del-desc').innerText = `First Check: Are you sure you want to permanently delete all ${cLinks.length} links belonging to ${selectedCreatorForLinks.first_name || 'this creator'}?`;
+            } else {
+                if (allAdminLinks.length === 0) return showAdminToast("No links on platform to delete!", true);
+                document.getElementById('admin-del-step-badge').innerText = "Owner Confirmation 1 of 2";
+                document.getElementById('admin-del-title').innerText = `Delete All ${allAdminLinks.length} Platform Links?`;
+                document.getElementById('admin-del-desc').innerText = "First Check: Are you sure you want to permanently delete EVERY shortened link across all creators on the platform?";
+            }
+
             document.getElementById('btn-admin-del-confirm').innerText = "Yes, Continue (1/2)";
             document.getElementById('admin-del-all-modal').classList.remove('hidden');
         };
@@ -738,25 +969,42 @@
         window.advanceAdminDeleteAll = async function() {
             if (adminDeleteAllStep === 1) {
                 adminDeleteAllStep = 2;
-                document.getElementById('admin-del-step-badge').innerText = "Final Confirmation 2 of 2";
-                document.getElementById('admin-del-title').innerText = "Permanent Wipe Warning!";
-                document.getElementById('admin-del-desc').innerText = "Second & Final Check: All links and click logs across all users will be permanently deleted. This cannot be undone!";
+                document.getElementById('admin-del-step-badge').innerText = "Final Owner Confirmation 2 of 2";
+                document.getElementById('admin-del-title').innerText = "Permanent Owner Wipe Warning!";
+                if (adminDeleteMode === 'creator' && selectedCreatorForLinks) {
+                    document.getElementById('admin-del-desc').innerText = `Second & Final Check: All links and click logs for ${selectedCreatorForLinks.first_name || 'this creator'} will be permanently erased. Confirm permanent deletion?`;
+                } else {
+                    document.getElementById('admin-del-desc').innerText = "Second & Final Check: All links and click logs across the entire platform will be permanently erased. Confirm permanent deletion?";
+                }
                 document.getElementById('btn-admin-del-confirm').innerText = "Permanently Delete All (2/2)";
                 return;
             }
+
             if (adminDeleteAllStep === 2) {
                 const btn = document.getElementById('btn-admin-del-confirm');
                 btn.disabled = true;
                 btn.innerText = "Deleting...";
                 try {
-                    await dbClient.from('click_logs').delete().neq('id', 0);
-                    await dbClient.from('links').delete().neq('id', 0);
-                    allAdminLinks = [];
-                    filterAdminLinks();
-                    closeAdminDeleteAllModal();
-                    showAdminToast("All platform links permanently deleted!");
+                    if (adminDeleteMode === 'creator' && selectedCreatorForLinks) {
+                        const targetIds = allAdminLinks.filter(l => String(l.user_id) === String(selectedCreatorForLinks.id)).map(l => l.id);
+                        if (targetIds.length > 0) {
+                            await dbClient.from('click_logs').delete().in('link_id', targetIds);
+                            await dbClient.from('links').delete().eq('user_id', selectedCreatorForLinks.id);
+                        }
+                        allAdminLinks = allAdminLinks.filter(l => String(l.user_id) !== String(selectedCreatorForLinks.id));
+                        closeAdminDeleteAllModal();
+                        backToLinksCreatorsList();
+                        showAdminToast("All links for this creator permanently deleted!");
+                    } else {
+                        await dbClient.from('click_logs').delete().neq('id', 0);
+                        await dbClient.from('links').delete().neq('id', 0);
+                        allAdminLinks = [];
+                        closeAdminDeleteAllModal();
+                        renderLinksManagerCreators();
+                        showAdminToast("All platform links permanently deleted by Owner!");
+                    }
                 } catch (e) {
-                    showAdminToast("Error wiping links", true);
+                    showAdminToast("Error deleting links", true);
                 } finally {
                     btn.disabled = false;
                 }
