@@ -588,7 +588,7 @@
                 const blockBtn = u.is_blocked
                     ? `<button onclick="toggleBlock('${u.id}', false)" class="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 px-2.5 py-1.5 rounded-lg text-xs font-bold" title="Unblock"><i class="fa-solid fa-unlock"></i></button>`
                     : `<button onclick="toggleBlock('${u.id}', true)" class="bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 px-2.5 py-1.5 rounded-lg text-xs font-bold" title="Suspend"><i class="fa-solid fa-ban"></i></button>`;
-                const permKey = u.api_key || 'Auto-Assigned on Login';
+                const permKey = u.api_key || '🔒 Locked (0 Links Converted)';
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-900/50">
