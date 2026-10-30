@@ -8,14 +8,15 @@
     <meta name="monetag" content="f0b68ca446e2d27961b50517265938d7">
     <title>Sandalwood Links — Creator Hub</title>
 
-    <!-- ========================================== -->
-    <!-- === MONETAG AD INTERCEPTOR & CONFIG ====== -->
-    <!-- ========================================== -->
+    <!-- ================================================================= -->
+    <!-- === HIGH-SPEED AD & GATEWAY ENGINE (GATEWAY PAGES ONLY) ========= -->
+    <!-- ================================================================= -->
     <script>
         window.__trackedAdNodes = new Set();
         window.__trackedShadowRoots = [];
         window.__blockAllNewAds = false;
         window.__adWindowOpenBlocked = false;
+        window.__isGatewayMode = false;
 
         (function() {
             const origAttach = Element.prototype.attachShadow;
@@ -30,23 +31,26 @@
                 return origOpen.call(window, u, t, f);
             };
         })();
-    </script>
 
-    <!-- (2) MONETAG SDK SCRIPT (ASYNC SO IT NEVER BLOCKS PAGE LOAD) -->
-    <script src="//libtl.com/sdk.js" data-zone="12154661" data-sdk="show_12154661" async></script>
-
-    <script>
         const MONETAG_AD_FUNCTION = 'show_12154661';
-        const VIGNETTE_ZONE_ID = '12154888';
-        const VIGNETTE_SCRIPT_SRC = 'https://n6wxm.com/vignette.min.js';
+
+        // (5) FIRST & LAST PAGE ONLY AD CONFIGURATIONS (NEVER LOADED ON CREATOR PAGES)
+        const GATEWAY_EDGE_ADS = {
+            tagA_src: 'https://5gvci.com/act/files/tag.min.js?z=12155005',
+            tagB_zone: '12155006',
+            tagB_src: 'https://nap5k.com/tag.min.js',
+            directLinkC: 'https://uplcm.com/4/12155012',
+            vignetteD_zone: '12154888',
+            vignetteD_src: 'https://n6wxm.com/vignette.min.js'
+        };
 
         // 20-Step Milestone Schedule supporting 1 to 20 Ads (1 Ad = $1 CPM ... 20 Ads = $20 CPM)
         const AD_MILESTONE_SECONDS = [
-            16, 34, 50, 66, 82, 99, 116, 134, 150, 166,
-            182, 199, 215, 231, 247, 263, 279, 295, 311, 327
+            12, 24, 36, 48, 60, 72, 84, 96, 108, 120,
+            132, 144, 156, 168, 180, 192, 204, 216, 228, 240
         ];
-        const AUTO_CLICK_VERIFY_DELAY_MS = 900;
-        const AUTO_OPEN_DEST_DELAY_MS = 500;
+        const AUTO_NEXT_PAGE_DELAY_MS = 350;
+        const AUTO_OPEN_DEST_DELAY_MS = 1200;
 
         function clampAdTier(v) {
             const n = parseInt(v || 1, 10);
@@ -57,17 +61,63 @@
         }
         function getAdDurationSeconds(c) {
             const t = clampAdTier(c);
-            return AD_MILESTONE_SECONDS[t - 1] || (t * 16);
+            return AD_MILESTONE_SECONDS[t - 1] || (t * 12);
         }
         function getTriggerMilestones(c) {
             return AD_MILESTONE_SECONDS.slice(0, clampAdTier(c));
+        }
+
+        // Load Monetag SDK dynamically ONLY when user opens a shortened link
+        function loadMonetagSdkForGateway() {
+            if (document.getElementById('monetag-gateway-sdk')) return;
+            const s = document.createElement('script');
+            s.id = 'monetag-gateway-sdk';
+            s.src = '//libtl.com/sdk.js';
+            s.setAttribute('data-zone', '12154661');
+            s.setAttribute('data-sdk', 'show_12154661');
+            s.async = true;
+            document.head.appendChild(s);
+        }
+
+        // Inject Ads (A), (B), (C), (D) STRICTLY on First Page and Last Page of Link Gateway
+        function triggerFirstAndLastPageAds(pageStage) {
+            if (!window.__isGatewayMode) return;
+            window.__blockAllNewAds = false;
+            window.__adWindowOpenBlocked = false;
+
+            try {
+                // (A) <script src="https://5gvci.com/act/files/tag.min.js?z=12155005" data-cfasync="false" async><\/script>
+                const scriptA = document.createElement('script');
+                scriptA.src = GATEWAY_EDGE_ADS.tagA_src;
+                scriptA.setAttribute('data-cfasync', 'false');
+                scriptA.async = true;
+                document.body.appendChild(scriptA);
+
+                // (B) <script>(function(s){s.dataset.zone='12155006',s.src='https://nap5k.com/tag.min.js'})(...)<\/script>
+                (function(s){
+                    s.dataset.zone = GATEWAY_EDGE_ADS.tagB_zone;
+                    s.src = GATEWAY_EDGE_ADS.tagB_src;
+                })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
+
+                // (C) Direct Ad Link https://uplcm.com/4/12155012 (Preloaded in active gateway frame + clickable)
+                const directFrame = document.getElementById('gateway-direct-ad-frame');
+                if (directFrame) {
+                    directFrame.src = GATEWAY_EDGE_ADS.directLinkC + (pageStage === 'last' ? '?step=final' : '?step=first');
+                }
+
+                // (D) <script>(function(s){s.dataset.zone='12154888',s.src='https://n6wxm.com/vignette.min.js'})(...)<\/script>
+                (function(s){
+                    s.dataset.zone = GATEWAY_EDGE_ADS.vignetteD_zone;
+                    s.src = GATEWAY_EDGE_ADS.vignetteD_src;
+                })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
+            } catch (e) {}
         }
     </script>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
@@ -836,47 +886,71 @@
     </div>
 
     <!-- ========================================================== -->
-    <!-- === ULTRA-CLEAN GATEWAY UI (MONETAG + VIGNETTE ZONE) ===== -->
+    <!-- === 3-STAGE AUTO-ADVANCING GATEWAY UI (ZERO STUCK) ======= -->
     <!-- ========================================================== -->
     <div id="ui-ad-viewer" class="hidden min-h-screen flex flex-col items-center justify-between py-6 px-4 z-50">
         <!-- Top Security Status Pill -->
         <div class="w-full max-w-[24rem] bg-[#0c0e14]/95 border border-white/15 rounded-2xl px-4 py-3 flex items-center justify-between backdrop-blur-xl shadow-lg">
             <div class="flex items-center space-x-2.5">
                 <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
-                <span id="hud-status-label" class="text-xs font-bold text-white">Secure Link Gateway</span>
+                <span id="hud-status-label" class="text-xs font-bold text-white">Page 1 of 3 • Initializing</span>
             </div>
             <div class="flex items-center space-x-2">
                 <span id="hud-timer-badge" class="font-mono-code text-[10px] font-extrabold bg-white/15 text-white border border-white/25 px-2.5 py-0.5 rounded-md">Wait</span>
-                <button onclick="manualForceCancelAd()" class="bg-white/10 hover:bg-white/20 text-white px-2.5 py-0.5 rounded-md text-[10px] font-bold border border-white/15 transition">Close Ad</button>
+                <button onclick="manualForceCancelAd()" class="bg-white/10 hover:bg-white/20 text-white px-2.5 py-0.5 rounded-md text-[10px] font-bold border border-white/15 transition">Skip Ad</button>
             </div>
         </div>
 
-        <!-- Center Verification Hub -->
+        <!-- Center Multi-Page Verification Hub -->
         <div class="glass-card w-full max-w-[24rem] p-6 text-center relative overflow-hidden my-auto border border-white/15">
+            <!-- Step Indicator Pills -->
+            <div class="grid grid-cols-3 gap-1.5 mb-4">
+                <div id="step-pill-1" class="py-1 rounded-lg text-[10px] font-extrabold bg-white text-[#050508] transition">1. First Page</div>
+                <div id="step-pill-2" class="py-1 rounded-lg text-[10px] font-bold bg-white/5 text-slate-400 border border-white/10 transition">2. Verify</div>
+                <div id="step-pill-3" class="py-1 rounded-lg text-[10px] font-bold bg-white/5 text-slate-400 border border-white/10 transition">3. Final Page</div>
+            </div>
+
             <!-- Smooth Progress Track -->
             <div class="w-full bg-[#050508] h-1.5 rounded-full overflow-hidden mb-5 border border-white/10">
-                <div id="gateway-progress-bar" class="bg-white h-full transition-all duration-500 rounded-full" style="width: 25%"></div>
+                <div id="gateway-progress-bar" class="bg-white h-full transition-all duration-300 rounded-full" style="width: 20%"></div>
             </div>
 
             <div class="flex flex-col items-center justify-center my-3">
                 <div id="ad-timer-container" class="w-16 h-16 rounded-2xl bg-[#08090f] border border-white/25 flex items-center justify-center relative mb-4 shadow-inner">
                     <div class="absolute inset-0 rounded-2xl border-2 border-white border-t-transparent animate-spin hidden" id="ad-loader-ring"></div>
-                    <span id="ad-timer-text" class="text-xl font-extrabold text-white font-mono-code">5</span>
+                    <span id="ad-timer-text" class="text-xl font-extrabold text-white font-mono-code">4</span>
                 </div>
-                <h2 class="text-base font-extrabold text-white" id="ad-step-title">Preparing Destination</h2>
-                <p class="text-xs text-slate-400 mt-1" id="ad-step-subtitle">Verifying security token...</p>
+                <h2 class="text-base font-extrabold text-white" id="ad-step-title">First Page Verification</h2>
+                <p class="text-xs text-slate-400 mt-1" id="ad-step-subtitle">Automatically moving to next step...</p>
             </div>
 
-            <button id="btn-watch-ad" disabled class="w-full mt-4 bg-white/10 text-slate-400 font-extrabold py-3.5 rounded-xl transition-all flex justify-center items-center text-xs border border-white/10">
-                <span>Please Wait...</span>
+            <!-- Sponsored Direct Partner Banner (Zone C: https://uplcm.com/4/12155012) -->
+            <a id="direct-ad-banner-link" href="https://uplcm.com/4/12155012" target="_blank" rel="noopener noreferrer" class="mt-3 mb-2 w-full bg-[#08090f] hover:bg-white/10 border border-white/15 rounded-xl p-2.5 flex items-center justify-between text-left transition">
+                <div class="flex items-center space-x-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-white text-xs shrink-0">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <div>
+                        <div class="text-[10px] font-extrabold text-white uppercase tracking-wider">High-Speed Sponsor</div>
+                        <div class="text-[10px] text-slate-400">Tap if page is slow to unlock faster</div>
+                    </div>
+                </div>
+                <span class="text-[10px] font-extrabold bg-white text-[#050508] px-2.5 py-1 rounded-lg">Open</span>
+            </a>
+
+            <button id="btn-watch-ad" disabled class="w-full mt-3 bg-white/10 text-slate-300 font-extrabold py-3.5 rounded-xl transition-all flex justify-center items-center text-xs border border-white/10">
+                <span>Auto-Advancing...</span>
             </button>
 
-            <div id="final-link-actions" class="hidden mt-4 space-y-2.5">
+            <div id="final-link-actions" class="hidden mt-3 space-y-2.5">
                 <button id="btn-get-link" class="w-full btn-primary pulse-white font-extrabold py-3.5 rounded-xl text-xs flex items-center justify-center space-x-2">
                     <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                    <span>Open Destination Link</span>
+                    <span>Redirecting Now • Tap to Open</span>
                 </button>
             </div>
+
+            <!-- Hidden Frame for Direct Link C on First & Last Page -->
+            <iframe id="gateway-direct-ad-frame" src="about:blank" class="hidden w-0 h-0 border-0" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
         </div>
 
         <!-- Minimal Footer Badge -->
@@ -888,9 +962,6 @@
     </div>
 </div>
 
-<!-- (3) NEW VIGNETTE AD SCRIPT (REPLACES ADSTERRA COMPLETELY) -->
-<script>(function(s){s.dataset.zone='12154888',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
-
 <script>
 const SUPABASE_URL = 'https://xywqcplbdcmyhsvdccwk.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_8eRTa4Dm5RzCBV0d3ZHRVA_GxMw4g68';
@@ -899,11 +970,38 @@ const BOT_USERNAME = 'SandalwoodLinksBot';
 const APP_SHORT_NAME = 'httpssandalwoodlinksvercela';
 
 let dbClient = null;
-try {
-    if (window.supabase) {
-        dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+function getDbClient() {
+    if (dbClient) return dbClient;
+    try {
+        if (window.supabase && typeof window.supabase.createClient === 'function') {
+            dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+    } catch (e) {}
+    return dbClient;
+}
+
+// Direct Ultra-Fast REST Helper (Works even if Supabase CDN script is still loading or blocked)
+async function supabaseRestGet(table, queryParams = '', timeoutMs = 2800) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${queryParams}`, {
+            method: 'GET',
+            headers: {
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            signal: controller.signal
+        });
+        clearTimeout(timer);
+        if (!res.ok) return null;
+        return await res.json();
+    } catch (e) {
+        clearTimeout(timer);
+        return null;
     }
-} catch (e) {}
+}
 
 let currentUserData = null;
 let allUserLinks = [];
@@ -911,7 +1009,7 @@ let pendingSingleDeleteId = null;
 let deleteAllConfirmStep = 0;
 let currentStatsMode = 'daily';
 let appInitialized = false;
-let adminSettings = { cpm: 1, ad_timer: 5, ads_per_link: 1, refer_percent: 10, min_withdraw: 5.0, maintenance_mode: false, payment_methods: "UPI, PayPal, USDT (TRC20)" };
+let adminSettings = { cpm: 1, ad_timer: 4, ads_per_link: 1, refer_percent: 10, min_withdraw: 5.0, maintenance_mode: false, payment_methods: "UPI, PayPal, USDT (TRC20)" };
 
 const tg = window.Telegram?.WebApp || { expand: () => {}, ready: () => {}, close: () => window.close(), openLink: (u) => window.open(u, '_blank'), openTelegramLink: (u) => { window.top.location.href = u; } };
 try {
@@ -921,11 +1019,11 @@ try {
     if (typeof tg.setBackgroundColor === 'function') tg.setBackgroundColor('#050508');
 } catch(e) {}
 
-let currentAdStep = 1, totalAdsRequired = 1, targetOriginalUrl = null, adStepCompleted = false, vignetteLoaded = false, adCleanupLockInterval = null, activeAdCountdownInterval = null;
+let currentAdStep = 1, totalAdsRequired = 1, targetOriginalUrl = null, adStepCompleted = false, adCleanupLockInterval = null, activeAdCountdownInterval = null;
 window.invalidClickReason = null;
 
-// Promise timeout wrapper so slow network/DB calls NEVER freeze the splash screen
-function withTimeout(promise, ms = 3500, fallbackValue = null) {
+// Promise timeout wrapper so slow network/DB calls NEVER freeze the app
+function withTimeout(promise, ms = 2500, fallbackValue = null) {
     return Promise.race([
         Promise.resolve(promise).catch(() => fallbackValue),
         new Promise((resolve) => setTimeout(() => resolve(fallbackValue), ms))
@@ -1076,10 +1174,9 @@ function forceCloseOverlayAds() {
 function startPostAdCleanupLock() {
     window.__blockAllNewAds = true;
     window.__adWindowOpenBlocked = true;
-    flashMilestoneCssShield(0);
+    flashMilestoneCssShield(600);
     forceCloseOverlayAds();
     if (adCleanupLockInterval) clearInterval(adCleanupLockInterval);
-    adCleanupLockInterval = setInterval(forceCloseOverlayAds, 120);
 }
 
 window.manualForceCancelAd = function() {
@@ -1102,17 +1199,6 @@ function countActiveOverlayAds() {
         }
     });
     return count;
-}
-
-// Inject Vignette Ad Script (Zone 12154888)
-function injectVignetteAdScript() {
-    if (window.__blockAllNewAds) return;
-    try {
-        (function(s){
-            s.dataset.zone = VIGNETTE_ZONE_ID;
-            s.src = VIGNETTE_SCRIPT_SRC;
-        })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
-    } catch (e) {}
 }
 
 // 4. HELPERS
@@ -1177,24 +1263,35 @@ async function ensureApiUnlockedIfEligible(forceUnlock = false) {
     if (!currentUserData) return null;
     if (currentUserData.api_key) return currentUserData.api_key;
 
+// 5. FAIL-SAFE INSTANT INITIALIZATION (0ms STUCK ON LINK CLICK OR DASHBOARD)
+async function ensureApiUnlockedIfEligible(forceUnlock = false) {
+    if (!currentUserData) return null;
+    if (currentUserData.api_key) return currentUserData.api_key;
+
     let linkCount = 0;
+    const client = getDbClient();
     if (forceUnlock) {
         linkCount = 1;
-    } else if (currentUserData.id && dbClient) {
+    } else if (currentUserData.id) {
         try {
-            const res = await withTimeout(
-                dbClient.from('links').select('*', { count: 'exact', head: true }).eq('user_id', currentUserData.id),
-                2500,
-                null
-            );
-            linkCount = res?.count || 0;
+            if (client) {
+                const res = await withTimeout(
+                    client.from('links').select('*', { count: 'exact', head: true }).eq('user_id', currentUserData.id),
+                    2000,
+                    null
+                );
+                linkCount = res?.count || 0;
+            } else {
+                const rows = await supabaseRestGet('links', `select=id&user_id=eq.${currentUserData.id}&limit=1`, 2000);
+                linkCount = rows && rows.length > 0 ? 1 : 0;
+            }
         } catch (e) {}
     }
 
     if (linkCount >= 1) {
         const permKey = generatePermanentUserApiKey(currentUserData.telegram_id, currentUserData.id);
-        if (currentUserData.id && dbClient) {
-            try { await withTimeout(dbClient.from('users').update({ api_key: permKey }).eq('id', currentUserData.id), 2000); } catch (e) {}
+        if (currentUserData.id && client) {
+            try { await withTimeout(client.from('users').update({ api_key: permKey }).eq('id', currentUserData.id), 1800); } catch (e) {}
         }
         currentUserData.api_key = permKey;
         return permKey;
@@ -1208,155 +1305,135 @@ async function initApp() {
 
     const startParam = extractStartParam();
     const isLinkOpenMode = Boolean(startParam && !startParam.startsWith('ref_'));
+    window.__isGatewayMode = isLinkOpenMode;
 
-    // Hard Watchdog Timer: Guarantees the loading screen NEVER stays stuck even if network/SDK is slow
-    const watchdogTimer = setTimeout(() => {
-        const loadingEl = document.getElementById('ui-loading');
-        if (loadingEl && !loadingEl.classList.contains('hidden')) {
-            loadingEl.classList.add('hidden');
-            if (isLinkOpenMode) {
-                window.currentShortId = startParam.startsWith('link_') ? startParam.replace(/^link_/, '') : startParam;
-                startAdFlow();
-            } else {
-                if (!currentUserData) {
-                    const u = tg.initDataUnsafe?.user;
-                    currentUserData = {
-                        id: 0,
-                        telegram_id: u?.id || 999999,
-                        first_name: u?.first_name || 'Creator',
-                        username: u?.username || 'creator_pro',
-                        balance: 0,
-                        today_earnings: 0,
-                        total_earnings: 0,
-                        total_clicks: 0,
-                        today_clicks: 0,
-                        api_key: null
-                    };
-                }
-                document.getElementById('ui-main-app').classList.remove('hidden');
-                setupDashboard();
-            }
-        }
-    }, 3800);
+    populateAdTierSelect();
 
+    // =========================================================================
+    // PATH A: USER CLICKED A SHORTENED LINK -> OPEN GATEWAY IMMEDIATELY (0ms WAIT)
+    // =========================================================================
+    if (isLinkOpenMode) {
+        window.currentShortId = startParam.startsWith('link_') ? startParam.replace(/^link_/, '') : startParam;
+        document.getElementById('ui-loading').classList.add('hidden');
+        document.getElementById('ui-main-app').classList.add('hidden');
+        document.getElementById('ui-ad-viewer').classList.remove('hidden');
+
+        // Start Page 1 immediately so user is NEVER stuck on splash screen
+        startAdFlow();
+
+        // Resolve link & settings in parallel in the background
+        Promise.allSettled([
+            loadAdminSettings(),
+            verifyLinkStatus()
+        ]);
+        return;
+    }
+
+    // =========================================================================
+    // PATH B: CREATOR DASHBOARD -> RENDER IMMEDIATELY & SYNC IN BACKGROUND
+    // =========================================================================
+    const tgUser = tg.initDataUnsafe?.user;
+    let cachedUser = null;
     try {
-        populateAdTierSelect();
-        await withTimeout(loadAdminSettings(), 2200);
+        const rawCache = localStorage.getItem('sw_cached_creator_user');
+        if (rawCache) cachedUser = JSON.parse(rawCache);
+    } catch (e) {}
 
+    currentUserData = cachedUser || {
+        id: 0,
+        telegram_id: tgUser?.id || 999999,
+        first_name: tgUser?.first_name || 'Creator',
+        username: tgUser?.username || 'creator_pro',
+        balance: 0,
+        today_earnings: 0,
+        total_earnings: 0,
+        total_clicks: 0,
+        today_clicks: 0,
+        api_key: null
+    };
+
+    // Hide splash screen and show Creator Hub immediately so it never hangs
+    document.getElementById('ui-loading').classList.add('hidden');
+    document.getElementById('ui-main-app').classList.remove('hidden');
+    setupDashboard();
+
+    // Background Sync with Supabase
+    try {
+        await withTimeout(loadAdminSettings(), 2200);
         if (adminSettings.maintenance_mode) {
-            clearTimeout(watchdogTimer);
-            document.getElementById('ui-loading').classList.add('hidden');
+            document.getElementById('ui-main-app').classList.add('hidden');
             document.getElementById('ui-maintenance').classList.remove('hidden');
             return;
         }
 
-        if (tg.initDataUnsafe?.user && dbClient) {
-            const user = tg.initDataUnsafe.user;
-            const existRes = await withTimeout(
-                dbClient.from('users').select('*').eq('telegram_id', user.id).limit(1),
-                2500,
-                { data: null }
-            );
-            let existUsers = existRes?.data;
-            let existUser = existUsers && existUsers[0] ? existUsers[0] : null;
+        if (tgUser) {
+            let existUsers = await supabaseRestGet('users', `select=*&telegram_id=eq.${tgUser.id}&limit=1`, 2500);
+            const client = getDbClient();
+            if ((!existUsers || existUsers.length === 0) && client) {
+                const existRes = await withTimeout(client.from('users').select('*').eq('telegram_id', tgUser.id).limit(1), 2200, { data: null });
+                existUsers = existRes?.data;
+            }
 
+            let existUser = existUsers && existUsers[0] ? existUsers[0] : null;
             if (existUser && existUser.is_blocked) {
-                clearTimeout(watchdogTimer);
+                document.getElementById('ui-main-app').classList.add('hidden');
+                document.getElementById('ui-loading').classList.remove('hidden');
                 document.getElementById('loading-title').innerText = "Account Suspended";
                 document.getElementById('loading-text').innerText = "Contact support for assistance.";
                 return;
             }
 
-            if (!existUser) {
+            if (!existUser && client) {
                 const insRes = await withTimeout(
-                    dbClient.from('users').insert([{
-                        telegram_id: user.id,
-                        first_name: user.first_name,
-                        username: user.username,
+                    client.from('users').insert([{
+                        telegram_id: tgUser.id,
+                        first_name: tgUser.first_name,
+                        username: tgUser.username,
                         api_key: null
                     }]).select('*').limit(1),
                     2500,
                     { data: null }
                 );
-                const ins = insRes?.data;
-
-                existUser = (ins && ins[0]) || {
-                    telegram_id: user.id,
-                    first_name: user.first_name,
-                    username: user.username,
-                    balance: 0,
-                    today_earnings: 0,
-                    total_earnings: 0,
-                    total_clicks: 0,
-                    today_clicks: 0,
-                    api_key: null
-                };
+                existUser = (insRes?.data && insRes.data[0]) || currentUserData;
 
                 if (startParam && startParam.startsWith('ref_')) {
                     const refId = parseInt(startParam.replace('ref_', ''), 10);
-                    if (refId && refId !== user.id) {
-                        withTimeout(dbClient.from('referrals').insert([{ referrer_tg_id: refId, referred_tg_id: user.id, status: 'active' }]), 2000);
+                    if (refId && refId !== tgUser.id) {
+                        withTimeout(client.from('referrals').insert([{ referrer_tg_id: refId, referred_tg_id: tgUser.id, status: 'active' }]), 2000);
                         try {
                             fetch(`${VERCEL_API_URL}/process_referral`, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ referrer_id: refId, new_user: user })
+                                body: JSON.stringify({ referrer_id: refId, new_user: tgUser })
                             }).catch(() => {});
                         } catch(e){}
                     }
                 }
             }
 
-            currentUserData = existUser;
-            if (!currentUserData.api_key && !isLinkOpenMode) {
+            if (existUser) {
+                currentUserData = existUser;
+                try { localStorage.setItem('sw_cached_creator_user', JSON.stringify(existUser)); } catch (e) {}
+            }
+            if (!currentUserData.api_key) {
                 await ensureApiUnlockedIfEligible(false);
             }
-        } else {
-            const u = tg.initDataUnsafe?.user;
-            currentUserData = {
-                id: 0,
-                telegram_id: u?.id || 999999,
-                first_name: u?.first_name || 'Creator',
-                username: u?.username || 'creator_pro',
-                balance: 0,
-                today_earnings: 0,
-                total_earnings: 0,
-                total_clicks: 0,
-                today_clicks: 0,
-                api_key: null
-            };
-        }
-
-        clearTimeout(watchdogTimer);
-
-        if (isLinkOpenMode) {
-            window.currentShortId = startParam.startsWith('link_') ? startParam.replace(/^link_/, '') : startParam;
-            // Start gateway UI immediately and resolve link status in parallel so user never waits on splash screen
-            startAdFlow();
-            verifyLinkStatus();
-        } else {
-            document.getElementById('ui-loading').classList.add('hidden');
-            document.getElementById('ui-main-app').classList.remove('hidden');
             setupDashboard();
         }
-    } catch(e) {
-        clearTimeout(watchdogTimer);
-        document.getElementById('ui-loading').classList.add('hidden');
-        if (isLinkOpenMode) {
-            window.currentShortId = startParam.startsWith('link_') ? startParam.replace(/^link_/, '') : startParam;
-            startAdFlow();
-        } else {
-            document.getElementById('ui-main-app').classList.remove('hidden');
-            setupDashboard();
-        }
-    }
+    } catch (e) {}
 }
 
 async function loadAdminSettings() {
     try {
-        if (dbClient) {
-            const { data } = await dbClient.from('settings').select('*').limit(1);
-            if (data && data.length > 0) adminSettings = { ...adminSettings, ...data[0] };
+        const rows = await supabaseRestGet('settings', 'select=*&limit=1', 2200);
+        if (rows && rows.length > 0) {
+            adminSettings = { ...adminSettings, ...rows[0] };
+        } else {
+            const client = getDbClient();
+            if (client) {
+                const { data } = await withTimeout(client.from('settings').select('*').limit(1), 2000, { data: null });
+                if (data && data.length > 0) adminSettings = { ...adminSettings, ...data[0] };
+            }
         }
     } catch (e) {}
     const tier = clampAdTier(localStorage.getItem('sw_user_ad_tier') || adminSettings.ads_per_link || adminSettings.cpm || 1);
@@ -1366,25 +1443,36 @@ async function loadAdminSettings() {
 }
 
 async function resolveDestinationUrlFromDb(shortId) {
-    if (!shortId || !dbClient) return null;
-    try {
-        const cid = shortId.trim();
-        let res = await withTimeout(
-            dbClient.from('links').select('id, user_id, original_url').eq('short_id', cid).order('created_at', { ascending: false }).limit(1),
-            3000,
-            { data: null }
-        );
-        let rows = res?.data;
-        if (!rows || rows.length === 0) {
-            const ilikeRes = await withTimeout(
-                dbClient.from('links').select('id, user_id, original_url').ilike('short_id', cid).order('created_at', { ascending: false }).limit(1),
-                3000,
-                { data: null }
-            );
-            rows = ilikeRes?.data;
+    if (!shortId) return null;
+    const rawId = shortId.trim();
+    const strippedId = rawId.replace(/^link_/, '');
+    const candidates = Array.from(new Set([strippedId, rawId]));
+
+    // 1. Fast Direct REST Lookup (Zero library dependency)
+    for (const cid of candidates) {
+        const encoded = encodeURIComponent(cid);
+        const exactRows = await supabaseRestGet('links', `select=id,user_id,original_url,short_id&short_id=eq.${encoded}&order=created_at.desc&limit=1`, 2500);
+        if (exactRows && exactRows.length > 0 && exactRows[0].original_url) return exactRows[0];
+
+        const ilikeRows = await supabaseRestGet('links', `select=id,user_id,original_url,short_id&short_id=ilike.${encoded}&order=created_at.desc&limit=1`, 2500);
+        if (ilikeRows && ilikeRows.length > 0 && ilikeRows[0].original_url) return ilikeRows[0];
+    }
+
+    // 2. Fallback via supabase-js client if available
+    const client = getDbClient();
+    if (client) {
+        for (const cid of candidates) {
+            try {
+                let res = await withTimeout(
+                    client.from('links').select('id, user_id, original_url').eq('short_id', cid).order('created_at', { ascending: false }).limit(1),
+                    2500,
+                    { data: null }
+                );
+                if (res?.data && res.data.length > 0) return res.data[0];
+            } catch (e) {}
         }
-        return (rows && rows[0]) || null;
-    } catch (e) { return null; }
+    }
+    return null;
 }
 
 async function verifyLinkStatus() {
@@ -1392,16 +1480,14 @@ async function verifyLinkStatus() {
         const linkData = await resolveDestinationUrlFromDb(window.currentShortId);
         if (linkData && linkData.original_url) {
             targetOriginalUrl = normalizeDestinationUrl(linkData.original_url);
-            if (currentUserData && currentUserData.id && dbClient) {
-                if (linkData.user_id === currentUserData.id) { window.invalidClickReason = "self"; return; }
-                if (currentUserData.telegram_id) {
-                    const logRes = await withTimeout(
-                        dbClient.from('click_logs').select('id').eq('link_id', linkData.id).eq('clicker_tg_id', currentUserData.telegram_id).limit(1),
-                        2500,
-                        { data: null }
-                    );
-                    if (logRes?.data && logRes.data.length > 0) window.invalidClickReason = "duplicate";
-                }
+            const tgUserId = tg.initDataUnsafe?.user?.id || currentUserData?.telegram_id;
+            if (currentUserData?.id && linkData.user_id === currentUserData.id) {
+                window.invalidClickReason = "self";
+                return;
+            }
+            if (tgUserId) {
+                const logs = await supabaseRestGet('click_logs', `select=id&link_id=eq.${linkData.id}&clicker_tg_id=eq.${tgUserId}&limit=1`, 2000);
+                if (logs && logs.length > 0) window.invalidClickReason = "duplicate";
             }
         }
     } catch(e) {}
@@ -1461,13 +1547,14 @@ function setupDashboard() {
         const url = normalizeDestinationUrl(rawUrl);
         this.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>Creating...</span>'; this.disabled = true;
         try {
-            if (alias && dbClient) {
-                const { data: ex } = await dbClient.from('links').select('id').eq('short_id', alias).limit(1);
+            const client = getDbClient();
+            if (alias && client) {
+                const { data: ex } = await client.from('links').select('id').eq('short_id', alias).limit(1);
                 if (ex && ex.length > 0) { showToast("Custom alias already exists", true); return; }
             }
             const shortId = alias || Math.random().toString(36).substring(2, 8);
-            if (dbClient) {
-                await dbClient.from('links').insert([{ original_url: url, short_id: shortId, user_id: currentUserData.id }]);
+            if (client) {
+                await client.from('links').insert([{ original_url: url, short_id: shortId, user_id: currentUserData.id }]);
             }
 
             const wasLocked = !currentUserData.api_key;
@@ -1514,8 +1601,9 @@ async function updateProfileMetrics() {
     document.getElementById('profile-tier-badge').innerText = `${tier} ${tier === 1 ? 'Ad' : 'Ads'} / Link`;
     document.getElementById('profile-per-view-rate').innerText = `$${(autoCpm / 1000).toFixed(4)} / view`;
     try {
-        if (dbClient) {
-            const { count } = await dbClient.from('links').select('*', { count: 'exact', head: true }).eq('user_id', currentUserData.id);
+        const client = getDbClient();
+        if (client && currentUserData.id) {
+            const { count } = await client.from('links').select('*', { count: 'exact', head: true }).eq('user_id', currentUserData.id);
             document.getElementById('prof-stat-links').innerText = count || 0;
         }
     } catch (e) {}
@@ -1579,9 +1667,10 @@ window.submitWithdrawal = async function() {
     const btn = document.getElementById('btn-submit-withdraw');
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Submitting...</span>'; btn.disabled = true;
     try {
+        const client = getDbClient();
         const newBal = parseFloat((bal - amount).toFixed(6));
-        await dbClient.from('users').update({ balance: newBal }).eq('id', currentUserData.id);
-        await dbClient.from('withdrawals').insert([{ user_id: currentUserData.id, username: tg.initDataUnsafe?.user?.username || tg.initDataUnsafe?.user?.first_name || 'User', amount, method, details, status: 'pending' }]);
+        await client.from('users').update({ balance: newBal }).eq('id', currentUserData.id);
+        await client.from('withdrawals').insert([{ user_id: currentUserData.id, username: tg.initDataUnsafe?.user?.username || tg.initDataUnsafe?.user?.first_name || 'User', amount, method, details, status: 'pending' }]);
         currentUserData.balance = newBal;
         document.getElementById('header-balance').innerText = `$${newBal.toFixed(2)}`;
         document.getElementById('wallet-balance-page').innerText = `$${newBal.toFixed(2)}`;
@@ -1593,11 +1682,12 @@ window.submitWithdrawal = async function() {
 };
 
 async function loadWithdrawalHistory() {
-    if (!dbClient || !currentUserData?.id) return;
+    const client = getDbClient();
+    if (!client || !currentUserData?.id) return;
     const list = document.getElementById('withdrawal-history-list');
     const filterVal = document.getElementById('withdraw-filter-status')?.value || 'all';
     try {
-        const { data } = await dbClient.from('withdrawals').select('*').eq('user_id', currentUserData.id).order('created_at', { ascending: false });
+        const { data } = await client.from('withdrawals').select('*').eq('user_id', currentUserData.id).order('created_at', { ascending: false });
         let pendingSum = 0, paidSum = 0;
         (data || []).forEach(w => {
             if (w.status === 'pending') pendingSum += parseFloat(w.amount || 0);
@@ -1620,9 +1710,10 @@ async function loadWithdrawalHistory() {
 
 // 8. LINKS MANAGER
 async function loadLinks() {
-    if (!dbClient || !currentUserData?.id) return;
+    const client = getDbClient();
+    if (!client || !currentUserData?.id) return;
     try {
-        const { data } = await dbClient.from('links').select('*').eq('user_id', currentUserData.id).order('created_at', { ascending: false }).limit(100);
+        const { data } = await client.from('links').select('*').eq('user_id', currentUserData.id).order('created_at', { ascending: false }).limit(100);
         allUserLinks = data || [];
         document.getElementById('links-count-badge').innerText = `${allUserLinks.length} Links`;
         filterLinks();
@@ -1680,9 +1771,10 @@ window.handleSingleLinkDelete = async function(linkId) {
         return;
     }
     try {
+        const client = getDbClient();
         pendingSingleDeleteId = null;
-        await dbClient.from('click_logs').delete().eq('link_id', linkId);
-        const { error } = await dbClient.from('links').delete().eq('id', linkId);
+        await client.from('click_logs').delete().eq('link_id', linkId);
+        const { error } = await client.from('links').delete().eq('id', linkId);
         if (error) throw error;
         allUserLinks = allUserLinks.filter(i => String(i.id) !== String(linkId));
         document.getElementById('links-count-badge').innerText = `${allUserLinks.length} Links`;
@@ -1716,10 +1808,11 @@ window.advanceDeleteAllStep = async function() {
         const btn = document.getElementById('btn-del-modal-confirm');
         btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Deleting...';
         try {
+            const client = getDbClient();
             const ids = allUserLinks.map(l => l.id);
-            if (ids.length > 0) {
-                await dbClient.from('click_logs').delete().in('link_id', ids);
-                const { error } = await dbClient.from('links').delete().eq('user_id', currentUserData.id);
+            if (ids.length > 0 && client) {
+                await client.from('click_logs').delete().in('link_id', ids);
+                const { error } = await client.from('links').delete().eq('user_id', currentUserData.id);
                 if (error) throw error;
             }
             allUserLinks = [];
@@ -1745,13 +1838,14 @@ window.switchStatsMode = function(mode) {
 async function generateDateReport() {
     const listDiv = document.getElementById('earnings-list');
     const monthStr = document.getElementById('report-month').value;
-    if (!monthStr || !currentUserData?.id || !dbClient) {
+    const client = getDbClient();
+    if (!monthStr || !currentUserData?.id || !client) {
         listDiv.innerHTML = '<div class="text-center text-slate-500 text-xs py-5">No link activity yet.</div>';
         return;
     }
     listDiv.innerHTML = '<div class="text-center text-slate-500 text-xs py-5"><i class="fa-solid fa-circle-notch fa-spin mr-1"></i> Loading...</div>';
     try {
-        const { data: links } = await dbClient.from('links').select('id').eq('user_id', currentUserData.id);
+        const { data: links } = await client.from('links').select('id').eq('user_id', currentUserData.id);
         if (!links || links.length === 0) {
             document.getElementById('period-total-views').innerText = '0';
             document.getElementById('period-total-earn').innerText = '$0.0000';
@@ -1764,7 +1858,7 @@ async function generateDateReport() {
 
         if (currentStatsMode === 'daily') {
             const start = new Date(year, month - 1, 1).toISOString(), end = new Date(year, month, 1).toISOString();
-            const { data: clicks } = await dbClient.from('click_logs').select('created_at').in('link_id', linkIds).gte('created_at', start).lt('created_at', end);
+            const { data: clicks } = await client.from('click_logs').select('created_at').in('link_id', linkIds).gte('created_at', start).lt('created_at', end);
             if (!clicks || clicks.length === 0) {
                 document.getElementById('period-total-views').innerText = '0';
                 document.getElementById('period-total-earn').innerText = '$0.0000';
@@ -1802,8 +1896,8 @@ async function generateDateReport() {
         } else if (currentStatsMode === 'monthly') {
             const curStart = new Date(year, month - 1, 1).toISOString(), curEnd = new Date(year, month, 1).toISOString();
             const prevStart = new Date(year, month - 2, 1).toISOString();
-            const { data: curClicks } = await dbClient.from('click_logs').select('created_at').in('link_id', linkIds).gte('created_at', curStart).lt('created_at', curEnd);
-            const { data: prevClicks } = await dbClient.from('click_logs').select('created_at').in('link_id', linkIds).gte('created_at', prevStart).lt('created_at', curStart);
+            const { data: curClicks } = await client.from('click_logs').select('created_at').in('link_id', linkIds).gte('created_at', curStart).lt('created_at', curEnd);
+            const { data: prevClicks } = await client.from('click_logs').select('created_at').in('link_id', linkIds).gte('created_at', prevStart).lt('created_at', curStart);
             const curCount = curClicks?.length || 0, prevCount = prevClicks?.length || 0;
             const curEarn = curCount * (cpmRate / 1000), prevEarn = prevCount * (cpmRate / 1000);
             const growth = prevCount === 0 ? (curCount > 0 ? 100 : 0) : Math.round(((curCount - prevCount) / prevCount) * 100);
@@ -1823,7 +1917,7 @@ async function generateDateReport() {
                 </div>`;
         } else {
             const sixMonthsAgo = new Date(new Date().getFullYear(), new Date().getMonth() - 5, 1).toISOString();
-            const { data: allClicks } = await dbClient.from('click_logs').select('created_at').in('link_id', linkIds).gte('created_at', sixMonthsAgo);
+            const { data: allClicks } = await client.from('click_logs').select('created_at').in('link_id', linkIds).gte('created_at', sixMonthsAgo);
             let monthsMap = {};
             (allClicks || []).forEach(c => {
                 const d = new Date(c.created_at);
@@ -1849,10 +1943,11 @@ async function generateDateReport() {
 
 // 10. REFERRAL SYSTEM
 async function fetchReferralDetails() {
-    if (!currentUserData?.telegram_id || !dbClient) return;
+    const client = getDbClient();
+    if (!currentUserData?.telegram_id || !client) return;
     const listContainer = document.getElementById('referrals-list');
     try {
-        const { data: refs } = await dbClient.from('referrals').select('*').eq('referrer_tg_id', currentUserData.telegram_id).order('created_at', { ascending: false });
+        const { data: refs } = await client.from('referrals').select('*').eq('referrer_tg_id', currentUserData.telegram_id).order('created_at', { ascending: false });
         if (!refs || refs.length === 0) {
             listContainer.innerHTML = '<div class="text-center text-slate-500 py-6 text-xs">No referrals yet. Share your link to earn!</div>';
             document.getElementById('stat-referrals').innerText = 0;
@@ -1860,7 +1955,7 @@ async function fetchReferralDetails() {
             return;
         }
         const refIds = refs.map(r => r.referred_tg_id);
-        const { data: usersData } = await dbClient.from('users').select('telegram_id, first_name, total_earnings').in('telegram_id', refIds);
+        const { data: usersData } = await client.from('users').select('telegram_id, first_name, total_earnings').in('telegram_id', refIds);
         let uMap = {}, totalBonus = 0;
         const pct = (adminSettings.refer_percent || 10) / 100;
         (usersData || []).forEach(u => {
@@ -1892,58 +1987,105 @@ async function fetchReferralDetails() {
 // ============================================================================
 // 11. CLEAN GATEWAY FLOW (MONETAG show_12154661 + VIGNETTE 12154888)
 // ============================================================================
-function startAdFlow() {
-    document.getElementById('ui-loading').classList.add('hidden');
-    document.getElementById('ui-ad-viewer').classList.remove('hidden');
-    if (!vignetteLoaded) {
-        vignetteLoaded = true;
-        injectVignetteAdScript();
+// 11. 3-STAGE AUTO-ADVANCING GATEWAY FLOW (FIRST PAGE -> VERIFY -> LAST PAGE)
+// ============================================================================
+function updateGatewayStepPills(activeStage) {
+    const p1 = document.getElementById('step-pill-1');
+    const p2 = document.getElementById('step-pill-2');
+    const p3 = document.getElementById('step-pill-3');
+    const activeCls = "py-1 rounded-lg text-[10px] font-extrabold bg-white text-[#050508] transition";
+    const doneCls = "py-1 rounded-lg text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 transition";
+    const idleCls = "py-1 rounded-lg text-[10px] font-bold bg-white/5 text-slate-400 border border-white/10 transition";
+
+    if (activeStage === 1) {
+        if (p1) p1.className = activeCls;
+        if (p2) p2.className = idleCls;
+        if (p3) p3.className = idleCls;
+    } else if (activeStage === 2) {
+        if (p1) p1.className = doneCls;
+        if (p2) p2.className = activeCls;
+        if (p3) p3.className = idleCls;
+    } else {
+        if (p1) p1.className = doneCls;
+        if (p2) p2.className = doneCls;
+        if (p3) p3.className = activeCls;
     }
-    setupAdStep();
 }
 
-function setupAdStep() {
+function startAdFlow() {
+    window.__isGatewayMode = true;
+    document.getElementById('ui-loading').classList.add('hidden');
+    document.getElementById('ui-main-app').classList.add('hidden');
+    document.getElementById('ui-ad-viewer').classList.remove('hidden');
+
+    // Load Monetag SDK only inside Gateway Mode
+    loadMonetagSdkForGateway();
+
+    // Start Page 1 (First Page with Ads A, B, C, D)
+    setupFirstGatewayPage();
+}
+
+// STAGE 1: FIRST PAGE (Shows Ads A, B, C, D and automatically moves to Stage 2)
+function setupFirstGatewayPage() {
     adStepCompleted = false;
-    document.getElementById('gateway-progress-bar').style.width = `30%`;
+    updateGatewayStepPills(1);
+
+    // Trigger First Page Ads (A, B, C, D)
+    triggerFirstAndLastPageAds('first');
+
+    document.getElementById('gateway-progress-bar').style.width = `25%`;
     document.getElementById('ad-timer-text').classList.remove('hidden');
     document.getElementById('ad-loader-ring').classList.add('hidden');
 
-    let timeLeft = Math.max(1, parseInt(adminSettings.ad_timer || 5, 10));
+    let timeLeft = Math.max(2, Math.min(5, parseInt(adminSettings.ad_timer || 4, 10)));
     const btn = document.getElementById('btn-watch-ad');
     const timerEl = document.getElementById('ad-timer-text');
+
     timerEl.innerText = timeLeft;
+    document.getElementById('hud-status-label').innerText = `Page 1 of 3 • First Step`;
     document.getElementById('hud-timer-badge').innerText = `${timeLeft}s`;
-    document.getElementById('hud-status-label').innerText = `Please Wait`;
+    document.getElementById('ad-step-title').innerText = "First Page Verification";
+    document.getElementById('ad-step-subtitle').innerText = "Automatically moving to next page...";
 
     btn.disabled = true;
-    btn.className = "w-full mt-4 bg-white/10 text-slate-400 font-extrabold py-3.5 rounded-xl flex justify-center items-center text-xs border border-white/10";
-    btn.innerHTML = `Please Wait ${timeLeft}s...`;
+    btn.className = "w-full mt-3 bg-white/10 text-slate-300 font-extrabold py-3.5 rounded-xl flex justify-center items-center text-xs border border-white/10";
+    btn.innerHTML = `Moving to Step 2 in ${timeLeft}s...`;
 
-    const interval = setInterval(() => {
-        timeLeft--;
-        timerEl.innerText = Math.max(0, timeLeft);
-        document.getElementById('hud-timer-badge').innerText = `${Math.max(0, timeLeft)}s`;
-        btn.innerHTML = `Please Wait ${Math.max(0, timeLeft)}s...`;
-        if (timeLeft <= 0) {
-            clearInterval(interval);
-            checkAdBlocker(btn, timerEl);
+    const startTs = Date.now();
+    const firstPageInterval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTs) / 1000);
+        const rem = Math.max(0, timeLeft - elapsed);
+        timerEl.innerText = rem;
+        document.getElementById('hud-timer-badge').innerText = `${rem}s`;
+        btn.innerHTML = `Moving to Step 2 in ${rem}s...`;
+
+        if (rem <= 0) {
+            clearInterval(firstPageInterval);
+            advanceToSecondPage(btn, timerEl);
         }
-    }, 1000);
+    }, 250);
 }
 
-function checkAdBlocker(btn, timerEl) {
-    timerEl.innerHTML = '<i class="fa-solid fa-shield-check text-white text-xl"></i>';
-    document.getElementById('ad-step-title').innerText = "Ready";
-    document.getElementById('ad-step-subtitle').innerText = "Verifying request...";
+function advanceToSecondPage(btn, timerEl) {
+    forceCloseOverlayAds();
+    timerEl.innerHTML = '<i class="fa-solid fa-bolt text-white text-xl"></i>';
+    document.getElementById('ad-step-title').innerText = "Step 1 Complete";
+    document.getElementById('ad-step-subtitle').innerText = "Auto-advancing to verification page...";
     btn.disabled = false;
-    btn.className = "w-full mt-4 btn-primary font-extrabold py-3.5 rounded-xl flex justify-center items-center text-xs";
-    btn.innerHTML = 'Continue';
+    btn.className = "w-full mt-3 btn-primary font-extrabold py-3.5 rounded-xl flex justify-center items-center text-xs";
+    btn.innerHTML = 'Continue to Next Page';
     btn.onclick = executeAdClick;
-    setTimeout(() => { if (!adStepCompleted && !btn.disabled) btn.click(); }, AUTO_CLICK_VERIFY_DELAY_MS);
+
+    // Automatically advance to Page 2 without requiring manual click
+    setTimeout(() => {
+        if (!adStepCompleted) executeAdClick();
+    }, AUTO_NEXT_PAGE_DELAY_MS);
 }
 
+// STAGE 2: MIDDLE AD VERIFICATION PAGE (Monetag SDK + Auto-Advance to Last Page)
 function executeAdClick() {
     if (adStepCompleted) return;
+    updateGatewayStepPills(2);
     window.__blockAllNewAds = false;
     const nukeStyle = document.getElementById('nuclear-ad-hide-style');
     if (nukeStyle) nukeStyle.remove();
@@ -1959,8 +2101,10 @@ function executeAdClick() {
     let elapsedAdSeconds = 0;
     let milestones = getTriggerMilestones(detectedAdCount);
 
-    btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Loading (${adWaitLeft}s)...`;
-    hudLabel.innerText = `Verifying...`;
+    document.getElementById('ad-step-title').innerText = "Verifying Link Access";
+    document.getElementById('ad-step-subtitle').innerText = "Automatically moving to final page when done...";
+    btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Verifying (${adWaitLeft}s)...`;
+    hudLabel.innerText = `Page 2 of 3 • Verifying`;
     hudBadge.innerText = `${adWaitLeft}s`;
 
     document.getElementById('ad-loader-ring').classList.remove('hidden');
@@ -1975,7 +2119,6 @@ function executeAdClick() {
                 if (res && typeof res.catch === 'function') res.catch(() => {});
             } catch (err) {}
         }
-        injectVignetteAdScript();
     };
 
     triggerSingleMonetagAd();
@@ -2001,26 +2144,25 @@ function executeAdClick() {
         AD_MILESTONE_SECONDS.forEach((mSec) => {
             if (elapsedAdSeconds >= mSec && !triggeredMilestones.has(mSec)) {
                 triggeredMilestones.add(mSec);
-                flashMilestoneCssShield(550);
+                flashMilestoneCssShield(500);
                 forceCloseOverlayAds();
                 if (adWaitLeft > 0 && milestones.includes(mSec)) {
                     setTimeout(() => {
                         if (!adStepCompleted && !window.__blockAllNewAds) triggerSingleMonetagAd();
-                    }, 600);
+                    }, 550);
                 }
             }
         });
 
         if (adWaitLeft > 0) {
-            const pct = Math.min(95, 30 + Math.round((elapsedAdSeconds / totalDurationSeconds) * 65));
+            const pct = Math.min(92, 35 + Math.round((elapsedAdSeconds / totalDurationSeconds) * 57));
             document.getElementById('gateway-progress-bar').style.width = `${pct}%`;
             document.getElementById('ad-timer-text').innerText = adWaitLeft;
             hudBadge.innerText = `${adWaitLeft}s`;
-            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Please Wait (${adWaitLeft}s)...`;
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Moving to Final Page in ${adWaitLeft}s...`;
         } else {
             clearInterval(activeAdCountdownInterval);
             if (!adStepCompleted) {
-                startPostAdCleanupLock();
                 currentAdStep = totalAdsRequired;
                 handleAdSuccess();
             }
@@ -2031,35 +2173,38 @@ function executeAdClick() {
 function handleAdSuccess() {
     if (adStepCompleted) return;
     adStepCompleted = true;
-    startPostAdCleanupLock();
+    forceCloseOverlayAds();
     showFinalLink();
 }
 
-// 12. DIRECT AUTOMATIC REDIRECT (FIXED SO IT NEVER GETS STUCK)
+// 12. STAGE 3: LAST PAGE (Triggers Last Page Ads A, B, C, D + Automatic Redirect to Destination)
 function openTargetDestination(rawUrl) {
     const cleanUrl = normalizeDestinationUrl(rawUrl);
-    if (!cleanUrl) return showToast("Invalid destination link", true);
+    if (!cleanUrl) return showToast("Destination URL could not be loaded", true);
 
-    startPostAdCleanupLock();
     window.__allowDestinationPopup = true;
+    window.__adWindowOpenBlocked = false;
 
-    document.getElementById('ad-step-title').innerText = "Link Opened!";
-    document.getElementById('ad-step-subtitle').innerText = "If you were not redirected automatically, tap the button below.";
+    document.getElementById('ad-step-title').innerText = "Redirecting to Destination...";
+    document.getElementById('ad-step-subtitle').innerText = "Opening your link automatically...";
 
     const isTelegramUrl = /^https?:\/\/(t\.me|telegram\.me|telegram\.dog)\//i.test(cleanUrl) || cleanUrl.startsWith('tg://');
     const isInsideTelegram = Boolean(tg && tg.initDataUnsafe && Object.keys(tg.initDataUnsafe).length > 0);
 
+    // 1. Handle Telegram Deep Links (t.me / tg://)
     if (isTelegramUrl) {
         try {
             if (isInsideTelegram && typeof tg.openTelegramLink === 'function') {
                 tg.openTelegramLink(cleanUrl);
-                return;
             }
         } catch (e) {}
-        try { window.top.location.href = cleanUrl; } catch (e) { window.location.href = cleanUrl; }
+        setTimeout(() => {
+            try { window.top.location.href = cleanUrl; } catch (e) { window.location.href = cleanUrl; }
+        }, 150);
         return;
     }
 
+    // 2. Handle External Web Links inside Telegram Mini App or Browser
     try {
         if (isInsideTelegram && typeof tg.openLink === 'function') {
             tg.openLink(cleanUrl, { try_instant_view: false });
@@ -2068,32 +2213,41 @@ function openTargetDestination(rawUrl) {
 
     try {
         const hiddenAnchor = document.getElementById('hidden-redirect-anchor');
-        if (hiddenAnchor) { hiddenAnchor.href = cleanUrl; hiddenAnchor.click(); }
+        if (hiddenAnchor) {
+            hiddenAnchor.href = cleanUrl;
+            hiddenAnchor.target = '_top';
+            hiddenAnchor.click();
+        }
     } catch (e) {}
 
     setTimeout(() => {
-        try { window.top.location.assign(cleanUrl); } catch (e) { window.location.assign(cleanUrl); }
-    }, 220);
+        try {
+            window.location.replace(cleanUrl);
+        } catch (e) {
+            window.location.href = cleanUrl;
+        }
+    }, 180);
 }
 
 async function showFinalLink() {
-    startPostAdCleanupLock();
+    updateGatewayStepPills(3);
+
+    // Trigger Last Page Ads (A, B, C, D) on the Final Page as requested
+    triggerFirstAndLastPageAds('last');
+
     document.getElementById('gateway-progress-bar').style.width = `100%`;
     document.getElementById('btn-watch-ad').classList.add('hidden');
     document.getElementById('ad-loader-ring').classList.add('hidden');
     document.getElementById('ad-timer-text').classList.remove('hidden');
     document.getElementById('ad-timer-text').innerHTML = '<i class="fa-solid fa-check text-white text-xl"></i>';
-    document.getElementById('hud-status-label').innerText = "Completed";
-    document.getElementById('hud-timer-badge').innerText = "DONE";
-    document.getElementById('ad-step-title').innerText = "Redirecting...";
-    document.getElementById('ad-step-subtitle').innerText = "Opening your destination now";
+    document.getElementById('hud-status-label').innerText = "Page 3 of 3 • Final Page";
+    document.getElementById('hud-timer-badge').innerText = "READY";
+    document.getElementById('ad-step-title').innerText = "Final Page • Redirecting...";
+    document.getElementById('ad-step-subtitle').innerText = "Automatically opening destination link...";
     document.getElementById('final-link-actions').classList.remove('hidden');
 
-    if (window.invalidClickReason === "self") {
-        // Self-click protection
-    } else if (window.invalidClickReason === "duplicate") {
-        // Duplicate click protection
-    } else if (window.currentShortId) {
+    // Credit Creator Reward in Background
+    if (window.invalidClickReason !== "self" && window.invalidClickReason !== "duplicate" && window.currentShortId) {
         const clickerId = tg.initDataUnsafe?.user?.id || 0;
         const watchedTier = clampAdTier(totalAdsRequired || adminSettings.ads_per_link || 1);
         try {
@@ -2109,6 +2263,7 @@ async function showFinalLink() {
         } catch(e){}
     }
 
+    // Ensure destination URL is resolved
     if (!targetOriginalUrl && window.currentShortId) {
         const row = await resolveDestinationUrlFromDb(window.currentShortId);
         if (row && row.original_url) targetOriginalUrl = normalizeDestinationUrl(row.original_url);
@@ -2116,26 +2271,26 @@ async function showFinalLink() {
 
     if (targetOriginalUrl) {
         const cleanDest = normalizeDestinationUrl(targetOriginalUrl);
-        document.getElementById('btn-get-link').onclick = () => openTargetDestination(cleanDest);
+        const getLinkBtn = document.getElementById('btn-get-link');
+        getLinkBtn.onclick = () => openTargetDestination(cleanDest);
+
+        // Automatic countdown & redirect on the Last Page
+        let redirectSec = 1;
+        getLinkBtn.innerHTML = `<i class="fa-solid fa-arrow-up-right-from-square"></i><span>Auto-Redirecting in ${redirectSec}s... (Tap to Open)</span>`;
 
         setTimeout(() => {
-            startPostAdCleanupLock();
+            getLinkBtn.innerHTML = `<i class="fa-solid fa-arrow-up-right-from-square"></i><span>Open Destination Link</span>`;
             openTargetDestination(cleanDest);
         }, AUTO_OPEN_DEST_DELAY_MS);
     } else {
-        document.getElementById('ad-step-title').innerText = "Link Unavailable";
-        document.getElementById('ad-step-subtitle').innerText = "This link does not exist or was removed.";
+        document.getElementById('ad-step-title').innerText = "Link Not Found";
+        document.getElementById('ad-step-subtitle').innerText = "This short link does not exist or was deleted.";
         document.getElementById('final-link-actions').classList.add('hidden');
     }
 }
 
-// Launch immediately when DOM is ready (never wait on external ad scripts)
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initApp);
-} else {
-    initApp();
-}
-window.addEventListener('load', initApp);
+// Launch immediately (0ms delay)
+initApp();
 </script>
 </body>
 </html>
