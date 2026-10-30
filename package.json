@@ -1,8 +1,11 @@
-
 {
   "name": "sandalwoodlinks-api",
-  "version": "1.0.0",
-  "description": "Backend API for SandalwoodLinks",
+  "version": "3.0.0",
+  "description": "Backend API and Creator Monetization Infrastructure for SandalwoodLinks",
+  "main": "api/index.js",
+  "engines": {
+    "node": ">=18.x"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0"
   }
