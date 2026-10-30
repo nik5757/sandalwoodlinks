@@ -1,11 +1,16 @@
-
+// FILE: api/broadcast.js
 export default async function handler(req, res) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') return res.status(200).end();
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { chat_ids, image_url, caption, use_button, mini_app_url } = req.body;
-    const BOT_TOKEN = process.env.BOT_TOKEN; 
+    const { chat_ids, image_url, caption, use_button, mini_app_url } = req.body || {};
+    const BOT_TOKEN = process.env.BOT_TOKEN;
 
     if (!BOT_TOKEN) {
         return res.status(500).json({ error: 'BOT_TOKEN is missing on server.' });
@@ -18,11 +23,9 @@ export default async function handler(req, res) {
     let sent = 0;
     let failed = 0;
 
-    // --- SMART BUTTON LOGIC ---
     let buttonConfig = {};
     const finalUrl = mini_app_url || "https://sandalwoodlinks.vercel.app/";
-    
-    // Agar t.me link hai toh normal 'url' button banayega, warna 'web_app' button banayega
+
     if (finalUrl.includes('t.me')) {
         buttonConfig = { url: finalUrl };
     } else {
@@ -30,12 +33,11 @@ export default async function handler(req, res) {
     }
 
     const reply_markup = use_button ? {
-        inline_keyboard: [[{ 
-            text: "👉 Open now 👈", 
-            ...buttonConfig 
+        inline_keyboard: [[{
+            text: "👉 Open now 👈",
+            ...buttonConfig
         }]]
     } : undefined;
-    // -------------------------
 
     const endpoint = image_url ? 'sendPhoto' : 'sendMessage';
 
@@ -65,16 +67,13 @@ export default async function handler(req, res) {
                 sent++;
             } else {
                 failed++;
-                console.error(`Error for ${chat_id}:`, data.description);
             }
 
-            // Rate limit bachane ke liye delay
             await new Promise(resolve => setTimeout(resolve, 35));
-
         } catch (error) {
             failed++;
         }
     }
 
-    res.status(200).json({ sent, failed });
+    return res.status(200).json({ sent, failed });
 }
