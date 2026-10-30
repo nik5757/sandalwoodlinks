@@ -183,7 +183,7 @@
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.92), inset 0 1px 0 rgba(255, 255, 255, 0.08);
         }
 
-        /* Pure White Primary Button (Replaces Orange) */
+        /* Pure White Primary Button */
         .btn-primary {
             background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
             color: #050508 !important;
@@ -1009,9 +1009,23 @@ let pendingSingleDeleteId = null;
 let deleteAllConfirmStep = 0;
 let currentStatsMode = 'daily';
 let appInitialized = false;
-let adminSettings = { cpm: 1, ad_timer: 4, ads_per_link: 1, refer_percent: 10, min_withdraw: 5.0, maintenance_mode: false, payment_methods: "UPI, PayPal, USDT (TRC20)" };
+let adminSettings = {
+    cpm: 1,
+    ad_timer: 4,
+    ads_per_link: 1,
+    refer_percent: 10,
+    min_withdraw: 5.0,
+    maintenance_mode: false,
+    payment_methods: "UPI, PayPal, USDT (TRC20)"
+};
 
-const tg = window.Telegram?.WebApp || { expand: () => {}, ready: () => {}, close: () => window.close(), openLink: (u) => window.open(u, '_blank'), openTelegramLink: (u) => { window.top.location.href = u; } };
+const tg = window.Telegram?.WebApp || {
+    expand: () => {},
+    ready: () => {},
+    close: () => window.close(),
+    openLink: (u) => window.open(u, '_blank'),
+    openTelegramLink: (u) => { window.top.location.href = u; }
+};
 try {
     if (typeof tg.ready === 'function') tg.ready();
     if (typeof tg.expand === 'function') tg.expand();
@@ -1171,14 +1185,6 @@ function forceCloseOverlayAds() {
     setTimeout(() => { window.__adWindowOpenBlocked = false; }, 450);
 }
 
-function startPostAdCleanupLock() {
-    window.__blockAllNewAds = true;
-    window.__adWindowOpenBlocked = true;
-    flashMilestoneCssShield(600);
-    forceCloseOverlayAds();
-    if (adCleanupLockInterval) clearInterval(adCleanupLockInterval);
-}
-
 window.manualForceCancelAd = function() {
     flashMilestoneCssShield(800);
     forceCloseOverlayAds();
@@ -1243,13 +1249,17 @@ function fallbackCopy(t) {
     document.body.removeChild(el);
 }
 
-function dismissRules() { sessionStorage.setItem('sw_rules_accepted', '1'); document.getElementById('warning-popup').classList.add('hidden'); }
+function dismissRules() {
+    sessionStorage.setItem('sw_rules_accepted', '1');
+    document.getElementById('warning-popup').classList.add('hidden');
+}
 
 function switchPage(pageId) {
     document.querySelectorAll('.page-content').forEach(el => el.classList.add('hidden'));
     document.getElementById(pageId).classList.remove('hidden');
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-    const btn = document.querySelector(`.nav-btn[data-target="${pageId}"]`); if (btn) btn.classList.add('active');
+    const btn = document.querySelector(`.nav-btn[data-target="${pageId}"]`);
+    if (btn) btn.classList.add('active');
     if (pageId === 'page-links') loadLinks();
     if (pageId === 'page-home') generateDateReport();
     if (pageId === 'page-refer') fetchReferralDetails();
@@ -1257,11 +1267,6 @@ function switchPage(pageId) {
     if (pageId === 'page-api') setupApiTab();
     if (pageId === 'page-profile') updateProfileMetrics();
 }
-
-// 5. FAIL-SAFE INITIALIZATION (NEVER STUCK ON LOADING SCREEN)
-async function ensureApiUnlockedIfEligible(forceUnlock = false) {
-    if (!currentUserData) return null;
-    if (currentUserData.api_key) return currentUserData.api_key;
 
 // 5. FAIL-SAFE INSTANT INITIALIZATION (0ms STUCK ON LINK CLICK OR DASHBOARD)
 async function ensureApiUnlockedIfEligible(forceUnlock = false) {
@@ -1496,7 +1501,18 @@ async function verifyLinkStatus() {
 // 6. DASHBOARD LOGIC
 function setupDashboard() {
     if (!currentUserData) {
-        currentUserData = { id: 0, telegram_id: 999999, first_name: 'Creator', username: 'creator_pro', balance: 0, today_earnings: 0, total_earnings: 0, total_clicks: 0, today_clicks: 0, api_key: null };
+        currentUserData = {
+            id: 0,
+            telegram_id: 999999,
+            first_name: 'Creator',
+            username: 'creator_pro',
+            balance: 0,
+            today_earnings: 0,
+            total_earnings: 0,
+            total_clicks: 0,
+            today_clicks: 0,
+            api_key: null
+        };
     }
     if (!sessionStorage.getItem('sw_rules_accepted')) document.getElementById('warning-popup').classList.remove('hidden');
     const u = tg.initDataUnsafe?.user || currentUserData;
@@ -1553,7 +1569,7 @@ function setupDashboard() {
                 if (ex && ex.length > 0) { showToast("Custom alias already exists", true); return; }
             }
             const shortId = alias || Math.random().toString(36).substring(2, 8);
-            if (client) {
+            if (client && currentUserData.id) {
                 await client.from('links').insert([{ original_url: url, short_id: shortId, user_id: currentUserData.id }]);
             }
 
@@ -1711,13 +1727,18 @@ async function loadWithdrawalHistory() {
 // 8. LINKS MANAGER
 async function loadLinks() {
     const client = getDbClient();
-    if (!client || !currentUserData?.id) return;
+    if (!client || !currentUserData?.id) {
+        renderLinksList([]);
+        return;
+    }
     try {
         const { data } = await client.from('links').select('*').eq('user_id', currentUserData.id).order('created_at', { ascending: false }).limit(100);
         allUserLinks = data || [];
         document.getElementById('links-count-badge').innerText = `${allUserLinks.length} Links`;
         filterLinks();
-    } catch(e) {}
+    } catch(e) {
+        renderLinksList([]);
+    }
 }
 
 function filterLinks() {
@@ -1944,8 +1965,11 @@ async function generateDateReport() {
 // 10. REFERRAL SYSTEM
 async function fetchReferralDetails() {
     const client = getDbClient();
-    if (!currentUserData?.telegram_id || !client) return;
     const listContainer = document.getElementById('referrals-list');
+    if (!currentUserData?.telegram_id || !client) {
+        if (listContainer) listContainer.innerHTML = '<div class="text-center text-slate-500 py-6 text-xs">No referrals yet. Share your link to earn!</div>';
+        return;
+    }
     try {
         const { data: refs } = await client.from('referrals').select('*').eq('referrer_tg_id', currentUserData.telegram_id).order('created_at', { ascending: false });
         if (!refs || refs.length === 0) {
@@ -1984,8 +2008,6 @@ async function fetchReferralDetails() {
     } catch (e) {}
 }
 
-// ============================================================================
-// 11. CLEAN GATEWAY FLOW (MONETAG show_12154661 + VIGNETTE 12154888)
 // ============================================================================
 // 11. 3-STAGE AUTO-ADVANCING GATEWAY FLOW (FIRST PAGE -> VERIFY -> LAST PAGE)
 // ============================================================================
@@ -2289,8 +2311,13 @@ async function showFinalLink() {
     }
 }
 
-// Launch immediately (0ms delay)
-initApp();
+// Launch immediately (0ms delay) + fail-safe DOM ready fallback
+try {
+    initApp();
+} catch (err) {
+    document.getElementById('ui-loading')?.classList.add('hidden');
+    document.getElementById('ui-main-app')?.classList.remove('hidden');
+}
 </script>
 </body>
 </html>
