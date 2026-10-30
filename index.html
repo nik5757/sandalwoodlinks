@@ -993,7 +993,41 @@ function switchPage(pageId) {
     if (pageId === 'page-profile') updateProfileMetrics();
 }
 
-// 5. INITIALIZATION
+// =========================================================================
+// 5. INITIALIZATION (NO API CREATED FOR NORMAL USERS UNTIL 1 LINK CONVERTED)
+// =========================================================================
+async function ensureApiUnlockedIfEligible(forceUnlock = false) {
+    if (!currentUserData) return null;
+    if (currentUserData.api_key) return currentUserData.api_key;
+
+    let linkCount = 0;
+    if (forceUnlock) {
+        linkCount = 1;
+    } else if (currentUserData.id) {
+        try {
+            const { count } = await dbClient
+                .from('links')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', currentUserData.id);
+            linkCount = count || 0;
+        } catch (e) {}
+    }
+
+    // Only create & save permanent API key if user has converted minimum 1 link
+    if (linkCount >= 1) {
+        const permKey = generatePermanentUserApiKey(currentUserData.telegram_id, currentUserData.id);
+        if (currentUserData.id) {
+            try {
+                await dbClient.from('users').update({ api_key: permKey }).eq('id', currentUserData.id);
+            } catch (e) {}
+        }
+        currentUserData.api_key = permKey;
+        return permKey;
+    }
+
+    return null;
+}
+
 async function initApp() {
     try {
         populateAdTierSelect();
@@ -1013,25 +1047,65 @@ async function initApp() {
                 document.getElementById('loading-text').innerText = "Contact support for assistance.";
                 return;
             }
-            const permKey = (existUser && existUser.api_key) ? existUser.api_key : generatePermanentUserApiKey(user.id, existUser?.id);
+
             if (!existUser) {
-                const { data: ins } = await dbClient.from('users').insert([{ telegram_id: user.id, first_name: user.first_name, username: user.username, api_key: permKey }]).select('*').limit(1);
-                existUser = (ins && ins[0]) || { telegram_id: user.id, first_name: user.first_name, username: user.username, balance: 0, today_earnings: 0, total_earnings: 0, total_clicks: 0, today_clicks: 0, api_key: permKey };
+                // DO NOT create API key for normal users on registration (api_key: null)
+                const { data: ins } = await dbClient.from('users').insert([{
+                    telegram_id: user.id,
+                    first_name: user.first_name,
+                    username: user.username,
+                    api_key: null
+                }]).select('*').limit(1);
+
+                existUser = (ins && ins[0]) || {
+                    telegram_id: user.id,
+                    first_name: user.first_name,
+                    username: user.username,
+                    balance: 0,
+                    today_earnings: 0,
+                    total_earnings: 0,
+                    total_clicks: 0,
+                    today_clicks: 0,
+                    api_key: null
+                };
+
                 if (startParam && startParam.startsWith('ref_')) {
                     const refId = parseInt(startParam.replace('ref_', ''), 10);
                     if (refId && refId !== user.id) {
                         await dbClient.from('referrals').insert([{ referrer_tg_id: refId, referred_tg_id: user.id, status: 'active' }]);
-                        try { fetch(`${VERCEL_API_URL}/process_referral`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ referrer_id: refId, new_user: user }) }); } catch(e){}
+                        try {
+                            fetch(`${VERCEL_API_URL}/process_referral`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ referrer_id: refId, new_user: user })
+                            });
+                        } catch(e){}
                     }
                 }
-            } else if (!existUser.api_key) {
-                await dbClient.from('users').update({ api_key: permKey }).eq('id', existUser.id);
-                existUser.api_key = permKey;
             }
+
             currentUserData = existUser;
+
+            // Check if existing user already converted >= 1 link; if so, ensure API is unlocked
+            if (!currentUserData.api_key) {
+                await ensureApiUnlockedIfEligible(false);
+            }
         } else if (!startParam) {
-            currentUserData = { id: 0, telegram_id: 999999, first_name: 'Creator', username: 'creator_pro', balance: 0, today_earnings: 0, total_earnings: 0, total_clicks: 0, today_clicks: 0, api_key: generatePermanentUserApiKey(999999, 1) };
+            // Demo user starts with api_key: null until they convert 1 link
+            currentUserData = {
+                id: 0,
+                telegram_id: 999999,
+                first_name: 'Creator',
+                username: 'creator_pro',
+                balance: 0,
+                today_earnings: 0,
+                total_earnings: 0,
+                total_clicks: 0,
+                today_clicks: 0,
+                api_key: null
+            };
         }
+
         if (startParam && !startParam.startsWith('ref_')) {
             window.currentShortId = startParam.startsWith('link_') ? startParam.replace(/^link_/, '') : startParam;
             await verifyLinkStatus();
@@ -1041,7 +1115,9 @@ async function initApp() {
             document.getElementById('ui-main-app').classList.remove('hidden');
             setupDashboard();
         }
-    } catch(e) { document.getElementById('loading-text').innerText = "Connection Error: " + e.message; }
+    } catch(e) {
+        document.getElementById('loading-text').innerText = "Connection Error: " + e.message;
+    }
 }
 
 async function loadAdminSettings() {
@@ -1084,7 +1160,9 @@ async function verifyLinkStatus() {
     } catch(e) {}
 }
 
-// 6. DASHBOARD LOGIC
+// =========================================================================
+// 6. DASHBOARD LOGIC (UNLOCKS API AUTOMATICALLY WHEN 1ST LINK IS CONVERTED)
+// =========================================================================
 function setupDashboard() {
     if (!sessionStorage.getItem('sw_rules_accepted')) document.getElementById('warning-popup').classList.remove('hidden');
     const u = tg.initDataUnsafe?.user || currentUserData;
@@ -1138,13 +1216,25 @@ function setupDashboard() {
             }
             const shortId = alias || Math.random().toString(36).substring(2, 8);
             await dbClient.from('links').insert([{ original_url: url, short_id: shortId, user_id: currentUserData.id }]);
+
+            // UNLOCK PERMANENT API KEY NOW THAT USER HAS CONVERTED MINIMUM 1 LINK!
+            const wasLocked = !currentUserData.api_key;
+            await ensureApiUnlockedIfEligible(true);
+            setupApiTab();
+            updateProfileMetrics();
+
             const genLink = `https://t.me/${BOT_USERNAME}/${APP_SHORT_NAME}?startapp=link_${shortId}`;
             document.getElementById('short-link-display').innerText = genLink;
             document.getElementById('btn-share-link').onclick = () => tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(genLink)}`);
             document.getElementById('shorten-result').classList.remove('hidden');
             document.getElementById('long-url-input').value = '';
             document.getElementById('custom-alias-input').value = '';
-            showToast("Monetized short link created!");
+
+            if (wasLocked && currentUserData.api_key) {
+                showToast("Link created & Permanent Bot API Unlocked!");
+            } else {
+                showToast("Monetized short link created!");
+            }
         } catch (e) { showToast("Failed to create link", true); }
         finally { this.innerHTML = '<i class="fa-solid fa-bolt"></i><span>Shorten URL & Monetize Now</span>'; this.disabled = false; }
     });
@@ -1162,7 +1252,8 @@ function setupDashboard() {
 
 async function updateProfileMetrics() {
     if (!currentUserData) return;
-    document.getElementById('profile-api-preview').innerText = currentUserData.api_key || 'Permanent Token Active';
+    await ensureApiUnlockedIfEligible(false);
+    document.getElementById('profile-api-preview').innerText = currentUserData.api_key || '🔒 Convert 1 link to unlock API';
     document.getElementById('prof-stat-views').innerText = currentUserData.total_clicks || 0;
     document.getElementById('prof-stat-cpm').innerText = `$${parseFloat(adminSettings.cpm || 1).toFixed(2)}`;
     try {
@@ -1171,15 +1262,28 @@ async function updateProfileMetrics() {
     } catch (e) {}
 }
 
-function setupApiTab() {
+async function setupApiTab() {
     if (!currentUserData) return;
-    const key = currentUserData.api_key || generatePermanentUserApiKey(currentUserData.telegram_id, currentUserData.id);
-    currentUserData.api_key = key;
-    document.getElementById('user-api-key').innerText = key;
-    document.getElementById('api-example-url').innerText = `${VERCEL_API_URL}?api=${key}&url=https://yourdestinationlink.com&alias=CustomAlias`;
+    await ensureApiUnlockedIfEligible(false);
+
+    const apiKeyEl = document.getElementById('user-api-key');
+    const exampleEl = document.getElementById('api-example-url');
+
+    if (currentUserData.api_key) {
+        apiKeyEl.innerText = currentUserData.api_key;
+        apiKeyEl.className = "font-mono-code text-xs text-amber-300 truncate pr-2 select-all";
+        exampleEl.innerText = `${VERCEL_API_URL}?api=${currentUserData.api_key}&url=https://yourdestinationlink.com&alias=CustomAlias`;
+    } else {
+        apiKeyEl.innerText = "🔒 Locked — Convert minimum 1 link on Home tab to generate API";
+        apiKeyEl.className = "font-mono-code text-xs text-rose-400 truncate pr-2";
+        exampleEl.innerText = `${VERCEL_API_URL}?api=UNLOCK_BY_CONVERTING_1_LINK&url=https://yourdestinationlink.com`;
+    }
 }
 
 window.runLiveApiTest = async function() {
+    if (!currentUserData?.api_key) {
+        return showToast("Convert at least 1 link on the Home tab first to unlock your API!", true);
+    }
     const testUrl = normalizeDestinationUrl(document.getElementById('api-test-url').value.trim());
     const testAlias = document.getElementById('api-test-alias').value.trim();
     const out = document.getElementById('api-test-output'), btn = document.getElementById('btn-test-api');
