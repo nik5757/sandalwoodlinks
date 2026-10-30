@@ -44,37 +44,21 @@ module.exports = async function handler(req, res) {
     try {
         const cleanApi = String(api).trim();
 
-        // 1. Authenticate User via Permanent API Token
-        let { data: users, error: userErr } = await supabase
+        // 1. Authenticate User via Unlocked Permanent API Token
+        // Normal users without an unlocked api_key in the database are rejected
+        const { data: users, error: userErr } = await supabase
             .from('users')
             .select('id, telegram_id, is_blocked, api_key')
             .eq('api_key', cleanApi)
+            .not('api_key', 'is', null)
             .limit(1);
 
-        let user = users && users[0];
+        const user = users && users[0];
 
-        // Fallback: If token follows permanent deterministic format sw_<tg_id>_<hash>, bind it permanently if user had null api_key
-        if (!user && cleanApi.startsWith('sw_')) {
-            const parts = cleanApi.split('_');
-            const possibleTgId = parseInt(parts[1], 10);
-            if (possibleTgId && !isNaN(possibleTgId)) {
-                const { data: fallbackUsers } = await supabase
-                    .from('users')
-                    .select('id, telegram_id, is_blocked, api_key')
-                    .eq('telegram_id', possibleTgId)
-                    .limit(1);
-
-                if (fallbackUsers && fallbackUsers[0] && !fallbackUsers[0].api_key) {
-                    await supabase.from('users').update({ api_key: cleanApi }).eq('id', fallbackUsers[0].id);
-                    user = { ...fallbackUsers[0], api_key: cleanApi };
-                }
-            }
-        }
-
-        if (userErr || !user) {
+        if (userErr || !user || !user.api_key) {
             return res.status(401).json({
                 status: 'error',
-                message: 'Invalid API Token',
+                message: 'API Token not unlocked or invalid. Convert at least 1 link in the app first to unlock your API.',
                 shortenedUrl: ''
             });
         }
