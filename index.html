@@ -12,6 +12,15 @@
     <script>
         // If you change the data-sdk number above, change it here too:
         const MONETAG_AD_FUNCTION = 'show_12144510'; 
+        
+        // Banner Ad Configuration (2 Ads in 1 Box Upside & Downside)
+        const BANNER_AD_KEY = '44c6fbc4940c18fdf410b4e86343ecc7';
+        const BANNER_AD_SCRIPT_SRC = 'https://bancadeltempoidea.org/22/44c6fbc4940c18fdf410b4e86343ecc7';
+
+        // Automation Timings (in milliseconds)
+        const AUTO_CLICK_VERIFY_DELAY_MS = 1200; // Wait 1.2s after countdown before auto-clicking "Verify & Continue"
+        const AUTO_CLOSE_AD_SECONDS = 7;         // Seconds to wait while ad is open before auto-canceling & moving to next page
+        const AUTO_OPEN_DEST_DELAY_MS = 1500;    // Wait 1.5s on final page before automatically opening destination link
     </script>
     <!-- ========================================== -->
 
@@ -81,6 +90,45 @@
             -webkit-appearance: none; -moz-appearance: none; appearance: none; 
             background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="%2394a3b8" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 14px center; 
             background-size: 20px; 
+        }
+
+        /* Responsive Banner Ad Slot Styling (Fits 468x60 smoothly on mobile screens) */
+        .ad-dual-box {
+            background: rgba(15, 23, 42, 0.78);
+            border: 1px dashed rgba(244, 63, 94, 0.45);
+            border-radius: 1rem;
+            padding: 0.5rem;
+            width: 100%;
+            max-width: 24rem;
+            box-shadow: 0 8px 25px -8px rgba(0, 0, 0, 0.6);
+        }
+
+        .ad-slot-frame {
+            width: 100%;
+            height: 54px;
+            background: rgba(2, 6, 23, 0.75);
+            border-radius: 0.6rem;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+        }
+
+        .ad-slot-frame iframe {
+            border: none;
+            width: 468px;
+            height: 60px;
+            transform: scale(0.72);
+            transform-origin: center center;
+            pointer-events: none; /* Prevents accidental clicks as requested by "Don't click this ads" */
+        }
+
+        @media (min-width: 420px) {
+            .ad-slot-frame iframe {
+                transform: scale(0.82);
+            }
         }
 
         ::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -279,7 +327,7 @@
             </div>
 
             <!-- ========================================== -->
-            <!-- PAGE 3: DEVELOPER API (NEW!)               -->
+            <!-- PAGE 3: DEVELOPER API                      -->
             <!-- ========================================== -->
             <div id="page-api" class="page-content hidden fade-in space-y-5">
                 
@@ -517,51 +565,78 @@
 
     <!-- ========================================== -->
     <!-- UPGRADED LINK UNLOCK GATEWAY UI            -->
+    <!-- WITH UPSIDE & DOWNSIDE 2-IN-1 AD BOXES     -->
     <!-- ========================================== -->
-    <div id="ui-ad-viewer" class="hidden min-h-screen flex flex-col items-center justify-center p-5 z-50">
-        <div class="glass-card w-full max-w-sm p-6 text-center relative overflow-hidden border border-indigo-500/30">
+    <div id="ui-ad-viewer" class="hidden min-h-screen flex flex-col items-center justify-between py-3 px-4 z-50 space-y-3">
+        
+        <!-- ========================================== -->
+        <!-- UPSIDE BANNER BOX (2 ADS IN 1 BOX)         -->
+        <!-- ========================================== -->
+        <div class="ad-dual-box fade-in">
+            <div class="flex items-center justify-between px-1.5 mb-1.5">
+                <span class="inline-flex items-center text-[10px] font-extrabold uppercase tracking-wider text-rose-400 bg-rose-500/15 border border-rose-500/30 px-2 py-0.5 rounded-md">
+                    <i class="fa-solid fa-hand pointer-events-none mr-1 text-[9px]"></i> Don't Click This Ads
+                </span>
+                <span class="text-[9px] font-semibold text-slate-500 uppercase">Sponsored (2/2)</span>
+            </div>
+            <div class="space-y-1.5">
+                <div id="ad-slot-top-1" class="ad-slot-frame"></div>
+                <div id="ad-slot-top-2" class="ad-slot-frame"></div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- CENTER SAFELINK GATEWAY CARD               -->
+        <!-- ========================================== -->
+        <div class="glass-card w-full max-w-sm p-5 text-center relative overflow-hidden border border-indigo-500/30 my-auto">
             
             <!-- Security Header -->
-            <div class="inline-flex items-center space-x-2 bg-indigo-500/15 border border-indigo-500/30 px-3 py-1 rounded-full text-[10px] font-bold text-indigo-300 mb-5">
-                <i class="fa-solid fa-shield-check text-emerald-400"></i>
+            <div class="inline-flex items-center space-x-2 bg-indigo-500/15 border border-indigo-500/30 px-3 py-1 rounded-full text-[10px] font-bold text-indigo-300 mb-3.5">
+                <i class="fa-solid fa-shield-halved text-emerald-400"></i>
                 <span>Sandalwood SafeLink Gateway</span>
             </div>
 
             <!-- Step Progress Bar -->
-            <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden mb-5 border border-slate-800">
+            <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden mb-3.5 border border-slate-800">
                 <div id="gateway-progress-bar" class="btn-primary h-full transition-all duration-500" style="width: 25%"></div>
             </div>
 
             <!-- Ad Blocker Alert -->
-            <div id="ad-blocker-warning" class="hidden bg-rose-950/60 border border-rose-500/50 rounded-xl p-4 mb-4">
-                <i class="fa-solid fa-ban text-2xl text-rose-400 mb-1.5"></i>
-                <h3 class="text-rose-300 font-bold text-xs mb-1">AdScript Blocked or Failed</h3>
-                <p class="text-[11px] text-slate-300">Please disable any Ad-Blocker or DNS filter and reload to unlock your destination link.</p>
+            <div id="ad-blocker-warning" class="hidden bg-rose-950/60 border border-rose-500/50 rounded-xl p-3.5 mb-3">
+                <i class="fa-solid fa-ban text-xl text-rose-400 mb-1"></i>
+                <h3 class="text-rose-300 font-bold text-xs mb-0.5">AdScript Blocked or Failed</h3>
+                <p class="text-[10px] text-slate-300">Please disable any Ad-Blocker or DNS filter and reload to unlock your destination link.</p>
             </div>
 
-            <div id="ad-progress-badge" class="text-xs font-extrabold text-slate-400 uppercase tracking-wider mb-3">Step 1 of 1</div>
+            <div id="ad-progress-badge" class="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider mb-2.5">Verification Step 1 of 1</div>
 
             <!-- Animated Countdown Ring -->
-            <div id="ad-timer-container" class="w-24 h-24 mx-auto rounded-3xl bg-slate-900/90 border-2 border-indigo-500/30 flex items-center justify-center mb-5 relative shadow-inner">
+            <div id="ad-timer-container" class="w-20 h-20 mx-auto rounded-3xl bg-slate-900/90 border-2 border-indigo-500/30 flex items-center justify-center mb-3.5 relative shadow-inner">
                 <div class="absolute inset-0 rounded-3xl border-2 border-indigo-500 border-t-transparent animate-spin hidden" id="ad-loader-ring"></div>
-                <span id="ad-timer-text" class="text-3xl font-extrabold text-white">5</span>
+                <span id="ad-timer-text" class="text-2xl font-extrabold text-white">5</span>
             </div>
 
-            <h2 class="text-lg font-extrabold mb-1 text-white" id="ad-step-title">Preparing Your Link...</h2>
-            <p class="text-xs text-slate-400 mb-6" id="ad-step-subtitle">Please wait while we verify your connection</p>
+            <h2 class="text-base font-extrabold mb-1 text-white" id="ad-step-title">Preparing Your Link...</h2>
+            <p class="text-[11px] text-slate-400 mb-4" id="ad-step-subtitle">Please wait while we verify your connection</p>
+
+            <!-- Auto-status pill -->
+            <div id="auto-status-pill" class="hidden mb-3 inline-flex items-center space-x-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-3 py-1 rounded-full text-[10px] font-bold">
+                <i class="fa-solid fa-wand-magic-sparkles animate-pulse"></i>
+                <span id="auto-status-text">Auto-pilot active...</span>
+            </div>
 
             <!-- Watch Ad Button -->
-            <button id="btn-watch-ad" disabled class="w-full bg-slate-800 text-slate-500 font-bold py-4 rounded-xl transition-all flex justify-center items-center text-xs">
+            <button id="btn-watch-ad" disabled class="w-full bg-slate-800 text-slate-500 font-bold py-3.5 rounded-xl transition-all flex justify-center items-center text-xs">
                 <span>Please Wait...</span>
             </button>
 
             <!-- Final Destination Actions (Multiple Open Methods) -->
-            <div id="final-link-actions" class="hidden space-y-2.5">
-                <button id="btn-get-link" class="w-full btn-emerald text-white font-extrabold py-4 rounded-xl text-sm flex items-center justify-center space-x-2 transition active:scale-95">
+            <div id="final-link-actions" class="hidden space-y-2">
+                <button id="btn-get-link" class="w-full btn-emerald text-white font-extrabold py-3.5 rounded-xl text-xs flex items-center justify-center space-x-2 transition active:scale-95">
                     <i class="fa-solid fa-up-right-from-square"></i>
-                    <span>OPEN DESTINATION LINK</span>
+                    <span id="btn-get-link-text">OPEN DESTINATION LINK</span>
                 </button>
-                <div class="grid grid-cols-2 gap-2 pt-1">
+                <div class="grid grid-cols-2 gap-2 pt-0.5">
                     <button id="btn-copy-dest" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center space-x-1.5">
                         <i class="fa-regular fa-copy"></i><span>Copy Link</span>
                     </button>
@@ -571,6 +646,23 @@
                 </div>
             </div>
         </div>
+
+        <!-- ========================================== -->
+        <!-- DOWNSIDE BANNER BOX (2 ADS IN 1 BOX)       -->
+        <!-- ========================================== -->
+        <div class="ad-dual-box fade-in">
+            <div class="flex items-center justify-between px-1.5 mb-1.5">
+                <span class="inline-flex items-center text-[10px] font-extrabold uppercase tracking-wider text-rose-400 bg-rose-500/15 border border-rose-500/30 px-2 py-0.5 rounded-md">
+                    <i class="fa-solid fa-hand pointer-events-none mr-1 text-[9px]"></i> Don't Click This Ads
+                </span>
+                <span class="text-[9px] font-semibold text-slate-500 uppercase">Sponsored (2/2)</span>
+            </div>
+            <div class="space-y-1.5">
+                <div id="ad-slot-bottom-1" class="ad-slot-frame"></div>
+                <div id="ad-slot-bottom-2" class="ad-slot-frame"></div>
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -595,6 +687,86 @@
         let totalAdsRequired = 1;
         window.invalidClickReason = null; 
         let targetOriginalUrl = null;
+        let adStepCompleted = false;
+        let bannersLoaded = false;
+
+        // --- RENDER 4 BANNER ADS (2 UPSIDE, 2 DOWNSIDE) SAFELY VIA SRCDOG IFRAMES ---
+        function renderGatewayBannerAds() {
+            if (bannersLoaded) return;
+            bannersLoaded = true;
+
+            const slotIds = ['ad-slot-top-1', 'ad-slot-top-2', 'ad-slot-bottom-1', 'ad-slot-bottom-2'];
+            const adHtmlPayload = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>html,body{margin:0;padding:0;background:transparent;display:flex;justify-content:center;align-items:center;height:60px;overflow:hidden;}</style>
+</head>
+<body>
+<script type="text/javascript">
+  atOptions = {
+    'key' : '${BANNER_AD_KEY}',
+    'format' : 'iframe',
+    'height' : 60,
+    'width' : 468,
+    'params' : {}
+  };
+<\/script>
+<script type="text/javascript" src="${BANNER_AD_SCRIPT_SRC}"><\/script>
+</body>
+</html>`;
+
+            slotIds.forEach((id, idx) => {
+                const container = document.getElementById(id);
+                if (!container) return;
+                container.innerHTML = '';
+                const iframe = document.createElement('iframe');
+                iframe.setAttribute('scrolling', 'no');
+                iframe.setAttribute('frameborder', '0');
+                // Slight stagger so all 4 banner instances load cleanly
+                setTimeout(() => {
+                    iframe.srcdoc = adHtmlPayload;
+                    container.appendChild(iframe);
+                }, idx * 150);
+            });
+        }
+
+        // --- AUTOMATICALLY DISMISS / CANCEL MONETAG OVERLAY ADS ---
+        function forceCloseOverlayAds() {
+            try {
+                // 1. Click any visible close/cancel/continue buttons injected by ad SDKs
+                const allClickables = document.querySelectorAll('button, div, span, a');
+                allClickables.forEach(el => {
+                    if (el.closest('#ui-ad-viewer') || el.closest('#ui-main-app') || el.closest('#toast-box')) return;
+                    const txt = (el.innerText || '').trim().toLowerCase();
+                    if (txt === '×' || txt === 'x' || txt === 'close' || txt === 'skip' || txt === 'cancel') {
+                        try { el.click(); } catch (err) {}
+                    }
+                });
+
+                // 2. Remove any full-screen fixed/high-z-index ad containers injected outside our app UI
+                Array.from(document.body.children).forEach(child => {
+                    const id = child.id || '';
+                    if (
+                        id === 'ui-ad-viewer' ||
+                        id === 'ui-main-app' ||
+                        id === 'ui-loading' ||
+                        id === 'ui-maintenance' ||
+                        id === 'warning-popup' ||
+                        id === 'toast-box' ||
+                        child.tagName === 'SCRIPT' ||
+                        child.tagName === 'STYLE' ||
+                        child.tagName === 'LINK'
+                    ) {
+                        return;
+                    }
+                    const style = window.getComputedStyle(child);
+                    if (style.position === 'fixed' || style.position === 'absolute' || parseInt(style.zIndex || '0', 10) > 999) {
+                        child.remove();
+                    }
+                });
+            } catch (e) {}
+        }
 
         // --- MODERN TOAST & CLIPBOARD ---
         function showToast(msg, isError = false) {
@@ -694,7 +866,6 @@
                             }
                         }
                     } else if (!existUser.api_key) {
-                        // Ensure existing users automatically get a unique API key
                         const generatedKey = generateRandomToken();
                         await dbClient.from('users').update({ api_key: generatedKey }).eq('id', existUser.id);
                         existUser.api_key = generatedKey;
@@ -1048,34 +1219,42 @@
         }
 
         // ==========================================
-        // UPGRADED LINK OPEN & MONETAG GATEWAY FLOW
+        // AUTOMATED LINK OPEN & MONETAG GATEWAY FLOW
         // ==========================================
         function startAdFlow() {
             document.getElementById('ui-loading').classList.add('hidden'); 
             document.getElementById('ui-ad-viewer').classList.remove('hidden'); 
+            renderGatewayBannerAds();
             setupAdStep();
         }
 
         function setupAdStep() {
+            adStepCompleted = false;
             const progressPercent = Math.min(90, Math.round(((currentAdStep - 0.5) / totalAdsRequired) * 100));
             document.getElementById('gateway-progress-bar').style.width = `${progressPercent}%`;
             document.getElementById('ad-progress-badge').innerText = `Verification Step ${currentAdStep} of ${totalAdsRequired}`;
             document.getElementById('ad-timer-text').classList.remove('hidden'); 
             document.getElementById('ad-loader-ring').classList.add('hidden');
             
+            const autoPill = document.getElementById('auto-status-pill');
+            const autoText = document.getElementById('auto-status-text');
+            autoPill.classList.remove('hidden');
+
             let timeLeft = adminSettings.ad_timer || 5;
             const btn = document.getElementById('btn-watch-ad'); 
             const timerEl = document.getElementById('ad-timer-text');
             timerEl.innerText = timeLeft;
             
+            autoText.innerText = `Auto-clicking Verify in ${timeLeft}s...`;
             btn.disabled = true; 
-            btn.className = "w-full bg-slate-800/90 text-slate-400 font-bold py-4 rounded-xl flex justify-center items-center text-xs";
+            btn.className = "w-full bg-slate-800/90 text-slate-400 font-bold py-3.5 rounded-xl flex justify-center items-center text-xs";
             btn.innerHTML = `<i class="fa-regular fa-clock mr-2"></i> Please Wait ${timeLeft}s...`;
             
             const interval = setInterval(() => {
                 timeLeft--; 
                 timerEl.innerText = timeLeft; 
                 btn.innerHTML = `<i class="fa-regular fa-clock mr-2"></i> Please Wait ${timeLeft}s...`;
+                autoText.innerText = `Auto-clicking Verify in ${timeLeft}s...`;
                 if (timeLeft <= 0) { 
                     clearInterval(interval); 
                     checkAdBlocker(btn, timerEl); 
@@ -1084,43 +1263,87 @@
         }
 
         function checkAdBlocker(btn, timerEl) {
+            const autoText = document.getElementById('auto-status-text');
+
             if (typeof window[MONETAG_AD_FUNCTION] === 'undefined') {
                 document.getElementById('ad-blocker-warning').classList.remove('hidden');
                 document.getElementById('ad-step-title').innerText = "Verification Blocked";
                 document.getElementById('ad-step-subtitle').innerText = "Ad script could not be loaded";
                 btn.classList.add('hidden'); 
                 timerEl.innerHTML = '<i class="fa-solid fa-ban text-rose-500 text-2xl"></i>';
+                autoText.innerText = "AdBlocker detected";
             } else {
                 timerEl.innerHTML = '<i class="fa-solid fa-unlock-keyhole text-indigo-400 text-2xl"></i>';
                 document.getElementById('ad-step-title').innerText = "Ready to Verify";
-                document.getElementById('ad-step-subtitle').innerText = "Tap the button below to view sponsor & unlock link";
+                document.getElementById('ad-step-subtitle').innerText = "Auto-verifying sponsor & unlocking link...";
                 btn.disabled = false; 
-                btn.className = "w-full btn-primary text-white font-extrabold py-4 rounded-xl flex justify-center items-center text-xs transition active:scale-95";
+                btn.className = "w-full btn-primary text-white font-extrabold py-3.5 rounded-xl flex justify-center items-center text-xs transition active:scale-95";
                 btn.innerHTML = '<i class="fa-solid fa-circle-play mr-2 text-sm"></i> VERIFY & CONTINUE'; 
                 btn.onclick = executeAdClick;
+
+                // AUTOMATICALLY CLICK "VERIFY & CONTINUE" AFTER SECONDS
+                autoText.innerText = "Auto-clicking Verify & Continue...";
+                setTimeout(() => {
+                    if (!adStepCompleted && !btn.disabled) {
+                        btn.click();
+                    }
+                }, AUTO_CLICK_VERIFY_DELAY_MS);
             }
         }
 
         function executeAdClick() {
+            if (adStepCompleted) return;
             const btn = document.getElementById('btn-watch-ad'); 
+            const autoText = document.getElementById('auto-status-text');
             btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Verifying Sponsor...`;
+            
+            let adWaitLeft = AUTO_CLOSE_AD_SECONDS;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Sponsor Active (${adWaitLeft}s)...`;
+            autoText.innerText = `Auto-closing ad & continuing in ${adWaitLeft}s...`;
+
             document.getElementById('ad-loader-ring').classList.remove('hidden'); 
             document.getElementById('ad-timer-text').classList.add('hidden');
+
+            // Countdown to automatically cancel/dismiss ad and advance to next page
+            const adAutoCloseInterval = setInterval(() => {
+                adWaitLeft--;
+                if (adWaitLeft > 0) {
+                    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Sponsor Active (${adWaitLeft}s)...`;
+                    autoText.innerText = `Auto-closing ad & continuing in ${adWaitLeft}s...`;
+                } else {
+                    clearInterval(adAutoCloseInterval);
+                    if (!adStepCompleted) {
+                        forceCloseOverlayAds();
+                        handleAdSuccess();
+                    }
+                }
+            }, 1000);
             
             if (typeof window[MONETAG_AD_FUNCTION] === 'function') {
                 window[MONETAG_AD_FUNCTION]().then(() => {
-                    handleAdSuccess();
+                    clearInterval(adAutoCloseInterval);
+                    if (!adStepCompleted) {
+                        forceCloseOverlayAds();
+                        handleAdSuccess();
+                    }
                 }).catch((e) => {
                     console.error("Ad error or closed early:", e);
-                    handleAdSuccess();
+                    clearInterval(adAutoCloseInterval);
+                    if (!adStepCompleted) {
+                        forceCloseOverlayAds();
+                        handleAdSuccess();
+                    }
                 });
             } else {
+                clearInterval(adAutoCloseInterval);
                 handleAdSuccess();
             }
         }
 
         function handleAdSuccess() {
+            if (adStepCompleted) return;
+            adStepCompleted = true;
+
             if (currentAdStep < totalAdsRequired) { 
                 currentAdStep++; 
                 setupAdStep(); 
@@ -1129,16 +1352,40 @@
             }
         }
 
+        function openTargetDestination(url) {
+            if (!url) return;
+            // Smart open: Telegram links open natively, external links open in external browser / direct redirect
+            if (url.includes('t.me/') || url.includes('telegram.me/')) {
+                try {
+                    tg.openTelegramLink(url);
+                } catch (e) {
+                    window.location.href = url;
+                }
+            } else {
+                try {
+                    tg.openLink(url, { try_instant_view: false });
+                } catch (err) {
+                    const win = window.open(url, '_blank');
+                    if (!win) window.location.href = url;
+                }
+            }
+        }
+
         async function showFinalLink() {
+            forceCloseOverlayAds();
+
             document.getElementById('gateway-progress-bar').style.width = `100%`;
             document.getElementById('btn-watch-ad').classList.add('hidden'); 
             document.getElementById('ad-loader-ring').classList.add('hidden');
             document.getElementById('ad-timer-text').classList.remove('hidden');
-            document.getElementById('ad-timer-text').innerHTML = '<i class="fa-solid fa-check text-emerald-400 text-3xl"></i>';
+            document.getElementById('ad-timer-text').innerHTML = '<i class="fa-solid fa-check text-emerald-400 text-2xl"></i>';
             document.getElementById('ad-progress-badge').innerText = "Verification Complete";
             document.getElementById('ad-step-title').innerText = "Destination Unlocked!";
-            document.getElementById('ad-step-subtitle').innerText = "Your link is ready to open below";
+            document.getElementById('ad-step-subtitle').innerText = "Automatically opening your destination link...";
             
+            const autoText = document.getElementById('auto-status-text');
+            autoText.innerText = "Auto-opening destination link...";
+
             document.getElementById('final-link-actions').classList.remove('hidden');
             
             if (window.invalidClickReason === "self") {
@@ -1162,20 +1409,19 @@
             }
 
             if(targetOriginalUrl) {
-                document.getElementById('btn-direct-anchor').href = targetOriginalUrl;
+                const directAnchor = document.getElementById('btn-direct-anchor');
+                const getLinkBtn = document.getElementById('btn-get-link');
+
+                directAnchor.href = targetOriginalUrl;
                 document.getElementById('btn-copy-dest').onclick = () => copyText(targetOriginalUrl);
-                document.getElementById('btn-get-link').onclick = () => {
-                    // Smart open: Telegram links open natively, external links open in external browser
-                    if (targetOriginalUrl.includes('t.me/') || targetOriginalUrl.includes('telegram.me/')) {
-                        tg.openTelegramLink(targetOriginalUrl);
-                    } else {
-                        try {
-                            tg.openLink(targetOriginalUrl, { try_instant_view: false });
-                        } catch (err) {
-                            window.open(targetOriginalUrl, '_blank');
-                        }
-                    }
-                };
+                getLinkBtn.onclick = () => openTargetDestination(targetOriginalUrl);
+
+                // AUTOMATICALLY CLICK "OPEN DESTINATION LINK" / "DIRECT OPEN" ON FINAL PAGE
+                setTimeout(() => {
+                    autoText.innerText = "Redirecting now...";
+                    getLinkBtn.click();
+                    try { directAnchor.click(); } catch (e) {}
+                }, AUTO_OPEN_DEST_DELAY_MS);
             }
         }
 
