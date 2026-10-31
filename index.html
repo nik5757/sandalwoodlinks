@@ -3,75 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#1a202e">
+    <meta name="theme-color" content="#0b0f19">
     <!-- MONETAG VERIFICATION -->
     <meta name="monetag" content="f0b68ca446e2d27961b50517265938d7">
-    <title>Sandalwood Links — Member Dashboard</title>
+    <title>Sandalwood Links — Next-Gen Creator Hub</title>
 
-    <!-- MONETAG SDK -->
-    <script src="https://libtl.com/sdk.js" data-zone="12154661" data-sdk="show_12154661" async></script>
+    <!-- MONETAG SDK (FOR STEP 2 VERIFICATION) -->
+    <script src="https://libtl.com/sdk.js" data-zone="12154661" data-sdk="show_12154661" async data-keep-ad="true"></script>
 
-    <!-- AD & GATEWAY CONTROLLER -->
     <script>
-        window.__trackedAdNodes = new Set();
-        window.__trackedShadowRoots = [];
         window.__isGatewayMode = false;
-
-        (function() {
-            const origAttach = Element.prototype.attachShadow;
-            Element.prototype.attachShadow = function(init) {
-                const sh = origAttach.call(this, { ...init, mode: 'open' });
-                window.__trackedShadowRoots.push({ host: this, shadow: sh });
-                return sh;
-            };
-        })();
-
         const MONETAG_AD_FUNCTION = 'show_12154661';
-        const DIRECT_AD_LINK_C = 'https://uplcm.com/4/12155012';
-        const AD_MILESTONE_SECONDS = [
-            16, 32, 48, 64, 80, 96, 112, 128, 144, 160,
-            176, 192, 208, 224, 240, 256, 272, 288, 304, 320
-        ];
+        const EDGE_AD_SCRIPT_SRC = 'https://quge5.com/88/tag.min.js';
+        const EDGE_AD_ZONE = '303844';
 
+        // Supports decimal CPM (0.5, 1, 1.5, 2, etc.)
+        function parseCpmValue(v, fallback = 1.0) {
+            const n = parseFloat(v);
+            return (!isNaN(n) && n >= 0.1) ? parseFloat(n.toFixed(2)) : fallback;
+        }
         function clampAdTier(v) {
             const n = parseInt(v || 1, 10);
             return Math.max(1, Math.min(20, isNaN(n) ? 1 : n));
         }
-        function getAutoCpmByAds(c) { return clampAdTier(c) * 1.0; }
-        function getAdDurationSeconds(c) {
-            const t = clampAdTier(c);
-            return AD_MILESTONE_SECONDS[t - 1] || (t * 16);
-        }
-        function getTriggerMilestones(c) {
-            return AD_MILESTONE_SECONDS.slice(0, clampAdTier(c));
-        }
 
-        // Trigger First & Last Page Ads (A, B, C, D) ONLY in Link Gateway Mode
-        function injectEdgePageAds(stage) {
+        // Injects ONLY the requested quge5.com (zone 303844) ad script on Page 1 (First Page) & Page 3 (Final Page)
+        function triggerEdgePageAd(stageName) {
             if (!window.__isGatewayMode) return;
             try {
-                // (A) 5gvci tag (z=12155005)
-                const sA = document.createElement('script');
-                sA.src = 'https://5gvci.com/act/files/tag.min.js?z=12155005';
-                sA.setAttribute('data-cfasync', 'false');
-                sA.async = true;
-                document.body.appendChild(sA);
+                const oldTag = document.getElementById('sw-edge-ad-script');
+                if (oldTag) oldTag.remove();
 
-                // (B) nap5k tag (zone=12155006)
-                (function(s){
-                    s.dataset.zone = '12155006';
-                    s.src = 'https://nap5k.com/tag.min.js';
-                })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
-
-                // (C) Direct link https://uplcm.com/4/12155012
-                const frameC = document.getElementById('gateway-direct-ad-frame');
-                if (frameC) frameC.src = DIRECT_AD_LINK_C + '?stage=' + stage + '&t=' + Date.now();
-
-                // (D) Vignette ad script (zone=12154888)
-                (function(s){
-                    s.dataset.zone = '12154888';
-                    s.src = 'https://n6wxm.com/vignette.min.js';
-                })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
+                const s = document.createElement('script');
+                s.id = 'sw-edge-ad-script';
+                s.src = EDGE_AD_SCRIPT_SRC;
+                s.setAttribute('data-zone', EDGE_AD_ZONE);
+                s.setAttribute('data-cfasync', 'false');
+                s.setAttribute('data-keep-ad', 'true');
+                s.async = true;
+                (document.body || document.head || document.documentElement).appendChild(s);
             } catch (e) {}
         }
     </script>
@@ -86,355 +56,384 @@
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         html, body {
-            background-color: #1f2637 !important;
+            background-color: #0b0f19 !important;
             color: #f8fafc !important;
             color-scheme: dark !important;
             font-family: 'Plus Jakarta Sans', sans-serif;
             min-height: 100vh;
             overflow-x: hidden;
+            background-image:
+                radial-gradient(circle at 12% 0%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 88% 100%, rgba(139, 92, 246, 0.08) 0%, transparent 40%);
         }
         .font-mono-code { font-family: 'JetBrains Mono', monospace; }
 
-        /* Clean Dashboard Theme (Matching Screenshots) */
-        .dash-header {
-            background-color: #1a202e;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        /* Next-Gen Cyber-Glass UI */
+        .nextgen-header {
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
-        .dash-sidebar {
-            background-color: #1a202e;
-            border-right: 1px solid rgba(255, 255, 255, 0.07);
+        .nextgen-sidebar {
+            background: #0f1626;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
             transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .sidebar-item {
+        .sidebar-link {
             display: flex;
             align-items: center;
             justify-content: space-between;
             width: 100%;
-            padding: 0.85rem 1.25rem;
-            color: #cbd5e1;
-            font-size: 0.85rem;
+            padding: 0.8rem 1.15rem;
+            color: #94a3b8;
+            font-size: 0.82rem;
             font-weight: 600;
-            transition: all 0.15s ease;
             border-left: 3px solid transparent;
+            transition: all 0.15s ease;
         }
-        .sidebar-item:hover, .sidebar-item.active {
-            background-color: #252d3f;
+        .sidebar-link:hover, .sidebar-link.active {
+            background: rgba(56, 189, 248, 0.1);
             color: #ffffff;
-            border-left-color: #1d8cf8;
+            border-left-color: #38bdf8;
         }
-        .white-shortener-card {
-            background-color: #ffffff;
-            color: #1e293b;
-            border-radius: 0.4rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-        .plan-purple-bar {
-            background: linear-gradient(90deg, #6b3ce9 0%, #7c4dff 100%);
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 14px rgba(107, 60, 233, 0.35);
-        }
-        .report-blue-bar {
-            background: linear-gradient(90deg, #2b8af7 0%, #1d7dfa 100%);
-            border-radius: 0.35rem;
-        }
-        .stat-dark-card {
-            background-color: #2b3448;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        }
-        .dark-panel-card {
-            background-color: #262f42;
+        .neo-card {
+            background: rgba(17, 24, 39, 0.85);
+            backdrop-filter: blur(14px);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 0.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.55);
         }
-        .btn-blue {
-            background-color: #1d8cf8;
+        .shortener-neo-card {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            border-radius: 1rem;
+            box-shadow: 0 12px 32px -12px rgba(14, 165, 233, 0.25);
+        }
+        .cpm-banner-pill {
+            background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 55%, #0ea5e9 100%);
+            border-radius: 0.9rem;
+            box-shadow: 0 8px 24px -6px rgba(99, 102, 241, 0.45);
+        }
+        .btn-cyber {
+            background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
             color: #ffffff;
-            transition: opacity 0.15s ease, transform 0.15s ease;
+            box-shadow: 0 6px 18px -4px rgba(14, 165, 233, 0.45);
+            transition: all 0.15s ease;
         }
-        .btn-blue:active { transform: scale(0.97); }
+        .btn-cyber:active { transform: scale(0.97); }
+
+        /* Unique Message-Type Support Floating Button */
+        .premium-support-fab {
+            background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 55%, #8b5cf6 100%);
+            box-shadow: 0 10px 28px -4px rgba(99, 102, 241, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+        }
+        .premium-support-fab:hover {
+            transform: translateY(-3px) scale(1.04);
+            box-shadow: 0 14px 32px -4px rgba(14, 165, 233, 0.8), inset 0 1px 2px rgba(255, 255, 255, 0.45);
+        }
+        .premium-support-fab:active { transform: scale(0.94); }
     </style>
 </head>
-<body class="pb-12">
+<body class="pb-16">
 
 <div id="app-root-shell" class="relative">
     <a id="hidden-redirect-anchor" href="#" target="_top" rel="noopener noreferrer" class="hidden"></a>
 
     <!-- TOAST -->
     <div id="toast-box" class="fixed top-4 left-1/2 -translate-x-1/2 z-[2147483647] pointer-events-none transition-all duration-300 opacity-0 -translate-y-4">
-        <div class="bg-[#111622] border border-white/20 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center space-x-2">
+        <div class="bg-[#0f172a] border border-sky-400/30 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center space-x-2">
             <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-xs"></i>
-            <span id="toast-text" class="text-xs font-bold">Action completed</span>
+            <span id="toast-text" class="text-xs font-bold">Done</span>
         </div>
     </div>
 
     <!-- DELETE ALL MODAL -->
-    <div id="delete-all-modal" class="fixed inset-0 z-[99999] bg-black/80 flex items-center justify-center hidden p-5">
-        <div class="dark-panel-card p-6 max-w-sm w-full text-center">
+    <div id="delete-all-modal" class="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-5">
+        <div class="neo-card p-6 max-w-sm w-full text-center border border-rose-500/30">
             <h3 id="del-modal-title" class="text-base font-extrabold text-white mb-1.5">Delete All Links?</h3>
             <p id="del-modal-desc" class="text-xs text-slate-300 mb-5">Are you sure you want to delete all shortened links?</p>
             <div class="grid grid-cols-2 gap-2.5">
-                <button onclick="closeDeleteAllModal()" class="bg-slate-700 text-white font-bold py-2.5 rounded text-xs">Cancel</button>
-                <button id="btn-del-modal-confirm" onclick="advanceDeleteAllStep()" class="bg-rose-600 text-white font-bold py-2.5 rounded text-xs">Confirm</button>
+                <button onclick="closeDeleteAllModal()" class="bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs">Cancel</button>
+                <button id="btn-del-modal-confirm" onclick="advanceDeleteAllStep()" class="bg-rose-600 text-white font-bold py-2.5 rounded-xl text-xs">Confirm</button>
             </div>
         </div>
     </div>
 
     <!-- MAINTENANCE SCREEN -->
-    <div id="ui-maintenance" class="fixed inset-0 flex flex-col items-center justify-center bg-[#1a202e] z-50 hidden p-6">
-        <div class="dark-panel-card p-7 max-w-sm w-full text-center">
+    <div id="ui-maintenance" class="fixed inset-0 flex flex-col items-center justify-center bg-[#0b0f19] z-50 hidden p-6">
+        <div class="neo-card p-7 max-w-sm w-full text-center">
             <i class="fa-solid fa-screwdriver-wrench text-2xl text-sky-400 mb-3"></i>
             <h2 class="text-lg font-extrabold text-white mb-2">System Maintenance</h2>
-            <p class="text-xs text-slate-300 mb-5">Upgrading servers. Please check back shortly.</p>
-            <button onclick="tg.close()" class="w-full btn-blue font-bold py-3 rounded text-xs">Close</button>
+            <p class="text-xs text-slate-300 mb-5">We are upgrading our servers. Please check back shortly.</p>
+            <button onclick="tg.close()" class="w-full btn-cyber font-bold py-3 rounded-xl text-xs">Close</button>
         </div>
     </div>
 
     <!-- ================================================================= -->
-    <!-- === MEMBER DASHBOARD INFRASTRUCTURE (CLEAN AROLINKS STYLE) ====== -->
+    <!-- === NEXT-GEN CREATOR DASHBOARD ================================== -->
     <!-- ================================================================= -->
     <div id="ui-main-app" class="hidden min-h-screen flex flex-col">
 
-        <!-- TOP NAVBAR -->
-        <header class="dash-header sticky top-0 z-40 px-3.5 py-2.5 flex items-center justify-between">
+        <!-- TOP HEADER -->
+        <header class="nextgen-header sticky top-0 z-40 px-3.5 py-2.5 flex items-center justify-between">
             <div class="flex items-center space-x-2.5">
-                <button onclick="toggleSidebar()" class="w-9 h-9 rounded flex items-center justify-center text-slate-200 hover:bg-white/10 focus:outline-none border border-white/15">
-                    <i class="fa-solid fa-bars text-base"></i>
+                <button onclick="toggleSidebar()" class="w-9 h-9 rounded-xl flex items-center justify-center text-slate-200 bg-slate-800/80 hover:bg-slate-700 border border-white/10">
+                    <i class="fa-solid fa-bars-staggered text-sm"></i>
                 </button>
-                <a id="header-tg-btn" href="https://t.me/SandalwoodLinksBot" target="_blank" class="bg-[#2c3548] hover:bg-[#374258] text-white px-3 py-1.5 rounded flex items-center space-x-2 text-xs font-bold tracking-wide transition">
-                    <i class="fa-brands fa-telegram text-[#2b8af7] text-sm"></i>
+                <a id="header-tg-btn" href="https://t.me/SandalwoodLinksBot" target="_blank" class="bg-sky-500/15 hover:bg-sky-500/25 border border-sky-400/30 text-sky-300 px-3 py-1.5 rounded-xl flex items-center space-x-1.5 text-xs font-extrabold transition">
+                    <i class="fa-brands fa-telegram text-sky-400 text-sm"></i>
                     <span>TELEGRAM</span>
                 </a>
             </div>
 
-            <div class="flex items-center space-x-3">
-                <button onclick="focusShortenerBox()" class="btn-blue px-3.5 py-1.5 rounded text-xs font-extrabold tracking-wide shadow">
-                    SHORT NOW
+            <div class="flex items-center space-x-2.5">
+                <button onclick="focusShortenerBox()" class="btn-cyber px-3.5 py-1.5 rounded-xl text-xs font-extrabold tracking-wide">
+                    <i class="fa-solid fa-bolt mr-1"></i> SHORT NOW
                 </button>
-                <button onclick="switchPage('page-profile')" class="flex items-center space-x-1 text-slate-200 text-xs font-semibold truncate max-w-[110px]">
+                <button onclick="switchPage('page-profile')" class="flex items-center space-x-1.5 bg-slate-800/90 border border-white/10 px-2.5 py-1.5 rounded-xl text-slate-200 text-xs font-bold max-w-[115px]">
                     <span id="user-greeting" class="truncate">Creator</span>
-                    <i class="fa-solid fa-caret-down text-[10px] text-slate-400"></i>
+                    <i class="fa-solid fa-chevron-down text-[9px] text-sky-400"></i>
                 </button>
             </div>
         </header>
 
-        <!-- SIDEBAR DRAWER OVERLAY -->
-        <div id="sidebar-backdrop" onclick="closeSidebar()" class="fixed inset-0 bg-black/60 z-40 hidden"></div>
+        <!-- SIDEBAR OVERLAY -->
+        <div id="sidebar-backdrop" onclick="closeSidebar()" class="fixed inset-0 bg-black/65 backdrop-blur-xs z-40 hidden"></div>
 
-        <!-- SLIDE-OUT LEFT SIDEBAR -->
-        <aside id="left-sidebar" class="dash-sidebar fixed top-0 left-0 bottom-0 w-64 z-50 -translate-x-full flex flex-col justify-between overflow-y-auto">
+        <!-- SLIDE-OUT SIDEBAR (ALL NAVIGATION ACCESSED VIA ☰ MENU) -->
+        <aside id="left-sidebar" class="nextgen-sidebar fixed top-0 left-0 bottom-0 w-64 z-50 -translate-x-full flex flex-col justify-between overflow-y-auto">
             <div>
-                <!-- Top Close + Telegram Bar inside Drawer -->
-                <div class="p-3 flex items-center space-x-2 border-b border-white/10">
-                    <button onclick="closeSidebar()" class="w-9 h-9 rounded flex items-center justify-center text-white border border-white/20">
-                        <i class="fa-solid fa-bars text-base"></i>
-                    </button>
-                    <a id="drawer-tg-btn" href="https://t.me/SandalwoodLinksBot" target="_blank" class="bg-[#2c3548] text-white px-3 py-1.5 rounded flex items-center space-x-2 text-xs font-bold">
-                        <i class="fa-brands fa-telegram text-[#2b8af7]"></i>
-                        <span>TELEGRAM</span>
-                    </a>
-                </div>
-
-                <!-- Brand Logo Box -->
-                <div class="px-4 py-3">
-                    <div class="bg-white rounded p-2 text-center shadow">
-                        <div class="text-xl font-black tracking-tight leading-none">
-                            <span class="text-[#1d8cf8]">SANDAL</span><span class="text-[#e11d48]">WOOD</span>
+                <div class="p-3.5 flex items-center justify-between border-b border-white/10">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 rounded-lg btn-cyber flex items-center justify-center font-black text-white text-sm">S</div>
+                        <div>
+                            <div class="text-xs font-extrabold text-white tracking-wide">SANDALWOOD</div>
+                            <div class="text-[9px] text-sky-400 font-bold uppercase">Creator Hub v4.0</div>
                         </div>
-                        <div class="text-[9px] font-bold text-slate-600 tracking-widest uppercase mt-0.5">SHORT LINKS AND EARN MONEY</div>
                     </div>
+                    <button onclick="closeSidebar()" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 flex items-center justify-center text-xs">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
                 </div>
 
-                <!-- Available Balance Block -->
-                <div onclick="switchPage('page-wallet')" class="px-5 py-3 flex items-center space-x-3 border-b border-white/10 cursor-pointer hover:bg-white/5">
-                    <div class="w-7 h-7 rounded-full border border-slate-400 flex items-center justify-center text-slate-300 text-xs">
-                        <i class="fa-solid fa-dollar-sign"></i>
-                    </div>
+                <!-- Balance Box -->
+                <div onclick="switchPage('page-wallet')" class="m-3 p-3.5 rounded-xl bg-gradient-to-r from-slate-900 to-slate-800 border border-white/10 flex items-center justify-between cursor-pointer">
                     <div>
-                        <div class="text-[#2b8af7] font-extrabold text-sm font-mono-code" id="header-balance">$0.00</div>
-                        <div class="text-[11px] text-slate-400">Available Balance</div>
+                        <div class="text-[10px] text-slate-400 font-bold uppercase">Available Balance</div>
+                        <div class="text-base font-extrabold text-emerald-400 font-mono-code mt-0.5" id="header-balance">$0.0000</div>
+                    </div>
+                    <div class="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                        <i class="fa-solid fa-wallet text-sm"></i>
                     </div>
                 </div>
 
-                <!-- Navigation Menu List -->
-                <nav class="py-2">
-                    <button class="sidebar-item active" data-target="page-home" onclick="switchPage('page-home')">
-                        <span class="flex items-center"><i class="fa-solid fa-table-cells-large w-6 text-[#2b8af7]"></i> Dashboard</span>
+                <nav class="py-1">
+                    <button class="sidebar-link active" data-target="page-home" onclick="switchPage('page-home')">
+                        <span class="flex items-center"><i class="fa-solid fa-table-cells-large w-6 text-sky-400"></i> Dashboard</span>
                     </button>
-
-                    <div class="px-5 py-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Statistics</div>
-
-                    <button class="sidebar-item" data-target="page-links" onclick="switchPage('page-links')">
-                        <span class="flex items-center"><i class="fa-solid fa-link w-6 text-slate-400"></i> Manage Links</span>
-                        <i class="fa-solid fa-angle-right text-xs text-slate-400"></i>
+                    <button class="sidebar-link" data-target="page-links" onclick="switchPage('page-links')">
+                        <span class="flex items-center"><i class="fa-solid fa-link w-6 text-indigo-400"></i> Manage Links</span>
+                        <i class="fa-solid fa-angle-right text-[10px]"></i>
                     </button>
-
-                    <button class="sidebar-item" data-target="page-wallet" onclick="switchPage('page-wallet')">
-                        <span class="flex items-center"><i class="fa-solid fa-coins w-6 text-slate-400"></i> Withdraw</span>
+                    <button class="sidebar-link" data-target="page-wallet" onclick="switchPage('page-wallet')">
+                        <span class="flex items-center"><i class="fa-solid fa-money-bill-transfer w-6 text-emerald-400"></i> Withdraw</span>
+                        <i class="fa-solid fa-angle-right text-[10px]"></i>
                     </button>
-
-                    <button class="sidebar-item" data-target="page-api" onclick="switchPage('page-api')">
-                        <span class="flex items-center"><i class="fa-solid fa-screwdriver-wrench w-6 text-slate-400"></i> Tools & Bot API</span>
-                        <i class="fa-solid fa-angle-right text-xs text-slate-400"></i>
+                    <button class="sidebar-link" data-target="page-api" onclick="switchPage('page-api')">
+                        <span class="flex items-center"><i class="fa-solid fa-terminal w-6 text-amber-400"></i> Tools & Bot API</span>
+                        <i class="fa-solid fa-angle-right text-[10px]"></i>
                     </button>
-
-                    <button class="sidebar-item" data-target="page-refer" onclick="switchPage('page-refer')">
-                        <span class="flex items-center"><i class="fa-solid fa-users w-6 text-slate-400"></i> Referrals</span>
+                    <button class="sidebar-link" data-target="page-refer" onclick="switchPage('page-refer')">
+                        <span class="flex items-center"><i class="fa-solid fa-user-group w-6 text-purple-400"></i> Referrals</span>
+                        <i class="fa-solid fa-angle-right text-[10px]"></i>
                     </button>
-
-                    <button class="sidebar-item" data-target="page-profile" onclick="switchPage('page-profile')">
-                        <span class="flex items-center"><i class="fa-solid fa-gear w-6 text-slate-400"></i> Settings</span>
-                        <i class="fa-solid fa-angle-right text-xs text-slate-400"></i>
+                    <button class="sidebar-link" data-target="page-profile" onclick="switchPage('page-profile')">
+                        <span class="flex items-center"><i class="fa-solid fa-sliders w-6 text-pink-400"></i> Plan & Settings</span>
+                        <i class="fa-solid fa-angle-right text-[10px]"></i>
                     </button>
-
-                    <button class="sidebar-item" onclick="openSupportChat()">
-                        <span class="flex items-center"><i class="fa-regular fa-comment-dots w-6 text-slate-400"></i> Support</span>
-                        <i class="fa-solid fa-angle-right text-xs text-slate-400"></i>
-                    </button>
-
-                    <button class="sidebar-item" onclick="switchPage('page-profile')">
-                        <span class="flex items-center"><i class="fa-solid fa-arrows-rotate w-6 text-slate-400"></i> Change Your Plan</span>
+                    <button class="sidebar-link" onclick="openSupportChat()">
+                        <span class="flex items-center"><i class="fa-solid fa-comment-dots w-6 text-sky-400"></i> Support Chat</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                     </button>
                 </nav>
             </div>
 
-            <!-- Current Plan Footer in Sidebar -->
-            <div class="p-4 border-t border-white/10 bg-[#151a26]">
-                <div class="text-[11px] text-slate-400 font-semibold">Current Plan</div>
-                <div class="text-xs font-extrabold text-white mt-0.5" id="sidebar-plan-label">Default - $1.00 CPM</div>
+            <div class="p-4 border-t border-white/10 bg-[#090d16]">
+                <div class="text-[10px] text-slate-400 font-bold uppercase">Active Revenue Rate</div>
+                <div class="text-xs font-extrabold text-sky-400 mt-0.5 font-mono-code" id="sidebar-plan-label">$1.00 CPM</div>
             </div>
         </aside>
 
-        <!-- MAIN PAGE CONTENT CONTAINER -->
+        <!-- MAIN CONTAINER (DIRECTLY STARTS WITH CREATE MONETIZED SHORT LINK) -->
         <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 pt-4 space-y-4">
 
-            <!-- Breadcrumb -->
-            <div class="text-xs text-slate-400 px-1">
-                <span>Dashboard</span> <span class="mx-1">/</span> <span id="breadcrumb-current" class="text-slate-300 font-semibold">Dashboard</span>
-            </div>
-
-            <!-- WHITE SHORTENER CARD (ALWAYS AT TOP LIKE SCREENSHOT) -->
-            <div class="white-shortener-card overflow-hidden">
-                <div class="px-4 py-3.5 border-b border-slate-200 flex items-center space-x-2">
-                    <i class="fa-solid fa-circle-plus text-[#1d8cf8] text-sm"></i>
-                    <span class="text-sm font-semibold text-slate-700">New Short Link / URL</span>
+            <!-- NEXT-GEN SHORTENER CARD -->
+            <div class="shortener-neo-card p-4 space-y-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-6 h-6 rounded-lg bg-sky-500/20 border border-sky-400/30 flex items-center justify-center text-sky-400 text-xs">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </span>
+                        <span class="text-xs font-extrabold text-white uppercase tracking-wider">Create Monetized Short Link</span>
+                    </div>
+                    <button type="button" onclick="toggleAdvancedAlias()" class="text-[11px] font-bold text-sky-400 hover:underline">
+                        Custom Alias
+                    </button>
                 </div>
-                <div class="p-4 space-y-3">
-                    <input type="url" id="long-url-input" placeholder="Your URL Here" class="w-full bg-white border border-slate-300 text-slate-800 rounded px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#1d8cf8]">
 
-                    <!-- Collapsible Advanced Options (Custom Alias) -->
-                    <div id="advanced-alias-box" class="hidden">
-                        <input type="text" id="custom-alias-input" placeholder="Custom alias (optional)" class="w-full bg-slate-50 border border-slate-300 text-slate-800 rounded px-3.5 py-2 text-xs focus:outline-none focus:border-[#1d8cf8]">
-                    </div>
+                <div class="flex items-center space-x-2">
+                    <input type="url" id="long-url-input" placeholder="Paste destination URL (https://...)" class="flex-1 bg-[#0b0f19] border border-white/15 text-white rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-sky-400">
+                    <button type="button" id="btn-shorten" class="btn-cyber px-4 py-2.5 rounded-xl text-xs font-extrabold shrink-0">
+                        Shorten
+                    </button>
+                </div>
 
-                    <div class="flex items-center space-x-2.5">
-                        <button id="btn-shorten" class="btn-blue px-4 py-2 rounded text-xs font-semibold shadow-sm">
-                            Shorten
-                        </button>
-                        <button type="button" onclick="toggleAdvancedAlias()" class="bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 px-3.5 py-2 rounded text-xs font-medium transition">
-                            Advanced Options
-                        </button>
-                    </div>
+                <div id="advanced-alias-box" class="hidden">
+                    <input type="text" id="custom-alias-input" placeholder="Custom alias (optional, e.g. movie-hd)" class="w-full bg-[#0b0f19] border border-white/10 text-white rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-sky-400">
+                </div>
 
-                    <!-- Shortened Link Output -->
-                    <div id="shorten-result" class="hidden pt-3 border-t border-slate-200">
-                        <div class="flex items-center justify-between bg-slate-100 border border-slate-300 rounded p-2 pl-3">
-                            <span id="short-link-display" class="text-xs font-mono-code text-slate-800 truncate pr-2 select-all"></span>
-                            <div class="flex space-x-1.5 shrink-0">
-                                <button id="btn-copy-link" class="btn-blue px-3 py-1.5 rounded text-xs font-bold">Copy</button>
-                                <button id="btn-share-link" class="bg-slate-800 text-white px-2.5 py-1.5 rounded text-xs"><i class="fa-brands fa-telegram"></i></button>
-                            </div>
+                <div id="shorten-result" class="hidden pt-2.5 border-t border-white/10">
+                    <div class="flex items-center justify-between bg-[#0b0f19] border border-emerald-500/30 rounded-xl p-2 pl-3">
+                        <span id="short-link-display" class="text-xs font-mono-code text-emerald-400 truncate pr-2 select-all"></span>
+                        <div class="flex space-x-1.5 shrink-0">
+                            <button id="btn-copy-link" class="btn-cyber px-3 py-1.5 rounded-lg text-xs font-bold">Copy</button>
+                            <button id="btn-share-link" class="bg-slate-800 text-sky-400 px-2.5 py-1.5 rounded-lg text-xs border border-white/10"><i class="fa-brands fa-telegram"></i></button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- PURPLE ACTIVE CPM PLAN BANNER -->
-            <div class="plan-purple-bar px-4 py-3 flex items-center justify-between">
+            <!-- ACTIVE CPM PLAN BANNER -->
+            <div class="cpm-banner-pill px-4 py-3 flex items-center justify-between">
                 <div class="flex items-center space-x-2.5">
-                    <div class="w-7 h-7 rounded-full bg-white flex items-center justify-center text-[#6b3ce9] font-extrabold text-xs shrink-0 shadow">
-                        $
+                    <div class="w-8 h-8 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center text-white font-extrabold text-sm shrink-0">
+                        <i class="fa-solid fa-bolt"></i>
                     </div>
-                    <span class="text-xs font-bold text-white">
-                        You are on Default - <span id="home-active-cpm-badge">$1.00 CPM</span>
-                    </span>
+                    <div>
+                        <div class="text-[10px] uppercase font-bold text-sky-100">Active Monetization Plan</div>
+                        <div class="text-xs font-extrabold text-white" id="home-active-cpm-badge">$1.00 CPM</div>
+                    </div>
                 </div>
-                <button onclick="switchPage('page-profile')" class="bg-[#eb5757] hover:bg-[#e04848] text-white px-2.5 py-1 rounded text-[11px] font-bold shrink-0 shadow">
+                <button onclick="switchPage('page-profile')" class="bg-white text-slate-950 hover:bg-slate-100 px-3 py-1.5 rounded-xl text-[11px] font-extrabold shrink-0 shadow">
                     Change Plan
                 </button>
             </div>
 
-            <!-- PAGE 1: DASHBOARD OVERVIEW -->
+            <!-- PAGE 1: DASHBOARD HOME -->
             <div id="page-home" class="page-content space-y-4">
 
-                <!-- Blue Monthly Report Header Bar -->
-                <div class="report-blue-bar px-4 py-3 flex items-center justify-between text-white text-xs font-semibold shadow">
-                    <div>
-                        <span>This Months report</span>
-                        <span class="mx-1.5">/</span>
-                        <span id="current-date-label">Today</span>
+                <!-- LIVE ADMIN ANNOUNCEMENTS FEED -->
+                <div id="announcements-wrapper" class="neo-card p-4 space-y-2.5 border-l-4 border-l-amber-400">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs">
+                                <i class="fa-solid fa-bullhorn"></i>
+                            </span>
+                            <h3 class="text-xs font-extrabold text-white uppercase tracking-wider">Official Announcements</h3>
+                        </div>
+                        <span id="announcement-count-badge" class="text-[10px] font-mono-code font-bold bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-md">Live</span>
                     </div>
-                    <input type="month" id="report-month" class="bg-white/15 border border-white/25 text-white rounded px-2 py-0.5 text-[11px] focus:outline-none">
+                    <div id="announcements-list" class="space-y-2 max-h-48 overflow-y-auto">
+                        <div class="text-xs text-slate-400 py-1">Loading latest announcements...</div>
+                    </div>
                 </div>
 
-                <!-- Stacked Stat Cards (Matching Screenshot 2) -->
-                <div class="rounded overflow-hidden shadow-lg border border-white/5">
-                    <!-- Total Views -->
-                    <div class="stat-dark-card p-5 flex items-center justify-between">
+                <!-- 4 NEXT-GEN BENTO METRIC CARDS -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="neo-card p-4 flex items-center justify-between">
                         <div>
-                            <div class="text-xs text-slate-300 font-medium">Total Views</div>
-                            <div class="text-xl font-extrabold text-white mt-1.5 font-mono-code" id="stat-views">0</div>
-                            <div class="text-[10px] text-slate-400 mt-1">Today: <b id="stat-today-views" class="text-white">0</b></div>
+                            <div class="text-[11px] text-slate-400 font-semibold">Total Views</div>
+                            <div class="text-xl font-extrabold text-white font-mono-code mt-1" id="stat-views">0</div>
+                            <div class="text-[10px] text-sky-400 mt-1">Today: <b id="stat-today-views">0</b></div>
                         </div>
-                        <div class="w-12 h-12 rounded-lg bg-[#1d7dfa] flex items-center justify-center text-white text-lg shadow">
+                        <div class="w-10 h-10 rounded-xl bg-sky-500/15 border border-sky-400/25 flex items-center justify-center text-sky-400">
                             <i class="fa-solid fa-eye"></i>
                         </div>
                     </div>
 
-                    <!-- Total Earnings -->
-                    <div class="stat-dark-card p-5 flex items-center justify-between">
+                    <div class="neo-card p-4 flex items-center justify-between">
                         <div>
-                            <div class="text-xs text-slate-300 font-medium">Total Earnings</div>
-                            <div class="text-xl font-extrabold text-white mt-1.5 font-mono-code" id="stat-total-earn">$0.00</div>
-                            <div class="text-[10px] text-slate-400 mt-1">Today: <b id="stat-today-earn" class="text-emerald-400">$0.0000</b></div>
+                            <div class="text-[11px] text-slate-400 font-semibold">Total Earnings</div>
+                            <div class="text-xl font-extrabold text-emerald-400 font-mono-code mt-1" id="stat-total-earn">$0.0000</div>
+                            <div class="text-[10px] text-emerald-300 mt-1">Today: <b id="stat-today-earn">$0.0000</b></div>
                         </div>
-                        <div class="w-12 h-12 rounded-lg bg-[#0d9488] flex items-center justify-center text-white text-lg shadow">
-                            <i class="fa-solid fa-wallet"></i>
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-400/25 flex items-center justify-center text-emerald-400">
+                            <i class="fa-solid fa-sack-dollar"></i>
                         </div>
                     </div>
 
-                    <!-- Referral Earnings -->
-                    <div class="stat-dark-card p-5 flex items-center justify-between">
+                    <div class="neo-card p-4 flex items-center justify-between">
                         <div>
-                            <div class="text-xs text-slate-300 font-medium">Referral Earnings</div>
-                            <div class="text-xl font-extrabold text-white mt-1.5 font-mono-code" id="home-ref-earnings">$0.00</div>
-                            <div class="text-[10px] text-slate-400 mt-1">Commission Rate: <b id="home-ref-rate" class="text-sky-400">10%</b></div>
+                            <div class="text-[11px] text-slate-400 font-semibold">Referral Bonus</div>
+                            <div class="text-lg font-extrabold text-purple-400 font-mono-code mt-1" id="home-ref-earnings">$0.0000</div>
+                            <div class="text-[10px] text-slate-400 mt-1">Commission: <b id="home-ref-rate" class="text-purple-300">10%</b></div>
                         </div>
-                        <div class="w-12 h-12 rounded-lg bg-[#4f46e5] flex items-center justify-center text-white text-lg shadow">
-                            <i class="fa-solid fa-people-group"></i>
+                        <div class="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-400/25 flex items-center justify-center text-purple-400">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                    </div>
+
+                    <div class="neo-card p-4 flex items-center justify-between">
+                        <div>
+                            <div class="text-[11px] text-slate-400 font-semibold">Active CPM</div>
+                            <div class="text-lg font-extrabold text-amber-400 font-mono-code mt-1" id="home-cpm-card">$1.00</div>
+                            <div class="text-[10px] text-slate-400 mt-1">Per 1,000 Views</div>
+                        </div>
+                        <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-400/25 flex items-center justify-center text-amber-400">
+                            <i class="fa-solid fa-chart-line"></i>
                         </div>
                     </div>
                 </div>
 
-                <!-- Daily Performance Breakdown -->
-                <div class="dark-panel-card p-4 space-y-3">
-                    <div class="flex items-center justify-between border-b border-white/10 pb-2.5">
-                        <h3 class="text-xs font-extrabold text-white uppercase">Daily Report Breakdown</h3>
-                        <span class="text-[11px] text-slate-400">Month Total: <b id="period-total-earn" class="text-emerald-400 font-mono-code">$0.0000</b> (<span id="period-total-views">0</span> views)</span>
+                <!-- DAILY REPORT BREAKDOWN -->
+                <div class="neo-card overflow-hidden">
+                    <div class="px-4 py-3 bg-gradient-to-r from-sky-600/30 to-indigo-600/30 border-b border-white/10 flex flex-wrap items-center justify-between gap-2">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-calendar-days text-sky-400 text-xs"></i>
+                            <h3 class="text-xs font-extrabold text-white uppercase tracking-wider">Daily Report Breakdown</h3>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="month" id="report-month" class="bg-[#0b0f19] border border-white/15 text-white rounded-lg px-2.5 py-1 text-[11px] focus:outline-none">
+                            <button onclick="generateDateReport()" class="bg-sky-500/20 text-sky-300 border border-sky-400/30 px-2 py-1 rounded-lg text-[11px] font-bold">
+                                <i class="fa-solid fa-rotate"></i>
+                            </button>
+                        </div>
                     </div>
-                    <div id="earnings-list" class="space-y-2 max-h-60 overflow-y-auto"></div>
+
+                    <div class="px-4 py-2.5 bg-slate-900/60 border-b border-white/5 flex justify-between items-center text-[11px]">
+                        <span class="text-slate-400">Selected Month Views: <b id="period-total-views" class="text-white font-mono-code">0</b></span>
+                        <span class="text-slate-400">Month Revenue: <b id="period-total-earn" class="text-emerald-400 font-mono-code">$0.0000</b></span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-[#0b0f19]/60 text-slate-400 text-[10px] uppercase border-b border-white/5">
+                                <tr>
+                                    <th class="py-2.5 px-4">Date</th>
+                                    <th class="py-2.5 px-3 text-center">Verified Views</th>
+                                    <th class="py-2.5 px-3 text-center">CPM</th>
+                                    <th class="py-2.5 px-4 text-right">Earnings</th>
+                                </tr>
+                            </thead>
+                            <tbody id="earnings-list" class="divide-y divide-white/5 font-mono-code text-xs"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
             <!-- PAGE 2: MANAGE LINKS -->
             <div id="page-links" class="page-content hidden space-y-3.5">
-                <div class="dark-panel-card p-4 space-y-3">
+                <div class="neo-card p-4 space-y-3">
                     <div class="flex justify-between items-center">
-                        <span class="text-xs font-extrabold text-white uppercase">Manage Links (<span id="links-count-badge">0</span>)</span>
-                        <button onclick="openDeleteAllModal()" class="bg-rose-500/20 text-rose-300 border border-rose-500/30 px-2.5 py-1 rounded text-[10px] font-bold">Delete All</button>
+                        <span class="text-xs font-extrabold text-white uppercase">Your Shortened Links (<span id="links-count-badge">0</span>)</span>
+                        <button onclick="openDeleteAllModal()" class="bg-rose-500/20 text-rose-300 border border-rose-500/30 px-2.5 py-1 rounded-lg text-[10px] font-bold">Delete All</button>
                     </div>
                     <div class="grid grid-cols-3 gap-2">
-                        <input type="text" id="search-links-input" oninput="filterLinks()" placeholder="Search links..." class="col-span-2 bg-[#1a202e] border border-white/15 rounded px-3 py-2 text-xs text-white focus:outline-none">
-                        <select id="sort-links-select" onchange="filterLinks()" class="bg-[#1a202e] border border-white/15 rounded px-2.5 py-2 text-xs text-white font-semibold">
+                        <input type="text" id="search-links-input" oninput="filterLinks()" placeholder="Search short code or URL..." class="col-span-2 bg-[#0b0f19] border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
+                        <select id="sort-links-select" onchange="filterLinks()" class="bg-[#0b0f19] border border-white/15 rounded-xl px-2.5 py-2 text-xs text-white font-semibold">
                             <option value="newest">Newest</option>
                             <option value="clicks">Top Views</option>
                             <option value="earnings">Top Earned</option>
@@ -446,20 +445,20 @@
 
             <!-- PAGE 3: TOOLS & BOT API -->
             <div id="page-api" class="page-content hidden space-y-3.5">
-                <div class="dark-panel-card p-4 space-y-3">
+                <div class="neo-card p-4 space-y-3">
                     <div class="flex justify-between items-center">
-                        <span class="text-xs font-extrabold text-white uppercase">Developer Bot API Token</span>
-                        <button onclick="copyText(document.getElementById('user-api-key').innerText)" class="btn-blue px-3 py-1 rounded text-xs font-bold">Copy Key</button>
+                        <span class="text-xs font-extrabold text-white uppercase">Permanent Bot API Token</span>
+                        <button onclick="copyText(document.getElementById('user-api-key').innerText)" class="btn-cyber px-3 py-1 rounded-lg text-xs font-bold">Copy Key</button>
                     </div>
-                    <div class="bg-[#1a202e] border border-white/15 rounded p-3 font-mono-code text-xs text-amber-300 truncate select-all" id="user-api-key">Loading...</div>
+                    <div class="bg-[#0b0f19] border border-white/15 rounded-xl p-3 font-mono-code text-xs text-amber-300 truncate select-all" id="user-api-key">Loading...</div>
                 </div>
 
-                <div class="dark-panel-card p-4 space-y-2.5">
+                <div class="neo-card p-4 space-y-2.5">
                     <div class="flex justify-between items-center">
-                        <span class="text-xs font-extrabold text-white uppercase">Full API Endpoint</span>
+                        <span class="text-xs font-extrabold text-white uppercase">GET Request Endpoint</span>
                         <button onclick="copyText(document.getElementById('api-example-url').innerText)" class="text-[11px] text-sky-400 underline font-bold">Copy Endpoint</button>
                     </div>
-                    <div class="bg-[#1a202e] border border-white/15 rounded p-3 overflow-x-auto">
+                    <div class="bg-[#0b0f19] border border-white/15 rounded-xl p-3 overflow-x-auto">
                         <code id="api-example-url" class="font-mono-code text-[11px] text-emerald-300 whitespace-nowrap">https://sandalwoodlinks.vercel.app/api?api=YOUR_API_KEY&url=https://example.com</code>
                     </div>
                 </div>
@@ -467,30 +466,30 @@
 
             <!-- PAGE 4: REFERRALS -->
             <div id="page-refer" class="page-content hidden space-y-3.5">
-                <div class="dark-panel-card p-5 space-y-3">
+                <div class="neo-card p-5 space-y-3">
                     <h2 class="text-sm font-extrabold text-white">Referral Program (<span id="refer-commission">10%</span> Lifetime Commission)</h2>
-                    <p class="text-xs text-slate-300">Share your referral link with creators and earn commission on all their link earnings.</p>
-                    <div class="bg-[#1a202e] rounded p-2 flex items-center justify-between border border-white/15">
+                    <p class="text-xs text-slate-300">Invite creators and earn commission on all their link earnings automatically.</p>
+                    <div class="bg-[#0b0f19] rounded-xl p-2 flex items-center justify-between border border-white/15">
                         <span id="referral-link-display" class="text-xs font-mono-code text-slate-200 truncate px-2 select-all">Generating...</span>
-                        <button id="btn-copy-referral" class="btn-blue px-3 py-1.5 rounded text-xs font-bold shrink-0">Copy</button>
+                        <button id="btn-copy-referral" class="btn-cyber px-3 py-1.5 rounded-lg text-xs font-bold shrink-0">Copy</button>
                     </div>
-                    <button id="btn-share-referral-tg" class="w-full bg-[#2c3548] hover:bg-[#374258] text-white font-bold py-2.5 rounded text-xs">
-                        <i class="fa-brands fa-telegram mr-1.5 text-sky-400"></i> Share on Telegram
+                    <button id="btn-share-referral-tg" class="w-full bg-sky-500/20 hover:bg-sky-500/30 border border-sky-400/30 text-sky-300 font-bold py-2.5 rounded-xl text-xs">
+                        <i class="fa-brands fa-telegram mr-1.5"></i> Share Referral Link on Telegram
                     </button>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
-                    <div class="dark-panel-card p-4 text-center">
+                    <div class="neo-card p-4 text-center">
                         <div class="text-slate-400 text-[10px] font-bold uppercase">Total Partners</div>
                         <div class="text-lg font-extrabold text-white font-mono-code mt-1" id="stat-referrals">0</div>
                     </div>
-                    <div class="dark-panel-card p-4 text-center">
+                    <div class="neo-card p-4 text-center">
                         <div class="text-slate-400 text-[10px] font-bold uppercase">Commission Earned</div>
-                        <div class="text-lg font-extrabold text-emerald-400 font-mono-code mt-1" id="stat-ref-earnings">$0.00</div>
+                        <div class="text-lg font-extrabold text-emerald-400 font-mono-code mt-1" id="stat-ref-earnings">$0.0000</div>
                     </div>
                 </div>
 
-                <div class="dark-panel-card p-4">
+                <div class="neo-card p-4">
                     <h3 class="text-xs font-extrabold text-white uppercase mb-2.5">Referred Partners</h3>
                     <div id="referrals-list" class="space-y-2 max-h-56 overflow-y-auto"></div>
                 </div>
@@ -498,9 +497,9 @@
 
             <!-- PAGE 5: WITHDRAW / WALLET -->
             <div id="page-wallet" class="page-content hidden space-y-3.5">
-                <div class="dark-panel-card p-5 text-center">
+                <div class="neo-card p-5 text-center">
                     <div class="text-[11px] text-slate-400 font-bold uppercase">Available Balance</div>
-                    <div class="text-2xl font-extrabold text-white my-1.5 font-mono-code" id="wallet-balance-page">$0.00</div>
+                    <div class="text-2xl font-extrabold text-emerald-400 my-1.5 font-mono-code" id="wallet-balance-page">$0.0000</div>
                     <div class="grid grid-cols-2 gap-2 pt-3 border-t border-white/10 text-xs">
                         <div>Pending: <b id="wallet-pending-total" class="font-mono-code text-amber-400">$0.00</b></div>
                         <div>Total Paid: <b id="wallet-paid-total" class="text-emerald-400 font-mono-code">$0.00</b></div>
@@ -508,110 +507,109 @@
                     <div class="mt-2 text-[11px] text-slate-400">Minimum Withdrawal: <b id="min-withdraw-display" class="text-white">$5.00</b></div>
                 </div>
 
-                <div class="dark-panel-card p-4 space-y-3">
+                <div class="neo-card p-4 space-y-3">
                     <h3 class="font-extrabold text-xs text-white uppercase">Request Withdrawal</h3>
-                    <select id="withdraw-method" class="w-full bg-[#1a202e] border border-white/15 rounded p-3 text-xs text-white font-semibold"></select>
-                    <input type="text" id="withdraw-details" placeholder="Enter UPI ID / PayPal / USDT Address" class="w-full bg-[#1a202e] border border-white/15 rounded p-3 text-xs text-white">
-                    <input type="number" step="0.01" id="withdraw-amount" placeholder="Amount ($)" class="w-full bg-[#1a202e] border border-white/15 rounded p-3 text-xs text-white font-mono-code">
-                    <button id="btn-submit-withdraw" onclick="submitWithdrawal()" class="w-full btn-blue font-extrabold py-3 rounded text-xs">Submit Withdrawal</button>
+                    <select id="withdraw-method" class="w-full bg-[#0b0f19] border border-white/15 rounded-xl p-3 text-xs text-white font-semibold"></select>
+                    <input type="text" id="withdraw-details" placeholder="Enter UPI ID / PayPal / USDT Address" class="w-full bg-[#0b0f19] border border-white/15 rounded-xl p-3 text-xs text-white">
+                    <input type="number" step="0.01" id="withdraw-amount" placeholder="Amount ($)" class="w-full bg-[#0b0f19] border border-white/15 rounded-xl p-3 text-xs text-white font-mono-code">
+                    <button id="btn-submit-withdraw" onclick="submitWithdrawal()" class="w-full btn-cyber font-extrabold py-3 rounded-xl text-xs">Submit Withdrawal</button>
                 </div>
 
-                <div class="dark-panel-card p-4">
+                <div class="neo-card p-4">
                     <h3 class="font-extrabold text-xs text-white uppercase mb-2.5">Withdrawal Invoices</h3>
                     <div id="withdrawal-history-list" class="space-y-2 max-h-56 overflow-y-auto"></div>
                 </div>
             </div>
 
-            <!-- PAGE 6: SETTINGS & CHANGE YOUR PLAN (CPM) -->
+            <!-- PAGE 6: CPM PLAN & PROFILE SETTINGS -->
             <div id="page-profile" class="page-content hidden space-y-3.5">
-                <div class="dark-panel-card p-5 flex items-center space-x-4">
-                    <div id="profile-avatar" class="w-14 h-14 rounded-full bg-[#1d8cf8] text-white flex items-center justify-center text-xl font-extrabold shrink-0">C</div>
+                <div class="neo-card p-5 flex items-center space-x-4">
+                    <div id="profile-avatar" class="w-14 h-14 rounded-2xl btn-cyber text-white flex items-center justify-center text-xl font-extrabold shrink-0">C</div>
                     <div>
                         <h2 id="profile-name" class="text-base font-extrabold text-white">Creator</h2>
                         <p id="profile-username" class="text-xs text-slate-400">@username</p>
-                        <span id="profile-id" class="inline-block mt-1 text-[10px] text-slate-300 font-mono-code bg-[#1a202e] px-2.5 py-0.5 rounded border border-white/10">ID: ...</span>
+                        <span id="profile-id" class="inline-block mt-1 text-[10px] text-slate-300 font-mono-code bg-[#0b0f19] px-2.5 py-0.5 rounded-lg border border-white/10">ID: ...</span>
                     </div>
                 </div>
 
-                <div class="dark-panel-card p-5 space-y-4">
+                <div class="neo-card p-5 space-y-4">
                     <div class="flex justify-between items-center">
                         <div>
-                            <h3 class="text-xs font-extrabold text-white uppercase">Change Your Plan (CPM Tier)</h3>
-                            <p class="text-[11px] text-slate-400" id="profile-tier-badge">1 Ad / Link</p>
+                            <h3 class="text-xs font-extrabold text-white uppercase">Select CPM Rate / Plan</h3>
+                            <p class="text-[11px] text-slate-400" id="profile-tier-badge">Flexible CPM Tier</p>
                         </div>
                         <div class="text-lg font-extrabold text-emerald-400 font-mono-code" id="profile-cpm-big">$1.00 CPM</div>
                     </div>
-                    <input type="range" id="profile-ad-tier-slider" min="1" max="20" step="1" value="1" oninput="updateUserAdTier(this.value)" class="w-full accent-[#1d8cf8] cursor-pointer">
-                    <select id="profile-ad-tier-select" onchange="updateUserAdTier(this.value)" class="w-full bg-[#1a202e] border border-white/15 rounded p-3 text-xs text-white font-bold"></select>
+                    <select id="profile-ad-tier-select" onchange="updateUserCpmPlan(this.value)" class="w-full bg-[#0b0f19] border border-white/15 rounded-xl p-3 text-xs text-white font-bold"></select>
                 </div>
             </div>
 
         </main>
 
-        <!-- FLOATING SUPPORT CHAT BUTTON (BOTTOM RIGHT - ICON ONLY, NO WORDS) -->
-        <button id="floating-support-btn" onclick="openSupportChat()" aria-label="Support" class="fixed bottom-5 right-5 z-40 w-13 h-13 w-[52px] h-[52px] rounded-full bg-[#7c4dff] hover:bg-[#6b3ce9] text-white shadow-2xl flex items-center justify-center transition transform active:scale-95 border border-white/20">
-            <i class="fa-solid fa-message text-lg"></i>
+        <!-- UNIQUE OVERLAPPING MESSAGE BUBBLE SUPPORT LOGO (CONNECTED TO ADMIN.HTML) -->
+        <button id="floating-support-btn" onclick="openSupportChat()" aria-label="Support Chat" class="premium-support-fab fixed bottom-5 right-5 z-40 w-14 h-14 rounded-2xl text-white flex items-center justify-center">
+            <span class="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-400 ring-2 ring-[#0b0f19] animate-pulse"></span>
+            <!-- Custom Overlapping Dual Chat Bubble SVG Icon -->
+            <svg class="w-7 h-7 text-white drop-shadow" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path opacity="0.35" d="M20.5 4.5H7.5C5.567 4.5 4 6.067 4 8V15.5C4 17.433 5.567 19 7.5 19H9V22.25L12.75 19H20.5C22.433 19 24 17.433 24 15.5V8C24 6.067 22.433 4.5 20.5 4.5Z" fill="currentColor"/>
+                <path d="M21 8.5H9.5C7.84315 8.5 6.5 9.84315 6.5 11.5V18C6.5 19.6569 7.84315 21 9.5 21H15.75L20.25 24.25V21H21C22.6569 21 24 19.6569 24 18V11.5C24 9.84315 22.6569 8.5 21 8.5Z" fill="currentColor"/>
+                <circle cx="11.5" cy="14.75" r="1.35" fill="#1e1b4b"/>
+                <circle cx="15.25" cy="14.75" r="1.35" fill="#1e1b4b"/>
+                <circle cx="19" cy="14.75" r="1.35" fill="#1e1b4b"/>
+            </svg>
         </button>
     </div>
 
     <!-- ================================================================= -->
-    <!-- === LINK GATEWAY VIEWER (AUTO PAGE ADVANCE & REDIRECT) ========== -->
+    <!-- === LINK GATEWAY VIEWER (QUGE5 ON 1 & 3, CANCEL & REDIRECT) ===== -->
     <!-- ================================================================= -->
-    <div id="ui-ad-viewer" class="hidden min-h-screen flex flex-col items-center justify-center p-4 bg-[#141923]">
+    <div id="ui-ad-viewer" class="hidden min-h-screen flex flex-col items-center justify-center p-4 bg-[#0b0f19]">
 
-        <!-- FIXED MAX Z-INDEX TOP HUD BAR (ALWAYS ABOVE ADS FOR CANCEL) -->
-        <div id="gateway-top-hud" class="fixed top-3 left-3 right-3 max-w-md mx-auto z-[2147483647] bg-[#1a202e] border border-white/25 rounded-xl px-4 py-2.5 flex items-center justify-between shadow-2xl">
+        <!-- FIXED TOP HUD BAR (MAX Z-INDEX SO CANCEL AD ALWAYS WORKS) -->
+        <div id="gateway-top-hud" class="fixed top-3 left-3 right-3 max-w-md mx-auto z-[2147483647] bg-[#111827] border border-white/25 rounded-2xl px-4 py-2.5 flex items-center justify-between shadow-2xl">
             <div class="flex items-center space-x-2">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                <span id="hud-status-label" class="text-xs font-extrabold text-white">Page 1 of 3</span>
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                <span id="hud-status-label" class="text-xs font-extrabold text-white">1. First Page</span>
             </div>
             <div class="flex items-center space-x-2">
-                <span id="hud-timer-badge" class="font-mono-code text-xs font-extrabold bg-white/15 text-white px-2.5 py-0.5 rounded">5s</span>
-                <button type="button" onclick="manualForceCancelAd()" class="bg-white text-[#141923] hover:bg-slate-200 px-3 py-1 rounded text-[11px] font-extrabold shadow">
+                <span id="hud-timer-badge" class="font-mono-code text-xs font-extrabold bg-sky-500/20 text-sky-300 px-2.5 py-0.5 rounded-lg">5s</span>
+                <button type="button" onclick="manualForceCancelAd()" class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1 rounded-lg text-[11px] font-extrabold shadow">
                     Cancel Ad ✕
                 </button>
             </div>
         </div>
 
-        <!-- GATEWAY CARD -->
-        <div class="dark-panel-card w-full max-w-sm p-6 text-center space-y-4 mt-10 shadow-2xl">
+        <!-- GATEWAY PROGRESS CARD -->
+        <div class="neo-card w-full max-w-sm p-6 text-center space-y-4 mt-10 shadow-2xl">
             <div class="grid grid-cols-3 gap-1.5">
-                <div id="step-pill-1" class="py-1 rounded text-[10px] font-extrabold bg-[#1d8cf8] text-white">1. First Page</div>
-                <div id="step-pill-2" class="py-1 rounded text-[10px] font-bold bg-white/5 text-slate-400">2. Verify</div>
-                <div id="step-pill-3" class="py-1 rounded text-[10px] font-bold bg-white/5 text-slate-400">3. Final Page</div>
+                <div id="step-pill-1" class="py-1.5 rounded-lg text-[10px] font-extrabold bg-sky-500 text-white">1. First Page</div>
+                <div id="step-pill-2" class="py-1.5 rounded-lg text-[10px] font-bold bg-white/5 text-slate-400">2. Verify</div>
+                <div id="step-pill-3" class="py-1.5 rounded-lg text-[10px] font-bold bg-white/5 text-slate-400">3. Final Page</div>
             </div>
 
-            <div class="w-full bg-[#141923] h-1.5 rounded-full overflow-hidden border border-white/10">
-                <div id="gateway-progress-bar" class="bg-[#1d8cf8] h-full transition-all duration-300" style="width: 25%"></div>
+            <div class="w-full bg-[#0b0f19] h-2 rounded-full overflow-hidden border border-white/10">
+                <div id="gateway-progress-bar" class="btn-cyber h-full transition-all duration-300" style="width: 30%"></div>
             </div>
 
-            <div class="py-2">
-                <div class="w-16 h-16 rounded-2xl bg-[#1a202e] border border-white/20 mx-auto flex items-center justify-center relative mb-3">
-                    <div class="absolute inset-0 rounded-2xl border-2 border-[#1d8cf8] border-t-transparent animate-spin hidden" id="ad-loader-ring"></div>
+            <div class="py-3">
+                <div class="w-16 h-16 rounded-2xl bg-[#0b0f19] border border-sky-400/30 mx-auto flex items-center justify-center relative mb-3">
+                    <div class="absolute inset-0 rounded-2xl border-2 border-sky-400 border-t-transparent animate-spin hidden" id="ad-loader-ring"></div>
                     <span id="ad-timer-text" class="text-xl font-extrabold text-white font-mono-code">5</span>
                 </div>
-                <h2 class="text-base font-extrabold text-white" id="ad-step-title">First Page</h2>
+                <h2 class="text-base font-extrabold text-white" id="ad-step-title">1. First Page</h2>
                 <p class="text-xs text-slate-300 mt-1" id="ad-step-subtitle">Preparing your destination link...</p>
             </div>
 
-            <!-- SPONSOR DIRECT AD (C) -->
-            <a href="https://uplcm.com/4/12155012" target="_blank" rel="noopener noreferrer" class="block w-full bg-[#1a202e] hover:bg-white/10 border border-white/15 rounded p-2.5 text-xs font-bold text-sky-400 transition">
-                <i class="fa-solid fa-bolt mr-1.5"></i> Sponsored Fast Unlock
-            </a>
-
-            <button id="btn-watch-ad" type="button" class="w-full bg-[#1a202e] text-white font-extrabold py-3.5 rounded text-xs border border-white/15">
+            <button id="btn-watch-ad" type="button" onclick="manualAdvanceIfReady()" class="w-full bg-slate-800/90 text-white font-extrabold py-3.5 rounded-xl text-xs border border-white/15">
                 Please Wait...
             </button>
 
-            <!-- REAL ANCHOR FOR 100% RELIABLE REDIRECT ON LAST PAGE -->
             <div id="final-link-actions" class="hidden">
-                <a id="btn-get-link" href="#" target="_top" rel="noopener noreferrer" class="w-full btn-blue font-extrabold py-3.5 rounded text-xs flex items-center justify-center space-x-2 no-underline shadow-lg">
+                <a id="btn-get-link" href="#" target="_top" rel="noopener noreferrer" class="w-full btn-cyber font-extrabold py-3.5 rounded-xl text-xs flex items-center justify-center space-x-2 no-underline shadow-lg">
                     <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                    <span id="btn-get-link-text">Open Destination Link</span>
+                    <span id="btn-get-link-text">Open Destination Link Now</span>
                 </a>
             </div>
-
-            <iframe id="gateway-direct-ad-frame" src="about:blank" class="hidden w-0 h-0 border-0"></iframe>
         </div>
     </div>
 </div>
@@ -622,14 +620,16 @@ const SUPABASE_ANON_KEY = 'sb_publishable_8eRTa4Dm5RzCBV0d3ZHRVA_GxMw4g68';
 const VERCEL_API_URL = 'https://sandalwoodlinks.vercel.app/api';
 const BOT_USERNAME = 'SandalwoodLinksBot';
 const APP_SHORT_NAME = 'httpssandalwoodlinksvercela';
+const META_DELIMITER = '|||SW_META|||';
 
 let dbClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 let currentUserData = null;
 let allUserLinks = [];
 let pendingSingleDeleteId = null;
 let deleteAllConfirmStep = 0;
+
 let adminSettings = {
-    cpm: 1,
+    cpm: 1.0,
     ad_timer: 5,
     ads_per_link: 1,
     refer_percent: 10,
@@ -637,21 +637,65 @@ let adminSettings = {
     maintenance_mode: false,
     payment_methods: "UPI, PayPal, USDT (TRC20)",
     tg_channel_url: "https://t.me/SandalwoodLinksBot",
-    support_url: "https://t.me/SandalwoodLinksBot"
+    support_url: "https://t.me/SandalwoodLinksBot",
+    announcements: [],
+    user_cpm_overrides: {}
 };
 
 const tg = window.Telegram?.WebApp || { expand: () => {}, ready: () => {}, close: () => window.close(), openLink: (u) => window.open(u, '_blank'), openTelegramLink: (u) => { window.top.location.href = u; } };
-try { tg.ready(); tg.expand(); tg.setHeaderColor('#1a202e'); tg.setBackgroundColor('#1f2637'); } catch(e) {}
+try { tg.ready(); tg.expand(); tg.setHeaderColor('#0b0f19'); tg.setBackgroundColor('#0b0f19'); } catch(e) {}
 
-let totalAdsRequired = 1, targetOriginalUrl = null, adStepCompleted = false, activeAdCountdownInterval = null;
+let targetOriginalUrl = null, currentGatewayStage = 1, activeStageInterval = null;
 window.invalidClickReason = null;
 
-// Sidebar Drawer Controls
+// Timeout-protected fetch so the app NEVER hangs
+async function fetchWithTimeout(url, options = {}, timeoutMs = 4500) {
+    const ctrl = new AbortController();
+    const id = setTimeout(() => ctrl.abort(), timeoutMs);
+    try {
+        const res = await fetch(url, { ...options, signal: ctrl.signal });
+        clearTimeout(id);
+        return res;
+    } catch (e) {
+        clearTimeout(id);
+        return null;
+    }
+}
+
+async function supabaseRestGet(table, query) {
+    const res = await fetchWithTimeout(`${SUPABASE_URL}/rest/v1/${table}?${query}`, {
+        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+    });
+    if (!res || !res.ok) return null;
+    try { return await res.json(); } catch (e) { return null; }
+}
+
+// Parse embedded metadata from settings.payment_methods
+function unpackSettingsRow(row) {
+    if (!row) return;
+    let rawMethods = row.payment_methods || "UPI, PayPal, USDT (TRC20)";
+    let meta = {};
+    if (rawMethods.includes(META_DELIMITER)) {
+        const parts = rawMethods.split(META_DELIMITER);
+        rawMethods = parts[0].trim();
+        try { meta = JSON.parse(parts[1] || '{}'); } catch (e) {}
+    }
+    adminSettings = {
+        ...adminSettings,
+        ...row,
+        payment_methods: rawMethods,
+        cpm: parseCpmValue(meta.custom_cpm ?? row.cpm, 1.0),
+        support_url: meta.support_url || row.support_url || row.tg_channel_url || `https://t.me/${BOT_USERNAME}`,
+        announcements: Array.isArray(meta.announcements) ? meta.announcements : [],
+        user_cpm_overrides: meta.user_cpm_overrides || {}
+    };
+}
+
+// Sidebar & UI Controls
 window.toggleSidebar = function() {
     const sb = document.getElementById('left-sidebar');
     const bd = document.getElementById('sidebar-backdrop');
-    const isHidden = sb.classList.contains('-translate-x-full');
-    if (isHidden) {
+    if (sb.classList.contains('-translate-x-full')) {
         sb.classList.remove('-translate-x-full');
         bd.classList.remove('hidden');
     } else {
@@ -670,7 +714,7 @@ window.focusShortenerBox = function() {
     setTimeout(() => document.getElementById('long-url-input')?.focus(), 100);
 };
 window.openSupportChat = function() {
-    const supportTarget = localStorage.getItem('sw_support_chat_url') || adminSettings.support_url || adminSettings.privacy_url || adminSettings.tg_channel_url || `https://t.me/${BOT_USERNAME}`;
+    const supportTarget = adminSettings.support_url || localStorage.getItem('sw_support_chat_url') || adminSettings.tg_channel_url || `https://t.me/${BOT_USERNAME}`;
     if (/^https?:\/\/(t\.me|telegram\.me)\//i.test(supportTarget) && typeof tg.openTelegramLink === 'function') {
         tg.openTelegramLink(supportTarget);
     } else {
@@ -678,49 +722,21 @@ window.openSupportChat = function() {
     }
 };
 
-// Fast REST Query Helper
-async function supabaseRestGet(table, query) {
-    try {
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${query}`, {
-            headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
-        });
-        return res.ok ? await res.json() : null;
-    } catch (e) { return null; }
-}
-
-// Track dynamically injected ad overlays
-function isInjectedAdOverlay(el) {
+// Safe Ad Overlay Cleaner (Closes ad popups/iframes WITHOUT deleting the ad SDK scripts)
+function isRemovableAdOverlay(el) {
     if (!el || !el.tagName) return false;
     const tag = el.tagName.toUpperCase();
     if (['HTML', 'HEAD', 'BODY', 'SCRIPT', 'STYLE', 'LINK', 'META', 'TITLE'].includes(tag)) return false;
     if (el.id === 'app-root-shell' || (el.closest && el.closest('#app-root-shell'))) return false;
+    if (el.getAttribute && el.getAttribute('data-keep-ad') === 'true') return false;
     return true;
 }
-
-new MutationObserver((mutations) => {
-    mutations.forEach((m) => m.addedNodes.forEach((n) => {
-        if (n && n.nodeType === 1 && isInjectedAdOverlay(n)) {
-            window.__trackedAdNodes.add(n);
-        }
-    }));
-}).observe(document.documentElement, { childList: true, subtree: true });
 
 function forceCloseOverlayAds() {
     try {
         ['keydown', 'keyup'].forEach(t => window.dispatchEvent(new KeyboardEvent(t, { key: 'Escape', keyCode: 27, bubbles: true })));
-        window.__trackedShadowRoots.forEach(item => {
-            try {
-                if (item.shadow) item.shadow.innerHTML = '';
-                if (item.host && isInjectedAdOverlay(item.host)) item.host.remove();
-            } catch (e) {}
-        });
-        window.__trackedAdNodes.forEach(n => {
-            try { if (isInjectedAdOverlay(n)) n.remove(); } catch (e) {}
-        });
-        window.__trackedAdNodes.clear();
-
         Array.from(document.body.children).forEach(el => {
-            if (isInjectedAdOverlay(el)) {
+            if (isRemovableAdOverlay(el)) {
                 try {
                     el.style.cssText = 'display:none!important;visibility:hidden!important;pointer-events:none!important;';
                     el.remove();
@@ -728,7 +744,7 @@ function forceCloseOverlayAds() {
             }
         });
         Array.from(document.documentElement.children).forEach(el => {
-            if (el.tagName !== 'HEAD' && el.tagName !== 'BODY') {
+            if (el.tagName !== 'HEAD' && el.tagName !== 'BODY' && isRemovableAdOverlay(el)) {
                 try { el.remove(); } catch (e) {}
             }
         });
@@ -773,27 +789,15 @@ function showToast(msg, isErr = false) {
 
 function copyText(t) {
     if (!t || t === 'Loading...' || t === 'Generating...' || t.startsWith('🔒')) return;
-    if (navigator.clipboard?.writeText) navigator.clipboard.writeText(t).then(() => showToast("Copied"));
+    if (navigator.clipboard?.writeText) navigator.clipboard.writeText(t).then(() => showToast("Copied to clipboard"));
 }
 
 function switchPage(pageId) {
     closeSidebar();
     document.querySelectorAll('.page-content').forEach(el => el.classList.add('hidden'));
     document.getElementById(pageId)?.classList.remove('hidden');
-    document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
-    const btn = document.querySelector(`.sidebar-item[data-target="${pageId}"]`);
-    if (btn) btn.classList.add('active');
 
-    const titles = {
-        'page-home': 'Dashboard',
-        'page-links': 'Manage Links',
-        'page-api': 'Tools & Bot API',
-        'page-refer': 'Referrals',
-        'page-wallet': 'Withdraw',
-        'page-profile': 'Settings & Plan'
-    };
-    const bc = document.getElementById('breadcrumb-current');
-    if (bc) bc.innerText = titles[pageId] || 'Dashboard';
+    document.querySelectorAll('.sidebar-link').forEach(el => el.classList.toggle('active', el.getAttribute('data-target') === pageId));
 
     if (pageId === 'page-links') loadLinks();
     if (pageId === 'page-home') generateDateReport();
@@ -815,42 +819,82 @@ function generatePermanentUserApiKey(telegramId, userId) {
     return `sw_${telegramId || 'u'}_${(h2 >>> 0).toString(16).padStart(8, '0') + (h1 >>> 0).toString(16).padStart(8, '0')}`;
 }
 
-function populateAdTierSelect() {
+// Supports Decimal CPM Rates (0.5, 1, 1.5, 2, 2.5 ... 20)
+function populateCpmPlanSelect() {
     const sel = document.getElementById('profile-ad-tier-select');
     if (!sel) return;
     sel.innerHTML = '';
-    for (let i = 1; i <= 20; i++) {
+    const presets = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 7.5, 10.0, 15.0, 20.0];
+    const currentActive = getActiveCpmRate();
+    if (!presets.includes(currentActive)) presets.push(currentActive);
+    presets.sort((a, b) => a - b);
+
+    presets.forEach(rate => {
         const opt = document.createElement('option');
-        opt.value = i;
-        opt.innerText = `${i} ${i === 1 ? 'Ad' : 'Ads'} Per Link — $${i.toFixed(2)} CPM`;
+        opt.value = rate;
+        opt.innerText = `$${rate.toFixed(2)} CPM Plan ($${(rate / 1000).toFixed(4)} / Verified View)`;
         sel.appendChild(opt);
+    });
+}
+
+function getActiveCpmRate() {
+    const uid = currentUserData?.id || currentUserData?.telegram_id;
+    if (uid && adminSettings.user_cpm_overrides && adminSettings.user_cpm_overrides[uid] !== undefined) {
+        return parseCpmValue(adminSettings.user_cpm_overrides[uid], adminSettings.cpm);
     }
+    const saved = localStorage.getItem('sw_user_cpm_rate');
+    if (saved) return parseCpmValue(saved, adminSettings.cpm);
+    return parseCpmValue(adminSettings.cpm, 1.0);
 }
 
-function getActiveAdTier() {
-    const saved = localStorage.getItem('sw_user_ad_tier');
-    return saved ? clampAdTier(saved) : clampAdTier(adminSettings.ads_per_link || adminSettings.cpm || 1);
-}
+window.updateUserCpmPlan = function(val, silent = false) {
+    const rate = parseCpmValue(val, 1.0);
+    localStorage.setItem('sw_user_cpm_rate', String(rate));
+    populateCpmPlanSelect();
 
-window.updateUserAdTier = function(val, silent = false) {
-    const tier = clampAdTier(val), autoCpm = getAutoCpmByAds(tier);
-    localStorage.setItem('sw_user_ad_tier', String(tier));
-    adminSettings.ads_per_link = tier;
-    adminSettings.cpm = autoCpm;
-    totalAdsRequired = tier;
-
-    const se = document.getElementById('profile-ad-tier-select'); if (se) se.value = tier;
-    const sl = document.getElementById('profile-ad-tier-slider'); if (sl) sl.value = tier;
-    const pcb = document.getElementById('profile-cpm-big'); if (pcb) pcb.innerText = `$${autoCpm.toFixed(2)} CPM`;
-    const ptb = document.getElementById('profile-tier-badge'); if (ptb) ptb.innerText = `${tier} ${tier === 1 ? 'Ad' : 'Ads'} / Link`;
-    const hcb = document.getElementById('home-active-cpm-badge'); if (hcb) hcb.innerText = `$${autoCpm.toFixed(2)} CPM`;
-    const spl = document.getElementById('sidebar-plan-label'); if (spl) spl.innerText = `Default - $${autoCpm.toFixed(2)} CPM`;
+    const se = document.getElementById('profile-ad-tier-select'); if (se) se.value = rate;
+    const pcb = document.getElementById('profile-cpm-big'); if (pcb) pcb.innerText = `$${rate.toFixed(2)} CPM`;
+    const ptb = document.getElementById('profile-tier-badge'); if (ptb) ptb.innerText = `Earns $${(rate / 1000).toFixed(4)} per view`;
+    const hcb = document.getElementById('home-active-cpm-badge'); if (hcb) hcb.innerText = `$${rate.toFixed(2)} CPM ($${(rate / 1000).toFixed(4)}/view)`;
+    const hcc = document.getElementById('home-cpm-card'); if (hcc) hcc.innerText = `$${rate.toFixed(2)}`;
+    const spl = document.getElementById('sidebar-plan-label'); if (spl) spl.innerText = `$${rate.toFixed(2)} CPM`;
 
     if (!silent) {
-        showToast(`Plan updated to $${autoCpm.toFixed(2)} CPM`);
+        showToast(`CPM Plan updated to $${rate.toFixed(2)} CPM`);
         generateDateReport();
     }
 };
+
+function renderAnnouncements() {
+    const listEl = document.getElementById('announcements-list');
+    const badgeEl = document.getElementById('announcement-count-badge');
+    if (!listEl) return;
+
+    const items = adminSettings.announcements || [];
+    if (badgeEl) badgeEl.innerText = `${items.length} Active`;
+
+    if (items.length === 0) {
+        listEl.innerHTML = `
+            <div class="bg-[#0b0f19]/70 border border-white/5 rounded-xl p-3 flex items-center justify-between">
+                <div class="text-xs text-slate-300">Welcome to Sandalwood Links Next-Gen Creator Hub! Shorten links & earn instant payouts.</div>
+                <span class="text-[10px] text-sky-400 font-mono-code shrink-0 ml-2">Pinned</span>
+            </div>`;
+        return;
+    }
+
+    listEl.innerHTML = '';
+    items.slice().reverse().forEach(item => {
+        const dateStr = item.created_at ? new Date(item.created_at).toLocaleDateString() : 'Live';
+        listEl.innerHTML += `
+            <div class="bg-[#0b0f19]/90 border border-amber-500/20 rounded-xl p-3 space-y-1">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-extrabold text-amber-300">${item.title || 'Platform Update'}</span>
+                    <span class="text-[10px] font-mono-code text-slate-400">${dateStr}</span>
+                </div>
+                <p class="text-xs text-slate-200 leading-relaxed">${item.message || ''}</p>
+            </div>`;
+    });
+}
 
 async function resolveDestinationUrlFromDb(shortId) {
     if (!shortId) return null;
@@ -864,15 +908,6 @@ async function resolveDestinationUrlFromDb(shortId) {
 
         const ilikeRows = await supabaseRestGet('links', `select=id,user_id,original_url,short_id&short_id=ilike.${enc}&limit=1`);
         if (ilikeRows && ilikeRows.length > 0 && ilikeRows[0].original_url) return ilikeRows[0];
-    }
-
-    if (dbClient) {
-        for (const cid of candidates) {
-            try {
-                const { data } = await dbClient.from('links').select('id, user_id, original_url').eq('short_id', cid).limit(1);
-                if (data && data.length > 0 && data[0].original_url) return data[0];
-            } catch (e) {}
-        }
     }
     return null;
 }
@@ -901,20 +936,11 @@ async function verifyLinkStatus() {
 async function loadAdminSettings() {
     try {
         const rows = await supabaseRestGet('settings', 'select=*&limit=1');
-        if (rows && rows.length > 0) adminSettings = { ...adminSettings, ...rows[0] };
+        if (rows && rows.length > 0) unpackSettingsRow(rows[0]);
     } catch (e) {}
-    const tier = clampAdTier(localStorage.getItem('sw_user_ad_tier') || adminSettings.ads_per_link || adminSettings.cpm || 1);
-    adminSettings.ads_per_link = tier;
-    adminSettings.cpm = getAutoCpmByAds(tier);
-    totalAdsRequired = tier;
 }
 
 async function initApp() {
-    populateAdTierSelect();
-    const now = new Date();
-    const dateLabel = document.getElementById('current-date-label');
-    if (dateLabel) dateLabel.innerText = `${now.getDate()}-${now.toLocaleString('default', { month: 'long' })}`;
-
     const startParam = extractStartParam();
     const isGateway = Boolean(startParam && !startParam.startsWith('ref_'));
     window.__isGatewayMode = isGateway;
@@ -949,10 +975,13 @@ async function initApp() {
         return;
     }
 
+    renderAnnouncements();
+    updateUserCpmPlan(getActiveCpmRate(), true);
+
     if (tgUser && dbClient) {
         try {
-            let { data: existUsers } = await dbClient.from('users').select('*').eq('telegram_id', tgUser.id).limit(1);
-            let existUser = existUsers && existUsers[0] ? existUsers[0] : null;
+            const rows = await supabaseRestGet('users', `select=*&telegram_id=eq.${tgUser.id}&limit=1`);
+            let existUser = rows && rows[0] ? rows[0] : null;
             if (!existUser) {
                 const { data: ins } = await dbClient.from('users').insert([{
                     telegram_id: tgUser.id, first_name: tgUser.first_name, username: tgUser.username, api_key: null
@@ -963,10 +992,10 @@ async function initApp() {
                     const refId = parseInt(startParam.replace('ref_', ''), 10);
                     if (refId && refId !== tgUser.id) {
                         await dbClient.from('referrals').insert([{ referrer_tg_id: refId, referred_tg_id: tgUser.id, status: 'active' }]);
-                        fetch(`${VERCEL_API_URL}/process_referral`, {
+                        fetchWithTimeout(`${VERCEL_API_URL}/process_referral`, {
                             method: 'POST', headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ referrer_id: refId, new_user: tgUser })
-                        }).catch(() => {});
+                        });
                     }
                 }
             }
@@ -987,19 +1016,20 @@ function setupDashboard() {
     document.getElementById('profile-id').innerText = `ID: ${u?.id || currentUserData?.telegram_id || '...'}`;
     document.getElementById('referral-link-display').innerText = refLink;
     document.getElementById('btn-share-referral-tg').onclick = () => {
-        tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent('Earn up to $20 CPM shortening links!')}`);
+        tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent('Shorten links & earn instant payouts on Sandalwood Links!')}`);
     };
 
     if (adminSettings.tg_channel_url) {
         document.getElementById('header-tg-btn').href = adminSettings.tg_channel_url;
-        document.getElementById('drawer-tg-btn').href = adminSettings.tg_channel_url;
     }
 
-    updateUserAdTier(getActiveAdTier(), true);
-    document.getElementById('header-balance').innerText = `$${parseFloat(currentUserData.balance || 0).toFixed(2)}`;
-    document.getElementById('wallet-balance-page').innerText = `$${parseFloat(currentUserData.balance || 0).toFixed(2)}`;
+    updateUserCpmPlan(getActiveCpmRate(), true);
+    renderAnnouncements();
+
+    document.getElementById('header-balance').innerText = `$${parseFloat(currentUserData.balance || 0).toFixed(4)}`;
+    document.getElementById('wallet-balance-page').innerText = `$${parseFloat(currentUserData.balance || 0).toFixed(4)}`;
     document.getElementById('stat-today-earn').innerText = `$${parseFloat(currentUserData.today_earnings || 0).toFixed(4)}`;
-    document.getElementById('stat-total-earn').innerText = `$${parseFloat(currentUserData.total_earnings || currentUserData.balance || 0).toFixed(2)}`;
+    document.getElementById('stat-total-earn').innerText = `$${parseFloat(currentUserData.total_earnings || currentUserData.balance || 0).toFixed(4)}`;
     document.getElementById('stat-today-views').innerText = currentUserData.today_clicks || 0;
     document.getElementById('stat-views').innerText = currentUserData.total_clicks || 0;
     document.getElementById('refer-commission').innerText = `${adminSettings.refer_percent || 10}%`;
@@ -1018,14 +1048,16 @@ function setupDashboard() {
         const alias = document.getElementById('custom-alias-input').value.trim().replace(/[^a-zA-Z0-9_-]/g, '');
         if (!rawUrl) return showToast("Enter a destination URL", true);
         const url = normalizeDestinationUrl(rawUrl);
-        this.innerText = 'Shortening...'; this.disabled = true;
+        this.innerText = 'Wait...'; this.disabled = true;
         try {
-            if (alias && dbClient) {
-                const { data: ex } = await dbClient.from('links').select('id').eq('short_id', alias).limit(1);
+            if (alias) {
+                const ex = await supabaseRestGet('links', `select=id&short_id=eq.${encodeURIComponent(alias)}&limit=1`);
                 if (ex && ex.length > 0) { showToast("Alias already taken", true); return; }
             }
             const shortId = alias || Math.random().toString(36).substring(2, 8);
-            if (dbClient) await dbClient.from('links').insert([{ original_url: url, short_id: shortId, user_id: currentUserData.id }]);
+            if (dbClient && currentUserData.id) {
+                await dbClient.from('links').insert([{ original_url: url, short_id: shortId, user_id: currentUserData.id }]);
+            }
 
             if (!currentUserData.api_key) {
                 const permKey = generatePermanentUserApiKey(currentUserData.telegram_id, currentUserData.id);
@@ -1040,15 +1072,19 @@ function setupDashboard() {
             document.getElementById('shorten-result').classList.remove('hidden');
             document.getElementById('long-url-input').value = '';
             document.getElementById('custom-alias-input').value = '';
-            showToast("Short link created");
+            showToast("Short link created!");
         } catch (e) { showToast("Error creating link", true); }
         finally { this.innerText = 'Shorten'; this.disabled = false; }
     };
 
     document.getElementById('btn-copy-link').onclick = () => copyText(document.getElementById('short-link-display').innerText);
     document.getElementById('btn-copy-referral').onclick = () => copyText(document.getElementById('referral-link-display').innerText);
-    document.getElementById('report-month').value = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
-    document.getElementById('report-month').onchange = generateDateReport;
+
+    const monthInput = document.getElementById('report-month');
+    if (monthInput && !monthInput.value) {
+        monthInput.value = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+    }
+    if (monthInput) monthInput.onchange = generateDateReport;
 
     setupApiTab();
     generateDateReport();
@@ -1067,6 +1103,97 @@ function setupApiTab() {
     }
 }
 
+// Fixed Daily Report Breakdown
+async function generateDateReport() {
+    const listDiv = document.getElementById('earnings-list');
+    if (!listDiv) return;
+
+    const cpmRate = getActiveCpmRate();
+    const monthStr = document.getElementById('report-month')?.value || `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+    const [year, month] = monthStr.split('-').map(Number);
+
+    let dailyMap = {};
+    const now = new Date();
+    const isCurrentMonth = (now.getFullYear() === year && (now.getMonth() + 1) === month);
+
+    if (isCurrentMonth) {
+        for (let i = 0; i < 7; i++) {
+            const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+            if (d.getMonth() + 1 === month) {
+                const key = d.toISOString().split('T')[0];
+                dailyMap[key] = 0;
+            }
+        }
+        const todayKey = now.toISOString().split('T')[0];
+        if (currentUserData?.today_clicks > 0) {
+            dailyMap[todayKey] = Math.max(dailyMap[todayKey] || 0, parseInt(currentUserData.today_clicks, 10));
+        }
+    }
+
+    let totalMonthViews = 0;
+
+    if (currentUserData?.id) {
+        try {
+            const links = await supabaseRestGet('links', `select=id,clicks,created_at&user_id=eq.${currentUserData.id}`);
+            if (links && links.length > 0) {
+                const linkIds = links.map(l => l.id).join(',');
+                const startIso = new Date(year, month - 1, 1).toISOString();
+                const endIso = new Date(year, month, 1).toISOString();
+                const clicks = await supabaseRestGet('click_logs', `select=created_at&link_id=in.(${linkIds})&created_at=gte.${startIso}&created_at=lt.${endIso}`);
+
+                if (clicks && clicks.length > 0) {
+                    const logCounts = {};
+                    clicks.forEach(c => {
+                        const k = new Date(c.created_at).toISOString().split('T')[0];
+                        logCounts[k] = (logCounts[k] || 0) + 1;
+                    });
+                    Object.entries(logCounts).forEach(([k, v]) => {
+                        dailyMap[k] = Math.max(dailyMap[k] || 0, v);
+                    });
+                } else {
+                    links.forEach(l => {
+                        if ((l.clicks || 0) > 0 && l.created_at) {
+                            const d = new Date(l.created_at);
+                            if (d.getFullYear() === year && (d.getMonth() + 1) === month) {
+                                const k = d.toISOString().split('T')[0];
+                                dailyMap[k] = (dailyMap[k] || 0) + parseInt(l.clicks, 10);
+                            }
+                        }
+                    });
+                }
+            }
+        } catch (e) {}
+    }
+
+    const sortedDates = Object.keys(dailyMap).sort((a, b) => b.localeCompare(a));
+    if (sortedDates.length === 0) {
+        const sampleDay = `${year}-${String(month).padStart(2, '0')}-01`;
+        dailyMap[sampleDay] = 0;
+        sortedDates.push(sampleDay);
+    }
+
+    listDiv.innerHTML = '';
+    sortedDates.forEach(dateKey => {
+        const views = dailyMap[dateKey] || 0;
+        totalMonthViews += views;
+        const earn = views * (cpmRate / 1000);
+        const isToday = dateKey === now.toISOString().split('T')[0];
+
+        listDiv.innerHTML += `
+            <tr class="hover:bg-white/5">
+                <td class="py-2.5 px-4 text-slate-200 font-semibold">
+                    ${dateKey} ${isToday ? '<span class="ml-1.5 text-[9px] bg-sky-500/20 text-sky-300 px-1.5 py-0.5 rounded font-sans">TODAY</span>' : ''}
+                </td>
+                <td class="py-2.5 px-3 text-center font-bold ${views > 0 ? 'text-white' : 'text-slate-500'}">${views}</td>
+                <td class="py-2.5 px-3 text-center text-sky-400">$${cpmRate.toFixed(2)}</td>
+                <td class="py-2.5 px-4 text-right font-bold ${earn > 0 ? 'text-emerald-400' : 'text-slate-400'}">$${earn.toFixed(4)}</td>
+            </tr>`;
+    });
+
+    document.getElementById('period-total-views').innerText = totalMonthViews;
+    document.getElementById('period-total-earn').innerText = `$${(totalMonthViews * (cpmRate / 1000)).toFixed(4)}`;
+}
+
 window.submitWithdrawal = async function() {
     const method = document.getElementById('withdraw-method').value;
     const details = document.getElementById('withdraw-details').value.trim();
@@ -1082,8 +1209,8 @@ window.submitWithdrawal = async function() {
         await dbClient.from('users').update({ balance: newBal }).eq('id', currentUserData.id);
         await dbClient.from('withdrawals').insert([{ user_id: currentUserData.id, username: currentUserData.username || 'User', amount, method, details, status: 'pending' }]);
         currentUserData.balance = newBal;
-        document.getElementById('header-balance').innerText = `$${newBal.toFixed(2)}`;
-        document.getElementById('wallet-balance-page').innerText = `$${newBal.toFixed(2)}`;
+        document.getElementById('header-balance').innerText = `$${newBal.toFixed(4)}`;
+        document.getElementById('wallet-balance-page').innerText = `$${newBal.toFixed(4)}`;
         document.getElementById('withdraw-amount').value = '';
         showToast("Withdrawal Submitted");
         loadWithdrawalHistory();
@@ -1092,10 +1219,10 @@ window.submitWithdrawal = async function() {
 };
 
 async function loadWithdrawalHistory() {
-    if (!dbClient || !currentUserData?.id) return;
+    if (!currentUserData?.id) return;
     const list = document.getElementById('withdrawal-history-list');
     try {
-        const { data } = await dbClient.from('withdrawals').select('*').eq('user_id', currentUserData.id).order('created_at', { ascending: false });
+        const data = await supabaseRestGet('withdrawals', `select=*&user_id=eq.${currentUserData.id}&order=created_at.desc`);
         let pending = 0, paid = 0;
         (data || []).forEach(w => {
             if (w.status === 'pending') pending += parseFloat(w.amount || 0);
@@ -1106,15 +1233,15 @@ async function loadWithdrawalHistory() {
         if (!data || data.length === 0) { list.innerHTML = '<div class="text-center text-slate-400 py-4 text-xs">No invoices found.</div>'; return; }
         list.innerHTML = '';
         data.forEach(w => {
-            list.innerHTML += `<div class="bg-[#1a202e] border border-white/10 rounded p-3 flex justify-between items-center text-xs"><div><b>${w.method}</b> • ${w.details}</div><div class="font-mono-code font-bold">$${parseFloat(w.amount).toFixed(2)} (${w.status.toUpperCase()})</div></div>`;
+            list.innerHTML += `<div class="bg-[#0b0f19] border border-white/10 rounded-xl p-3 flex justify-between items-center text-xs"><div><b>${w.method}</b> • ${w.details}</div><div class="font-mono-code font-bold">$${parseFloat(w.amount).toFixed(2)} (${w.status.toUpperCase()})</div></div>`;
         });
     } catch (e) {}
 }
 
 async function loadLinks() {
-    if (!dbClient || !currentUserData?.id) return;
+    if (!currentUserData?.id) return;
     try {
-        const { data } = await dbClient.from('links').select('*').eq('user_id', currentUserData.id).order('created_at', { ascending: false }).limit(100);
+        const data = await supabaseRestGet('links', `select=*&user_id=eq.${currentUserData.id}&order=created_at.desc&limit=100`);
         allUserLinks = data || [];
         document.getElementById('links-count-badge').innerText = allUserLinks.length;
         filterLinks();
@@ -1128,21 +1255,21 @@ function filterLinks() {
     if (sortMode === 'clicks') arr.sort((a, b) => (b.clicks || 0) - (a.clicks || 0));
     else if (sortMode === 'earnings') arr.sort((a, b) => (b.earnings || 0) - (a.earnings || 0));
     const list = document.getElementById('links-list');
-    if (arr.length === 0) { list.innerHTML = '<div class="dark-panel-card p-6 text-center text-slate-400 text-xs">No links found.</div>'; return; }
+    if (arr.length === 0) { list.innerHTML = '<div class="neo-card p-6 text-center text-slate-400 text-xs">No links found.</div>'; return; }
     list.innerHTML = '';
     arr.forEach(l => {
         const shortUrl = `https://t.me/${BOT_USERNAME}/${APP_SHORT_NAME}?startapp=link_${l.short_id}`;
         const isConfirm = pendingSingleDeleteId === l.id;
         list.innerHTML += `
-            <div class="dark-panel-card p-3.5 space-y-2">
+            <div class="neo-card p-3.5 space-y-2">
                 <div class="flex justify-between items-start gap-2">
                     <div class="truncate">
                         <div class="text-sky-400 font-mono-code text-xs font-bold truncate">${shortUrl}</div>
                         <div class="text-[11px] text-slate-300 truncate">${l.original_url}</div>
                     </div>
                     <div class="flex space-x-1 shrink-0">
-                        <button onclick="copyText('${shortUrl}')" class="btn-blue px-2.5 py-1.5 rounded text-xs"><i class="fa-regular fa-copy"></i></button>
-                        <button onclick="handleSingleLinkDelete('${l.id}')" class="${isConfirm ? 'bg-rose-600 text-white px-2' : 'bg-rose-500/20 text-rose-300 px-2'} py-1.5 rounded text-xs font-bold">${isConfirm ? 'Sure?' : '<i class="fa-solid fa-trash-can"></i>'}</button>
+                        <button onclick="copyText('${shortUrl}')" class="btn-cyber px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-regular fa-copy"></i></button>
+                        <button onclick="handleSingleLinkDelete('${l.id}')" class="${isConfirm ? 'bg-rose-600 text-white px-2' : 'bg-rose-500/20 text-rose-300 px-2'} py-1.5 rounded-lg text-xs font-bold">${isConfirm ? 'Sure?' : '<i class="fa-solid fa-trash-can"></i>'}</button>
                     </div>
                 </div>
                 <div class="flex justify-between text-xs pt-2 border-t border-white/10">
@@ -1195,102 +1322,80 @@ window.advanceDeleteAllStep = async function() {
     } catch (e) {}
 };
 
-async function generateDateReport() {
-    const listDiv = document.getElementById('earnings-list');
-    const monthStr = document.getElementById('report-month')?.value;
-    if (!monthStr || !currentUserData?.id || !dbClient) return;
-    try {
-        const { data: links } = await dbClient.from('links').select('id').eq('user_id', currentUserData.id);
-        if (!links || !links.length) {
-            listDiv.innerHTML = '<div class="text-center text-slate-400 text-xs py-4">No views recorded this month.</div>';
-            return;
-        }
-        const linkIds = links.map(l => l.id), cpmRate = getAutoCpmByAds(getActiveAdTier());
-        const [year, month] = monthStr.split('-').map(Number);
-        const start = new Date(year, month - 1, 1).toISOString(), end = new Date(year, month, 1).toISOString();
-        const { data: clicks } = await dbClient.from('click_logs').select('created_at').in('link_id', linkIds).gte('created_at', start).lt('created_at', end);
-        const count = clicks?.length || 0;
-        let daily = {};
-        (clicks || []).forEach(c => {
-            const d = new Date(c.created_at).toLocaleDateString();
-            if (!daily[d]) daily[d] = 0;
-            daily[d]++;
-        });
-        document.getElementById('period-total-views').innerText = count;
-        document.getElementById('period-total-earn').innerText = `$${(count * (cpmRate / 1000)).toFixed(4)}`;
-        listDiv.innerHTML = '';
-        Object.entries(daily).reverse().forEach(([date, views]) => {
-            listDiv.innerHTML += `<div class="bg-[#1a202e] p-2.5 rounded border border-white/10 flex justify-between text-xs"><span>${date}</span><span class="font-mono-code text-emerald-400">${views} views (+$${(views * (cpmRate / 1000)).toFixed(4)})</span></div>`;
-        });
-    } catch (e) {}
-}
-
 async function fetchReferralDetails() {
-    if (!currentUserData?.telegram_id || !dbClient) return;
+    if (!currentUserData?.telegram_id) return;
     const list = document.getElementById('referrals-list');
     try {
-        const { data: refs } = await dbClient.from('referrals').select('*').eq('referrer_tg_id', currentUserData.telegram_id);
+        const refs = await supabaseRestGet('referrals', `select=*&referrer_tg_id=eq.${currentUserData.telegram_id}`);
         document.getElementById('stat-referrals').innerText = refs?.length || 0;
         if (!refs || !refs.length) {
             list.innerHTML = '<div class="text-center text-slate-400 py-4 text-xs">No referrals yet.</div>';
             return;
         }
-        const refIds = refs.map(r => r.referred_tg_id);
-        const { data: usersData } = await dbClient.from('users').select('telegram_id, first_name, total_earnings').in('telegram_id', refIds);
+        const refIds = refs.map(r => r.referred_tg_id).join(',');
+        const usersData = await supabaseRestGet('users', `select=telegram_id,first_name,total_earnings&telegram_id=in.(${refIds})`);
         let totalBonus = 0;
         const pct = (adminSettings.refer_percent || 10) / 100;
         (usersData || []).forEach(u => { totalBonus += (parseFloat(u.total_earnings || 0) * pct); });
-        document.getElementById('stat-ref-earnings').innerText = `$${totalBonus.toFixed(2)}`;
+        document.getElementById('stat-ref-earnings').innerText = `$${totalBonus.toFixed(4)}`;
         const hre = document.getElementById('home-ref-earnings');
-        if (hre) hre.innerText = `$${totalBonus.toFixed(2)}`;
+        if (hre) hre.innerText = `$${totalBonus.toFixed(4)}`;
 
         list.innerHTML = '';
         refs.forEach(r => {
-            list.innerHTML += `<div class="bg-[#1a202e] border border-white/10 p-3 rounded flex justify-between text-xs"><span>Partner TG: ${r.referred_tg_id}</span><span class="text-emerald-400 font-bold">Active</span></div>`;
+            list.innerHTML += `<div class="bg-[#0b0f19] border border-white/10 p-3 rounded-xl flex justify-between text-xs"><span>Partner TG: ${r.referred_tg_id}</span><span class="text-emerald-400 font-bold">Active</span></div>`;
         });
     } catch (e) {}
 }
 
 // ============================================================================
-// === 3-STAGE AUTOMATIC GATEWAY ENGINE (SHOW ADS, AUTO CANCEL, AUTO REDIRECT) =
+// === 3-STAGE GATEWAY ENGINE (QUGE5 ON 1 & 3, MONETAG ON 2, AUTO REDIRECT) ===
 // ============================================================================
 function setGatewayStepPills(stage) {
+    currentGatewayStage = stage;
     for (let i = 1; i <= 3; i++) {
         const el = document.getElementById(`step-pill-${i}`);
         if (!el) continue;
-        if (i === stage) el.className = "py-1 rounded text-[10px] font-extrabold bg-[#1d8cf8] text-white";
-        else if (i < stage) el.className = "py-1 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300";
-        else el.className = "py-1 rounded text-[10px] font-bold bg-white/5 text-slate-400";
+        if (i === stage) el.className = "py-1.5 rounded-lg text-[10px] font-extrabold bg-sky-500 text-white";
+        else if (i < stage) el.className = "py-1.5 rounded-lg text-[10px] font-bold bg-emerald-500/20 text-emerald-300";
+        else el.className = "py-1.5 rounded-lg text-[10px] font-bold bg-white/5 text-slate-400";
     }
 }
 
+window.manualAdvanceIfReady = function() {
+    if (currentGatewayStage === 3 && targetOriginalUrl) {
+        executeFinalRedirect(targetOriginalUrl);
+    }
+};
+
 function startAdFlow() {
     window.__isGatewayMode = true;
-    adStepCompleted = false;
     setGatewayStepPills(1);
 
-    injectEdgePageAds('first');
+    // 1. First Page: Load ONLY the requested quge5.com ad script (zone 303844)
+    triggerEdgePageAd('first');
 
     let waitSec = 5;
     const timerEl = document.getElementById('ad-timer-text');
     const badgeEl = document.getElementById('hud-timer-badge');
     const btn = document.getElementById('btn-watch-ad');
 
-    document.getElementById('hud-status-label').innerText = "Page 1 of 3 • First Page";
-    document.getElementById('ad-step-title').innerText = "First Page Verification";
-    document.getElementById('ad-step-subtitle').innerText = "Auto-advancing to Step 2...";
+    document.getElementById('hud-status-label').innerText = "1. First Page";
+    document.getElementById('ad-step-title').innerText = "1. First Page";
+    document.getElementById('ad-step-subtitle').innerText = "Loading sponsor & auto-advancing...";
     timerEl.innerText = waitSec;
     badgeEl.innerText = `${waitSec}s`;
-    btn.innerText = `Moving to Next Page in ${waitSec}s...`;
+    btn.innerText = `Next Page in ${waitSec}s...`;
 
-    const p1Interval = setInterval(() => {
+    if (activeStageInterval) clearInterval(activeStageInterval);
+    activeStageInterval = setInterval(() => {
         waitSec--;
         timerEl.innerText = Math.max(0, waitSec);
         badgeEl.innerText = `${Math.max(0, waitSec)}s`;
-        btn.innerText = `Moving to Next Page in ${Math.max(0, waitSec)}s...`;
+        btn.innerText = `Next Page in ${Math.max(0, waitSec)}s...`;
 
         if (waitSec <= 0) {
-            clearInterval(p1Interval);
+            clearInterval(activeStageInterval);
             forceCloseOverlayAds();
             runSecondPageVerification();
         }
@@ -1298,7 +1403,6 @@ function startAdFlow() {
 }
 
 function runSecondPageVerification() {
-    if (adStepCompleted) return;
     setGatewayStepPills(2);
 
     const btn = document.getElementById('btn-watch-ad');
@@ -1306,60 +1410,38 @@ function runSecondPageVerification() {
     const hudBadge = document.getElementById('hud-timer-badge');
     const timerEl = document.getElementById('ad-timer-text');
 
-    let adTier = clampAdTier(totalAdsRequired || adminSettings.ads_per_link || 1);
-    let totalSec = getAdDurationSeconds(adTier);
-    let milestones = getTriggerMilestones(adTier);
-    let elapsed = 0;
-
-    document.getElementById('gateway-progress-bar').style.width = '55%';
+    let waitSec = Math.max(5, parseInt(adminSettings.ad_timer || 6, 10));
+    document.getElementById('gateway-progress-bar').style.width = '65%';
     document.getElementById('ad-loader-ring').classList.remove('hidden');
-    hudLabel.innerText = "Page 2 of 3 • Verifying";
-    document.getElementById('ad-step-title').innerText = "Verifying Link";
-    document.getElementById('ad-step-subtitle').innerText = "Auto-canceling ad & moving to Final Page...";
+    hudLabel.innerText = "2. Verifying Link";
+    document.getElementById('ad-step-title').innerText = "2. Verifying Link";
+    document.getElementById('ad-step-subtitle').innerText = "Auto-advancing to Final Page...";
 
-    const fireMonetagAd = () => {
-        if (typeof window[MONETAG_AD_FUNCTION] === 'function') {
-            try {
-                const p = window[MONETAG_AD_FUNCTION]();
-                if (p && typeof p.catch === 'function') p.catch(() => {});
-            } catch (e) {}
-        }
-    };
+    // Trigger Monetag SDK Ad on Page 2
+    if (typeof window[MONETAG_AD_FUNCTION] === 'function') {
+        try {
+            const p = window[MONETAG_AD_FUNCTION]();
+            if (p && typeof p.catch === 'function') p.catch(() => {});
+        } catch (e) {}
+    }
 
-    fireMonetagAd();
-    if (activeAdCountdownInterval) clearInterval(activeAdCountdownInterval);
+    timerEl.innerText = waitSec;
+    hudBadge.innerText = `${waitSec}s`;
+    btn.innerText = `Final Page in ${waitSec}s...`;
 
-    const startTs = Date.now();
-    const firedSet = new Set();
+    if (activeStageInterval) clearInterval(activeStageInterval);
+    activeStageInterval = setInterval(() => {
+        waitSec--;
+        timerEl.innerText = Math.max(0, waitSec);
+        hudBadge.innerText = `${Math.max(0, waitSec)}s`;
+        btn.innerText = `Final Page in ${Math.max(0, waitSec)}s...`;
 
-    activeAdCountdownInterval = setInterval(() => {
-        const nowElapsed = Math.floor((Date.now() - startTs) / 1000);
-        if (nowElapsed <= elapsed) return;
-        elapsed = nowElapsed;
-
-        const left = Math.max(0, totalSec - elapsed);
-        timerEl.innerText = left;
-        hudBadge.innerText = `${left}s`;
-        btn.innerText = `Moving to Final Page in ${left}s...`;
-        document.getElementById('gateway-progress-bar').style.width = `${Math.min(92, 40 + Math.round((elapsed / totalSec) * 52))}%`;
-
-        AD_MILESTONE_SECONDS.forEach(mSec => {
-            if (elapsed >= mSec && !firedSet.has(mSec)) {
-                firedSet.add(mSec);
-                forceCloseOverlayAds();
-                if (left > 0 && milestones.includes(mSec)) {
-                    setTimeout(() => { if (!adStepCompleted) fireMonetagAd(); }, 400);
-                }
-            }
-        });
-
-        if (left <= 0) {
-            clearInterval(activeAdCountdownInterval);
-            adStepCompleted = true;
+        if (waitSec <= 0) {
+            clearInterval(activeStageInterval);
             forceCloseOverlayAds();
             runFinalPageAndRedirect();
         }
-    }, 250);
+    }, 1000);
 }
 
 function executeFinalRedirect(rawUrl) {
@@ -1375,6 +1457,7 @@ function executeFinalRedirect(rawUrl) {
         try {
             if (isTelegramLink && typeof tg.openTelegramLink === 'function') {
                 tg.openTelegramLink(cleanUrl);
+                return;
             } else if (!isTelegramLink && typeof tg.openLink === 'function') {
                 tg.openLink(cleanUrl);
             }
@@ -1383,39 +1466,38 @@ function executeFinalRedirect(rawUrl) {
 
     try {
         const a = document.getElementById('hidden-redirect-anchor');
-        if (a) {
-            a.href = cleanUrl;
-            a.click();
-        }
+        if (a) { a.href = cleanUrl; a.click(); }
     } catch (e) {}
 
     setTimeout(() => {
         try { window.top.location.href = cleanUrl; } catch (e) {}
-        try { window.location.assign(cleanUrl); } catch (e) { window.location.href = cleanUrl; }
-    }, 150);
+        try { window.location.replace(cleanUrl); } catch (e) { window.location.href = cleanUrl; }
+    }, 120);
 }
 
 async function runFinalPageAndRedirect() {
     setGatewayStepPills(3);
-    injectEdgePageAds('last');
+
+    // 3. Final Page: Inject ONLY the requested quge5.com ad script (zone 303844)
+    triggerEdgePageAd('final');
 
     document.getElementById('gateway-progress-bar').style.width = '100%';
     document.getElementById('btn-watch-ad').classList.add('hidden');
     document.getElementById('ad-loader-ring').classList.add('hidden');
-    document.getElementById('hud-status-label').innerText = "Page 3 of 3 • Final Page";
-    document.getElementById('hud-timer-badge').innerText = "DONE";
-    document.getElementById('ad-step-title').innerText = "Final Page • Redirecting";
-    document.getElementById('ad-step-subtitle').innerText = "Opening your destination link automatically...";
+    document.getElementById('hud-status-label').innerText = "3. Final Page";
+    document.getElementById('hud-timer-badge').innerText = "READY";
+    document.getElementById('ad-step-title').innerText = "3. Final Page";
+    document.getElementById('ad-step-subtitle').innerText = "Redirecting to your destination link...";
     document.getElementById('final-link-actions').classList.remove('hidden');
 
     if (window.invalidClickReason !== "self" && window.invalidClickReason !== "duplicate" && window.currentShortId) {
         const clickerId = tg.initDataUnsafe?.user?.id || 0;
-        const watchedTier = clampAdTier(totalAdsRequired || adminSettings.ads_per_link || 1);
-        fetch(`${VERCEL_API_URL}/reward`, {
+        const watchedTier = clampAdTier(adminSettings.ads_per_link || 1);
+        fetchWithTimeout(`${VERCEL_API_URL}/reward`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ short_id: window.currentShortId, clicker_tg_id: clickerId, ads_watched: watchedTier })
-        }).catch(() => {});
+        });
     }
 
     if (!targetOriginalUrl && window.currentShortId) {
@@ -1424,8 +1506,8 @@ async function runFinalPageAndRedirect() {
     }
 
     if (!targetOriginalUrl) {
-        document.getElementById('ad-step-title').innerText = "Link Not Found";
-        document.getElementById('ad-step-subtitle').innerText = "This short link could not be found.";
+        document.getElementById('ad-step-title').innerText = "Link Unavailable";
+        document.getElementById('ad-step-subtitle').innerText = "This shortened link could not be found.";
         document.getElementById('final-link-actions').classList.add('hidden');
         return;
     }
@@ -1443,14 +1525,15 @@ async function runFinalPageAndRedirect() {
 
     let finalSec = 3;
     timerEl.innerText = finalSec;
-    getLinkText.innerText = `Auto-Redirecting in ${finalSec}s... (Tap to Open)`;
+    getLinkText.innerText = `Redirecting in ${finalSec}s... (Tap to Open Now)`;
 
-    const finalInterval = setInterval(() => {
+    if (activeStageInterval) clearInterval(activeStageInterval);
+    activeStageInterval = setInterval(() => {
         finalSec--;
         timerEl.innerText = Math.max(0, finalSec);
-        getLinkText.innerText = finalSec > 0 ? `Auto-Redirecting in ${finalSec}s... (Tap to Open)` : `Redirecting Now...`;
+        getLinkText.innerText = finalSec > 0 ? `Redirecting in ${finalSec}s... (Tap to Open Now)` : `Opening Destination...`;
         if (finalSec <= 0) {
-            clearInterval(finalInterval);
+            clearInterval(activeStageInterval);
             executeFinalRedirect(cleanDest);
         }
     }, 1000);
