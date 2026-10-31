@@ -1,312 +1,500 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark" style="color-scheme: dark;">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sandalwood Links - Owner Admin Control Center</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1a202e">
+    <title>Sandalwood Links — Owner Admin Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
-        body {
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #03060f;
-            color: #f8fafc;
-            background-image:
-                radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 90% 90%, rgba(16, 185, 129, 0.10) 0%, transparent 40%);
+            background-color: #1f2637 !important;
+            color: #f8fafc !important;
+            color-scheme: dark !important;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
         .font-mono-code { font-family: 'JetBrains Mono', monospace; }
-        .glass-panel {
-            background: linear-gradient(180deg, rgba(15, 23, 42, 0.85) 0%, rgba(8, 13, 26, 0.92) 100%);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 1.25rem;
-            box-shadow: 0 14px 34px -12px rgba(0, 0, 0, 0.65);
+
+        /* Clean Arolinks-Style Infrastructure */
+        .dash-header {
+            background-color: #1a202e;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
-        .btn-primary { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); box-shadow: 0 8px 20px -4px rgba(99, 102, 241, 0.5); }
-        .btn-emerald { background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 8px 20px -4px rgba(16, 185, 129, 0.45); }
-        .btn-danger { background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); box-shadow: 0 8px 20px -4px rgba(244, 63, 94, 0.45); }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #03060f; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .dash-sidebar {
+            background-color: #1a202e;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0.85rem 1.25rem;
+            color: #cbd5e1;
+            font-size: 0.84rem;
+            font-weight: 600;
+            transition: all 0.15s ease;
+            border-left: 3px solid transparent;
+        }
+        .sidebar-item:hover, .sidebar-item.active {
+            background-color: #252d3f;
+            color: #ffffff;
+            border-left-color: #1d8cf8;
+        }
+        .white-action-card {
+            background-color: #ffffff;
+            color: #1e293b;
+            border-radius: 0.4rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.22);
+        }
+        .plan-purple-bar {
+            background: linear-gradient(90deg, #6b3ce9 0%, #7c4dff 100%);
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 14px rgba(107, 60, 233, 0.35);
+        }
+        .report-blue-bar {
+            background: linear-gradient(90deg, #2b8af7 0%, #1d7dfa 100%);
+            border-radius: 0.35rem;
+        }
+        .stat-dark-card {
+            background-color: #2b3448;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .dark-panel-card {
+            background-color: #262f42;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 0.5rem;
+        }
+        .btn-blue {
+            background-color: #1d8cf8;
+            color: #ffffff;
+            transition: opacity 0.15s ease, transform 0.15s ease;
+        }
+        .btn-blue:hover { opacity: 0.95; }
+        .btn-blue:active { transform: scale(0.97); }
+        .btn-emerald { background-color: #10b981; color: #ffffff; }
+        .btn-danger { background-color: #e11d48; color: #ffffff; }
         .tg-bubble { background-color: #182533; border-radius: 12px 12px 12px 2px; }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #1a202e; }
+        ::-webkit-scrollbar-thumb { background: #3b465e; border-radius: 10px; }
     </style>
 </head>
-<body class="flex h-screen overflow-hidden">
+<body class="pb-14">
 
     <!-- TOAST NOTIFICATION -->
-    <div id="admin-toast" class="fixed top-5 right-5 z-[100] pointer-events-none transition-all duration-300 opacity-0 -translate-y-3">
-        <div class="bg-slate-900/95 border border-indigo-500/40 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-2.5 backdrop-blur-xl">
-            <i id="admin-toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+    <div id="admin-toast" class="fixed top-4 left-1/2 -translate-x-1/2 z-[100] pointer-events-none transition-all duration-300 opacity-0 -translate-y-3">
+        <div class="bg-[#111622] border border-white/20 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center space-x-2.5">
+            <i id="admin-toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-xs"></i>
             <span id="admin-toast-text" class="text-xs font-bold">Saved successfully</span>
         </div>
     </div>
 
-    <!-- OWNER DOUBLE CONFIRMATION MODAL FOR DELETING ALL LINKS (CREATOR OR GLOBAL) -->
-    <div id="admin-del-all-modal" class="fixed inset-0 z-[90] bg-black/85 backdrop-blur-md flex items-center justify-center hidden p-5">
-        <div class="glass-panel p-6 max-w-sm w-full border border-rose-500/40 text-center">
-            <div class="w-16 h-16 bg-rose-500/15 rounded-2xl mx-auto flex items-center justify-center mb-4 border border-rose-500/30">
-                <i class="fa-solid fa-triangle-exclamation text-2xl text-rose-400"></i>
+    <!-- OWNER DOUBLE CONFIRMATION MODAL FOR DELETING ALL LINKS -->
+    <div id="admin-del-all-modal" class="fixed inset-0 z-[90] bg-black/80 flex items-center justify-center hidden p-5">
+        <div class="dark-panel-card p-6 max-w-sm w-full border border-rose-500/40 text-center">
+            <div class="w-14 h-14 bg-rose-500/15 rounded-xl mx-auto flex items-center justify-center mb-3 border border-rose-500/30">
+                <i class="fa-solid fa-triangle-exclamation text-xl text-rose-400"></i>
             </div>
-            <span id="admin-del-step-badge" class="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">Owner Confirmation 1 of 2</span>
-            <h3 id="admin-del-title" class="text-lg font-extrabold text-white mt-2 mb-1.5">Delete Links Permanently?</h3>
+            <span id="admin-del-step-badge" class="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded bg-rose-500/20 text-rose-300">Owner Confirmation 1 of 2</span>
+            <h3 id="admin-del-title" class="text-base font-extrabold text-white mt-2 mb-1.5">Delete Links Permanently?</h3>
             <p id="admin-del-desc" class="text-xs text-slate-300 leading-relaxed mb-5">
                 First Check: Are you sure you want to permanently delete these shortened links?
             </p>
-            <div class="grid grid-cols-2 gap-3">
-                <button onclick="closeAdminDeleteAllModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3 rounded-xl text-xs transition">Cancel</button>
-                <button id="btn-admin-del-confirm" onclick="advanceAdminDeleteAll()" class="btn-danger text-white font-extrabold py-3 rounded-xl text-xs transition">Yes, Continue (1/2)</button>
+            <div class="grid grid-cols-2 gap-2.5">
+                <button onclick="closeAdminDeleteAllModal()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded text-xs transition">Cancel</button>
+                <button id="btn-admin-del-confirm" onclick="advanceAdminDeleteAll()" class="btn-danger font-extrabold py-2.5 rounded text-xs transition">Yes, Continue (1/2)</button>
             </div>
         </div>
     </div>
 
     <!-- LOGIN SCREEN -->
-    <div id="login-screen" class="absolute inset-0 z-50 bg-[#03060f] flex items-center justify-center p-4">
-        <div class="glass-panel p-8 max-w-sm w-full text-center border border-indigo-500/30">
-            <div class="w-16 h-16 mx-auto btn-primary rounded-2xl flex items-center justify-center mb-5 shadow-xl">
-                <i class="fa-solid fa-crown text-2xl text-white"></i>
+    <div id="login-screen" class="fixed inset-0 z-50 bg-[#1a202e] flex items-center justify-center p-4">
+        <div class="dark-panel-card p-7 max-w-sm w-full text-center shadow-2xl">
+            <div class="bg-white rounded p-2.5 text-center shadow mb-5 max-w-[210px] mx-auto">
+                <div class="text-xl font-black tracking-tight leading-none">
+                    <span class="text-[#1d8cf8]">SANDAL</span><span class="text-[#e11d48]">WOOD</span>
+                </div>
+                <div class="text-[9px] font-bold text-slate-600 tracking-widest uppercase mt-0.5">OWNER CONTROL CENTER</div>
             </div>
-            <h2 class="text-2xl font-extrabold mb-1">Owner Control</h2>
-            <p class="text-xs text-slate-400 mb-6">Sandalwood Links Infrastructure v3.0</p>
-            <input type="password" id="admin-password" onkeydown="if(event.key==='Enter') document.getElementById('btn-login').click()" placeholder="Enter Owner Password" class="w-full bg-slate-950 border border-slate-800 text-white px-4 py-3.5 rounded-xl mb-4 focus:outline-none focus:border-indigo-500 text-center tracking-widest text-sm">
-            <button id="btn-login" class="w-full btn-primary hover:opacity-95 text-white font-extrabold py-3.5 rounded-xl transition-all text-sm">Unlock Owner Panel</button>
+            <h2 class="text-lg font-extrabold text-white mb-1">Owner Login</h2>
+            <p class="text-xs text-slate-400 mb-5">Enter Owner Password to unlock infrastructure</p>
+            <input type="password" id="admin-password" onkeydown="if(event.key==='Enter') document.getElementById('btn-login').click()" placeholder="Owner Password" class="w-full bg-[#141923] border border-white/15 text-white px-4 py-3 rounded mb-4 focus:outline-none focus:border-[#1d8cf8] text-center tracking-widest text-sm">
+            <button id="btn-login" class="w-full btn-blue font-extrabold py-3 rounded text-xs uppercase tracking-wider shadow">Unlock Admin Panel</button>
         </div>
     </div>
 
-    <!-- ADMIN DASHBOARD -->
-    <div id="admin-dashboard" class="flex w-full h-full hidden">
-        <!-- Desktop Sidebar -->
-        <aside class="w-64 bg-slate-950/90 border-r border-slate-800/80 p-4 hidden md:flex flex-col">
-            <div class="flex items-center space-x-3 px-2 mb-8 mt-1">
-                <div class="w-9 h-9 rounded-xl btn-primary flex items-center justify-center">
-                    <i class="fa-solid fa-crown text-white text-sm"></i>
-                </div>
-                <div>
-                    <h1 class="text-sm font-extrabold text-white leading-none">Sandalwood</h1>
-                    <span class="text-[10px] text-emerald-400 font-bold uppercase">Owner Panel v3</span>
-                </div>
+    <!-- ================================================================= -->
+    <!-- === ADMIN DASHBOARD (CLEAN AROLINKS INFRASTRUCTURE) ============= -->
+    <!-- ================================================================= -->
+    <div id="admin-dashboard" class="hidden min-h-screen flex flex-col">
+
+        <!-- TOP HEADER BAR -->
+        <header class="dash-header sticky top-0 z-40 px-3.5 py-2.5 flex items-center justify-between">
+            <div class="flex items-center space-x-2.5">
+                <button onclick="toggleSidebar()" class="w-9 h-9 rounded flex items-center justify-center text-slate-200 hover:bg-white/10 focus:outline-none border border-white/15">
+                    <i class="fa-solid fa-bars text-base"></i>
+                </button>
+                <a id="admin-header-tg" href="https://t.me/SandalwoodLinksBot" target="_blank" class="bg-[#2c3548] hover:bg-[#374258] text-white px-3 py-1.5 rounded flex items-center space-x-2 text-xs font-bold tracking-wide transition">
+                    <i class="fa-brands fa-telegram text-[#2b8af7] text-sm"></i>
+                    <span>TELEGRAM</span>
+                </a>
             </div>
 
-            <nav class="space-y-1.5 flex-1 text-xs font-bold">
-                <button class="nav-btn w-full text-left p-3 rounded-xl bg-indigo-600 text-white transition flex items-center" onclick="switchTab('dashboard', this)">
-                    <i class="fa-solid fa-chart-pie mr-3 w-5 text-center"></i> Overview & Stats
+            <div class="flex items-center space-x-2.5">
+                <button onclick="switchTab('settings')" class="btn-blue px-3 py-1.5 rounded text-xs font-extrabold tracking-wide shadow">
+                    SET BUTTON & CPM
                 </button>
-                <button class="nav-btn w-full text-left p-3 rounded-xl hover:bg-slate-900 text-slate-400 transition flex items-center" onclick="switchTab('users', this)">
-                    <i class="fa-solid fa-users mr-3 w-5 text-center"></i> Creators & Users
+                <button onclick="location.reload()" class="flex items-center space-x-1 text-slate-200 hover:text-rose-400 text-xs font-semibold px-2 py-1">
+                    <span>Owner</span>
+                    <i class="fa-solid fa-power-off text-[11px] ml-1 text-rose-400"></i>
                 </button>
-                <button class="nav-btn w-full text-left p-3 rounded-xl hover:bg-slate-900 text-slate-400 transition flex items-center" onclick="switchTab('links', this)">
-                    <i class="fa-solid fa-link mr-3 w-5 text-center"></i> Links Manager
-                </button>
-                <button class="nav-btn w-full text-left p-3 rounded-xl hover:bg-slate-900 text-slate-400 transition flex items-center" onclick="switchTab('withdrawals', this)">
-                    <i class="fa-solid fa-money-bill-transfer mr-3 w-5 text-center"></i> Payout Requests
-                </button>
-                <button class="nav-btn w-full text-left p-3 rounded-xl hover:bg-slate-900 text-slate-400 transition flex items-center" onclick="switchTab('settings', this)">
-                    <i class="fa-solid fa-sliders mr-3 w-5 text-center text-emerald-400"></i> 1-20 Ads & CPM Setup
-                </button>
-                <button class="nav-btn w-full text-left p-3 rounded-xl hover:bg-slate-900 text-slate-400 transition flex items-center" onclick="switchTab('broadcast', this)">
-                    <i class="fa-solid fa-bullhorn mr-3 w-5 text-center text-amber-400"></i> Bot Broadcast
-                </button>
-            </nav>
+            </div>
+        </header>
 
-            <button class="w-full text-left p-3 rounded-xl hover:bg-rose-950/50 text-slate-400 hover:text-rose-400 transition text-xs font-bold flex items-center" onclick="location.reload()">
-                <i class="fa-solid fa-power-off mr-3 w-5 text-center"></i> Lock Session
-            </button>
-        </aside>
+        <!-- SIDEBAR BACKDROP -->
+        <div id="sidebar-backdrop" onclick="closeSidebar()" class="fixed inset-0 bg-black/60 z-40 hidden"></div>
 
-        <!-- Mobile Header & Main -->
-        <div class="md:hidden flex flex-col w-full h-full">
-            <header class="flex flex-col bg-slate-950 p-3 border-b border-slate-800 space-y-2.5">
-                <div class="flex justify-between items-center">
-                    <span class="font-extrabold text-sm text-white"><i class="fa-solid fa-crown text-indigo-400 mr-1.5"></i>Sandalwood Owner</span>
-                    <button onclick="location.reload()" class="text-xs text-rose-400 font-bold"><i class="fa-solid fa-power-off mr-1"></i>Lock</button>
-                </div>
-                <div class="flex space-x-1.5 text-xs font-bold overflow-x-auto whitespace-nowrap pb-1">
-                    <button class="nav-btn bg-indigo-600 px-3 py-1.5 rounded-lg text-white" onclick="switchTab('dashboard', this)">Overview</button>
-                    <button class="nav-btn text-slate-400 px-3 py-1.5 rounded-lg" onclick="switchTab('users', this)">Creators/Users</button>
-                    <button class="nav-btn text-slate-400 px-3 py-1.5 rounded-lg" onclick="switchTab('links', this)">Links Manager</button>
-                    <button class="nav-btn text-slate-400 px-3 py-1.5 rounded-lg" onclick="switchTab('withdrawals', this)">Payouts</button>
-                    <button class="nav-btn text-slate-400 px-3 py-1.5 rounded-lg" onclick="switchTab('settings', this)">1-20 CPM</button>
-                    <button class="nav-btn text-slate-400 px-3 py-1.5 rounded-lg" onclick="switchTab('broadcast', this)">Broadcast</button>
-                </div>
-            </header>
-            <main id="mobile-main" class="flex-1 overflow-y-auto p-4"></main>
-        </div>
-
-        <!-- Desktop Main -->
-        <main id="desktop-main" class="hidden md:block flex-1 p-8 overflow-y-auto"></main>
-    </div>
-
-    <!-- ============================================== -->
-    <!-- TEMPLATES FOR TABS                             -->
-    <!-- ============================================== -->
-
-    <!-- TAB 1: DASHBOARD & ANALYTICS -->
-    <template id="tpl-dashboard">
-        <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
+        <!-- SLIDE-OUT LEFT SIDEBAR DRAWER -->
+        <aside id="left-sidebar" class="dash-sidebar fixed top-0 left-0 bottom-0 w-64 z-50 -translate-x-full flex flex-col justify-between overflow-y-auto">
             <div>
-                <h2 class="text-2xl font-extrabold text-white">Owner Command Center</h2>
-                <p class="text-xs text-slate-400">Live metrics across creators, normal users, links, views & payouts</p>
-            </div>
-            <button onclick="loadDashboard()" class="bg-slate-800 hover:bg-slate-700 text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-700 transition">
-                <i class="fa-solid fa-rotate mr-1.5 text-indigo-400"></i> Refresh Live Data
-            </button>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div class="glass-panel p-5 border-l-4 border-l-indigo-500 flex justify-between items-center">
-                <div><div class="text-slate-400 text-[11px] font-bold uppercase mb-1">Total Registered</div><div class="text-2xl font-extrabold text-white font-mono-code" id="stat-total-users">0</div></div>
-                <div class="bg-indigo-500/15 p-3 rounded-xl"><i class="fa-solid fa-users text-indigo-400 text-lg"></i></div>
-            </div>
-            <div class="glass-panel p-5 border-l-4 border-l-emerald-500 flex justify-between items-center">
-                <div><div class="text-slate-400 text-[11px] font-bold uppercase mb-1">Active Viewers Today</div><div class="text-2xl font-extrabold text-white font-mono-code" id="stat-active-users">0</div></div>
-                <div class="bg-emerald-500/15 p-3 rounded-xl"><i class="fa-solid fa-bolt text-emerald-400 text-lg"></i></div>
-            </div>
-            <div class="glass-panel p-5 border-l-4 border-l-sky-500 flex justify-between items-center">
-                <div><div class="text-slate-400 text-[11px] font-bold uppercase mb-1">Total Short Links</div><div class="text-2xl font-extrabold text-white font-mono-code" id="stat-total-links">0</div></div>
-                <div class="bg-sky-500/15 p-3 rounded-xl"><i class="fa-solid fa-link text-sky-400 text-lg"></i></div>
-            </div>
-            <div class="glass-panel p-5 border-l-4 border-l-purple-500 flex justify-between items-center">
-                <div><div class="text-slate-400 text-[11px] font-bold uppercase mb-1">Active Ad / CPM Tier</div><div class="text-2xl font-extrabold text-emerald-400 font-mono-code" id="stat-active-cpm">$1.00</div></div>
-                <div class="bg-purple-500/15 p-3 rounded-xl"><i class="fa-solid fa-sliders text-purple-400 text-lg"></i></div>
-            </div>
-            <div class="glass-panel p-5 border-l-4 border-l-green-500 flex justify-between items-center">
-                <div><div class="text-slate-400 text-[11px] font-bold uppercase mb-1">Approved Payouts</div><div class="text-2xl font-extrabold text-green-400 font-mono-code" id="stat-paid">$0.00</div></div>
-                <div class="bg-green-500/15 p-3 rounded-xl"><i class="fa-solid fa-check-double text-green-400 text-lg"></i></div>
-            </div>
-            <div class="glass-panel p-5 border-l-4 border-l-amber-500 flex justify-between items-center">
-                <div><div class="text-slate-400 text-[11px] font-bold uppercase mb-1">Pending Payouts</div><div class="text-2xl font-extrabold text-amber-400 font-mono-code" id="stat-pending-amt">$0.00</div></div>
-                <div class="bg-amber-500/15 p-3 rounded-xl"><i class="fa-solid fa-clock text-amber-400 text-lg"></i></div>
-            </div>
-            <div class="glass-panel p-5 border-l-4 border-l-cyan-500 flex justify-between items-center">
-                <div><div class="text-slate-400 text-[11px] font-bold uppercase mb-1">Total Verified Clicks</div><div class="text-2xl font-extrabold text-cyan-400 font-mono-code" id="stat-total-clicks">0</div></div>
-                <div class="bg-cyan-500/15 p-3 rounded-xl"><i class="fa-solid fa-eye text-cyan-400 text-lg"></i></div>
-            </div>
-            <div class="glass-panel p-5 border-l-4 border-l-rose-500 flex justify-between items-center">
-                <div><div class="text-slate-400 text-[11px] font-bold uppercase mb-1">Suspended Accounts</div><div class="text-2xl font-extrabold text-rose-400 font-mono-code" id="stat-blocked">0</div></div>
-                <div class="bg-rose-500/15 p-3 rounded-xl"><i class="fa-solid fa-ban text-rose-400 text-lg"></i></div>
-            </div>
-        </div>
-
-        <div class="glass-panel p-6">
-            <div class="flex flex-wrap justify-between items-center gap-3 mb-4 pb-3 border-b border-slate-800">
-                <div>
-                    <h3 class="text-sm font-extrabold text-white uppercase tracking-wider"><i class="fa-solid fa-chart-column text-indigo-400 mr-2"></i>Platform Traffic Archive (Last 6 Months)</h3>
-                    <p class="text-xs text-slate-400">Aggregated verified clicks across all links by month</p>
-                </div>
-            </div>
-            <div id="admin-monthly-report" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                <div class="text-slate-500 text-xs py-4">Calculating monthly archive...</div>
-            </div>
-        </div>
-    </template>
-
-    <!-- TAB 2: CREATORS & USERS (2 OPTIONS: CREATORS vs NORMAL USERS) -->
-    <template id="tpl-users">
-        <div class="flex flex-wrap justify-between items-center gap-4 mb-5">
-            <div>
-                <h2 class="text-2xl font-extrabold text-white">Creators & Users Directory</h2>
-                <p class="text-xs text-slate-400">Separate view for Creators (converted ≥ 1 link) and Normal Users (link openers)</p>
-            </div>
-            <input type="text" id="admin-user-search" oninput="filterAdminUsers()" placeholder="Search name, @username, TG ID or API..." class="bg-slate-900 border border-slate-700 text-white rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-indigo-500 w-full sm:w-72">
-        </div>
-
-        <!-- 2 OPTIONS TOGGLE: CREATORS vs USERS -->
-        <div class="grid grid-cols-2 gap-3 mb-5 max-w-lg">
-            <button id="btn-role-creators" onclick="setAdminUserRoleTab('creators')" class="p-3.5 rounded-2xl border border-indigo-500/50 bg-indigo-600/20 text-white text-left transition flex items-center justify-between">
-                <div>
-                    <div class="text-xs font-extrabold flex items-center"><i class="fa-solid fa-wand-magic-sparkles text-indigo-400 mr-2"></i>Creators</div>
-                    <div class="text-[10px] text-slate-300 mt-0.5">Converted ≥ 1 Link (API Unlocked)</div>
-                </div>
-                <span id="badge-count-creators" class="bg-indigo-500 text-white font-mono-code text-xs font-extrabold px-2.5 py-1 rounded-xl">0</span>
-            </button>
-
-            <button id="btn-role-users" onclick="setAdminUserRoleTab('users')" class="p-3.5 rounded-2xl border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-white text-left transition flex items-center justify-between">
-                <div>
-                    <div class="text-xs font-extrabold flex items-center"><i class="fa-solid fa-user text-emerald-400 mr-2"></i>Users</div>
-                    <div class="text-[10px] text-slate-400 mt-0.5">Link Openers (0 Links Converted)</div>
-                </div>
-                <span id="badge-count-users" class="bg-slate-800 text-slate-300 font-mono-code text-xs font-extrabold px-2.5 py-1 rounded-xl">0</span>
-            </button>
-        </div>
-
-        <div class="glass-panel overflow-x-auto">
-            <table class="w-full text-left text-xs whitespace-nowrap">
-                <thead class="bg-slate-950/90 text-slate-400 border-b border-slate-800 uppercase">
-                    <tr>
-                        <th class="p-4">TG ID & Name</th>
-                        <th class="p-4">Links Converted</th>
-                        <th class="p-4">Permanent API Key</th>
-                        <th class="p-4">Total Views</th>
-                        <th class="p-4">Wallet Balance</th>
-                        <th class="p-4">Status</th>
-                        <th class="p-4 text-right">Owner Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="admin-users-list" class="divide-y divide-slate-800/80">
-                    <tr><td colspan="7" class="p-8 text-center text-slate-400"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Loading directory...</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </template>
-
-    <!-- TAB 3: LINKS MANAGER (GROUPED BY CREATOR NAME -> CLICK CREATOR TO VIEW & DELETE LINKS) -->
-    <template id="tpl-links">
-        <!-- VIEW A: CREATORS LIST IN LINKS MANAGER -->
-        <div id="links-manager-creators-view">
-            <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
-                <div>
-                    <h2 class="text-2xl font-extrabold text-white">Links Manager — Select Creator</h2>
-                    <p class="text-xs text-slate-400">Click on any Creator's name below to inspect or permanently delete their shortened links</p>
-                </div>
-                <div class="flex flex-wrap items-center gap-2.5">
-                    <input type="text" id="admin-creator-link-search" oninput="renderLinksManagerCreators()" placeholder="Search creator name or TG ID..." class="bg-slate-900 border border-slate-700 text-white rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-indigo-500 w-64">
-                    <button onclick="openOwnerDeleteModal('global')" class="btn-danger text-white font-extrabold px-4 py-2.5 rounded-xl text-xs transition flex items-center">
-                        <i class="fa-solid fa-trash-can mr-1.5"></i> Delete All Platform Links
+                <!-- Drawer Top Bar -->
+                <div class="p-3 flex items-center space-x-2 border-b border-white/10">
+                    <button onclick="closeSidebar()" class="w-9 h-9 rounded flex items-center justify-center text-white border border-white/20">
+                        <i class="fa-solid fa-bars text-base"></i>
                     </button>
+                    <a href="https://t.me/SandalwoodLinksBot" target="_blank" class="bg-[#2c3548] text-white px-3 py-1.5 rounded flex items-center space-x-2 text-xs font-bold">
+                        <i class="fa-brands fa-telegram text-[#2b8af7]"></i>
+                        <span>TELEGRAM</span>
+                    </a>
                 </div>
-            </div>
 
-            <div id="links-creators-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div class="col-span-full text-center p-10 text-slate-400 text-xs"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Loading creators...</div>
-            </div>
-        </div>
-
-        <!-- VIEW B: SELECTED CREATOR'S LINKS TABLE -->
-        <div id="links-manager-detail-view" class="hidden">
-            <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
-                <div class="flex items-center space-x-3">
-                    <button onclick="backToLinksCreatorsList()" class="bg-slate-800 hover:bg-slate-700 text-white px-3.5 py-2.5 rounded-xl text-xs font-extrabold border border-slate-700 transition flex items-center">
-                        <i class="fa-solid fa-arrow-left mr-1.5"></i> Back to Creators
-                    </button>
-                    <div>
-                        <h2 id="selected-creator-title" class="text-xl font-extrabold text-white">Creator's Links</h2>
-                        <p id="selected-creator-subtitle" class="text-xs text-indigo-400 font-mono-code">TG ID: ...</p>
+                <!-- Brand Logo Box -->
+                <div class="px-4 py-3">
+                    <div class="bg-white rounded p-2 text-center shadow">
+                        <div class="text-xl font-black tracking-tight leading-none">
+                            <span class="text-[#1d8cf8]">SANDAL</span><span class="text-[#e11d48]">WOOD</span>
+                        </div>
+                        <div class="text-[9px] font-bold text-slate-600 tracking-widest uppercase mt-0.5">SHORT LINKS AND EARN MONEY</div>
                     </div>
                 </div>
-                <div class="flex flex-wrap items-center gap-2.5">
-                    <input type="text" id="admin-link-search" oninput="filterSelectedCreatorLinks()" placeholder="Search short code or URL..." class="bg-slate-900 border border-slate-700 text-white rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-indigo-500 w-60">
-                    <button onclick="openOwnerDeleteModal('creator')" class="btn-danger text-white font-extrabold px-4 py-2.5 rounded-xl text-xs transition flex items-center">
-                        <i class="fa-solid fa-trash-can mr-1.5"></i> Delete All Links of This Creator
+
+                <!-- Pending Payouts Quick Summary -->
+                <div onclick="switchTab('withdrawals')" class="px-5 py-3 flex items-center space-x-3 border-b border-white/10 cursor-pointer hover:bg-white/5">
+                    <div class="w-7 h-7 rounded-full border border-slate-400 flex items-center justify-center text-slate-300 text-xs">
+                        <i class="fa-solid fa-dollar-sign"></i>
+                    </div>
+                    <div>
+                        <div class="text-[#2b8af7] font-extrabold text-sm font-mono-code" id="sidebar-pending-payout">$0.00</div>
+                        <div class="text-[11px] text-slate-400">Pending Withdrawals</div>
+                    </div>
+                </div>
+
+                <!-- Sidebar Navigation Menu -->
+                <nav class="py-2">
+                    <button class="sidebar-item active" data-tab="dashboard" onclick="switchTab('dashboard')">
+                        <span class="flex items-center"><i class="fa-solid fa-table-cells-large w-6 text-[#2b8af7]"></i> Dashboard</span>
+                    </button>
+
+                    <div class="px-5 py-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Management</div>
+
+                    <button class="sidebar-item" data-tab="users" onclick="switchTab('users')">
+                        <span class="flex items-center"><i class="fa-solid fa-users w-6 text-slate-400"></i> Creators & Users</span>
+                        <i class="fa-solid fa-angle-right text-xs text-slate-400"></i>
+                    </button>
+
+                    <button class="sidebar-item" data-tab="links" onclick="switchTab('links')">
+                        <span class="flex items-center"><i class="fa-solid fa-link w-6 text-slate-400"></i> Manage Links</span>
+                        <i class="fa-solid fa-angle-right text-xs text-slate-400"></i>
+                    </button>
+
+                    <button class="sidebar-item" data-tab="withdrawals" onclick="switchTab('withdrawals')">
+                        <span class="flex items-center"><i class="fa-solid fa-coins w-6 text-slate-400"></i> Withdrawals</span>
+                        <i class="fa-solid fa-angle-right text-xs text-slate-400"></i>
+                    </button>
+
+                    <button class="sidebar-item" data-tab="settings" onclick="switchTab('settings')">
+                        <span class="flex items-center"><i class="fa-solid fa-gear w-6 text-slate-400"></i> Settings & Support</span>
+                        <i class="fa-solid fa-angle-right text-xs text-slate-400"></i>
+                    </button>
+
+                    <button class="sidebar-item" data-tab="broadcast" onclick="switchTab('broadcast')">
+                        <span class="flex items-center"><i class="fa-solid fa-bullhorn w-6 text-slate-400"></i> Bot Broadcast</span>
+                        <i class="fa-solid fa-angle-right text-xs text-slate-400"></i>
+                    </button>
+
+                    <button class="sidebar-item" onclick="location.reload()">
+                        <span class="flex items-center text-rose-400"><i class="fa-solid fa-power-off w-6"></i> Lock Session</span>
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Current Global Plan Footer -->
+            <div class="p-4 border-t border-white/10 bg-[#151a26]">
+                <div class="text-[11px] text-slate-400 font-semibold">Global Default Plan</div>
+                <div class="text-xs font-extrabold text-white mt-0.5" id="sidebar-global-plan">1 Ad - $1.00 CPM</div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-1 max-w-4xl w-full mx-auto px-3.5 pt-4 space-y-4">
+
+            <!-- Breadcrumb + Quick Tab Switcher -->
+            <div class="flex flex-wrap items-center justify-between gap-2 px-1">
+                <div class="text-xs text-slate-400">
+                    <span>Admin</span> <span class="mx-1">/</span> <span id="admin-breadcrumb" class="text-slate-200 font-semibold">Dashboard</span>
+                </div>
+                <div class="flex flex-wrap gap-1.5">
+                    <button onclick="switchTab('dashboard')" class="top-pill-btn bg-[#1d8cf8] text-white px-2.5 py-1 rounded text-[11px] font-bold" data-tab="dashboard">Overview</button>
+                    <button onclick="switchTab('users')" class="top-pill-btn bg-[#262f42] text-slate-300 px-2.5 py-1 rounded text-[11px] font-bold" data-tab="users">Users</button>
+                    <button onclick="switchTab('links')" class="top-pill-btn bg-[#262f42] text-slate-300 px-2.5 py-1 rounded text-[11px] font-bold" data-tab="links">Links</button>
+                    <button onclick="switchTab('withdrawals')" class="top-pill-btn bg-[#262f42] text-slate-300 px-2.5 py-1 rounded text-[11px] font-bold" data-tab="withdrawals">Payouts</button>
+                    <button onclick="switchTab('settings')" class="top-pill-btn bg-[#262f42] text-slate-300 px-2.5 py-1 rounded text-[11px] font-bold" data-tab="settings">Settings</button>
+                    <button onclick="switchTab('broadcast')" class="top-pill-btn bg-[#262f42] text-slate-300 px-2.5 py-1 rounded text-[11px] font-bold" data-tab="broadcast">Broadcast</button>
+                </div>
+            </div>
+
+            <!-- WHITE SUPPORT CHAT & QUICK SETUP CARD (ALWAYS ACCESSIBLE AT TOP) -->
+            <div class="white-action-card overflow-hidden">
+                <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-message text-[#7c4dff] text-sm"></i>
+                        <span class="text-sm font-semibold text-slate-700">Set Floating Support Chat Button URL</span>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-purple-100 text-[#6b3ce9]">Live Button</span>
+                </div>
+                <div class="p-4 space-y-3">
+                    <input type="url" id="quick-support-url-input" placeholder="https://t.me/YourSupportUsername" class="w-full bg-white border border-slate-300 text-slate-800 rounded px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#1d8cf8]">
+                    <div class="flex items-center space-x-2.5">
+                        <button onclick="saveQuickSupportButtonUrl()" id="btn-set-support-quick" class="btn-blue px-4 py-2 rounded text-xs font-semibold shadow-sm">
+                            Set Support Button
+                        </button>
+                        <button onclick="testFloatingSupportButton()" class="bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 px-3.5 py-2 rounded text-xs font-medium transition">
+                            Test Button
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PURPLE ACTIVE GLOBAL CPM BANNER -->
+            <div class="plan-purple-bar px-4 py-3 flex items-center justify-between">
+                <div class="flex items-center space-x-2.5">
+                    <div class="w-7 h-7 rounded-full bg-white flex items-center justify-center text-[#6b3ce9] font-extrabold text-xs shrink-0 shadow">
+                        $
+                    </div>
+                    <span class="text-xs font-bold text-white">
+                        Global Default Plan - <span id="banner-global-cpm">$1.00 CPM (1 Ad)</span>
+                    </span>
+                </div>
+                <button onclick="switchTab('settings')" class="bg-[#eb5757] hover:bg-[#e04848] text-white px-2.5 py-1 rounded text-[11px] font-bold shrink-0 shadow">
+                    Change Plan
+                </button>
+            </div>
+
+            <!-- DYNAMIC TAB CONTENT CONTAINER -->
+            <div id="admin-tab-container"></div>
+
+        </main>
+
+        <!-- FLOATING SUPPORT CHAT BUTTON (BOTTOM RIGHT - ICON ONLY, NO TEXT LABEL) -->
+        <button onclick="testFloatingSupportButton()" aria-label="Support Chat" class="fixed bottom-5 right-5 z-40 w-[52px] h-[52px] rounded-full bg-[#7c4dff] hover:bg-[#6b3ce9] text-white shadow-2xl flex items-center justify-center transition transform active:scale-95 border border-white/20">
+            <i class="fa-solid fa-message text-lg"></i>
+        </button>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- TEMPLATES FOR ADMIN TABS                       -->
+    <!-- ============================================== -->
+
+    <!-- TAB 1: DASHBOARD OVERVIEW -->
+    <template id="tpl-dashboard">
+        <div class="space-y-4">
+            <!-- Blue Report Header Bar -->
+            <div class="report-blue-bar px-4 py-3 flex items-center justify-between text-white text-xs font-semibold shadow">
+                <div>
+                    <span>Platform Overview Report</span>
+                    <span class="mx-1.5">/</span>
+                    <span id="admin-date-label">Live</span>
+                </div>
+                <button onclick="loadDashboard()" class="bg-white/20 hover:bg-white/30 text-white px-2.5 py-1 rounded text-[11px] font-bold">
+                    <i class="fa-solid fa-rotate mr-1"></i> Refresh
+                </button>
+            </div>
+
+            <!-- Stacked Stat Cards (Matching Screenshot 2 Design) -->
+            <div class="rounded overflow-hidden shadow-lg border border-white/5 grid grid-cols-1 md:grid-cols-2">
+                <div class="stat-dark-card p-5 flex items-center justify-between">
+                    <div>
+                        <div class="text-xs text-slate-300 font-medium">Total Verified Views</div>
+                        <div class="text-xl font-extrabold text-white mt-1.5 font-mono-code" id="stat-total-clicks">0</div>
+                        <div class="text-[10px] text-slate-400 mt-1">Active Viewers Today: <b id="stat-active-users" class="text-emerald-400">0</b></div>
+                    </div>
+                    <div class="w-12 h-12 rounded-lg bg-[#1d7dfa] flex items-center justify-center text-white text-lg shadow">
+                        <i class="fa-solid fa-eye"></i>
+                    </div>
+                </div>
+
+                <div class="stat-dark-card p-5 flex items-center justify-between">
+                    <div>
+                        <div class="text-xs text-slate-300 font-medium">Approved Payouts</div>
+                        <div class="text-xl font-extrabold text-white mt-1.5 font-mono-code" id="stat-paid">$0.00</div>
+                        <div class="text-[10px] text-slate-400 mt-1">Pending Payouts: <b id="stat-pending-amt" class="text-amber-400">$0.00</b></div>
+                    </div>
+                    <div class="w-12 h-12 rounded-lg bg-[#0d9488] flex items-center justify-center text-white text-lg shadow">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                </div>
+
+                <div class="stat-dark-card p-5 flex items-center justify-between">
+                    <div>
+                        <div class="text-xs text-slate-300 font-medium">Total Registered Users</div>
+                        <div class="text-xl font-extrabold text-white mt-1.5 font-mono-code" id="stat-total-users">0</div>
+                        <div class="text-[10px] text-slate-400 mt-1">Suspended Accounts: <b id="stat-blocked" class="text-rose-400">0</b></div>
+                    </div>
+                    <div class="w-12 h-12 rounded-lg bg-[#4f46e5] flex items-center justify-center text-white text-lg shadow">
+                        <i class="fa-solid fa-people-group"></i>
+                    </div>
+                </div>
+
+                <div class="stat-dark-card p-5 flex items-center justify-between">
+                    <div>
+                        <div class="text-xs text-slate-300 font-medium">Total Shortened Links</div>
+                        <div class="text-xl font-extrabold text-white mt-1.5 font-mono-code" id="stat-total-links">0</div>
+                        <div class="text-[10px] text-slate-400 mt-1">Active Tier: <b id="stat-active-cpm" class="text-sky-400">1 Ad ($1.00)</b></div>
+                    </div>
+                    <div class="w-12 h-12 rounded-lg bg-[#7c4dff] flex items-center justify-center text-white text-lg shadow">
+                        <i class="fa-solid fa-link"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6-Month Traffic Archive -->
+            <div class="dark-panel-card p-4 space-y-3">
+                <div class="flex items-center justify-between border-b border-white/10 pb-2.5">
+                    <h3 class="text-xs font-extrabold text-white uppercase">Platform Traffic Archive (Last 6 Months)</h3>
+                </div>
+                <div id="admin-monthly-report" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                    <div class="text-slate-400 text-xs py-4">Loading archive...</div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- TAB 2: CREATORS & USERS DIRECTORY -->
+    <template id="tpl-users">
+        <div class="space-y-3.5">
+            <div class="dark-panel-card p-4 space-y-3">
+                <div class="flex flex-wrap justify-between items-center gap-3">
+                    <div>
+                        <h2 class="text-sm font-extrabold text-white uppercase">Creators & Users Directory</h2>
+                        <p class="text-[11px] text-slate-400">Filter between Creators (≥ 1 Link) and Normal Users (0 Links)</p>
+                    </div>
+                    <input type="text" id="admin-user-search" oninput="filterAdminUsers()" placeholder="Search name, @username, TG ID or API..." class="bg-[#1a202e] border border-white/15 text-white rounded px-3.5 py-2 text-xs focus:outline-none focus:border-[#1d8cf8] w-full sm:w-64">
+                </div>
+
+                <div class="grid grid-cols-2 gap-2.5">
+                    <button id="btn-role-creators" onclick="setAdminUserRoleTab('creators')" class="p-3 rounded border border-[#1d8cf8] bg-[#1d8cf8]/20 text-white text-left flex items-center justify-between">
+                        <div>
+                            <div class="text-xs font-extrabold">Creators</div>
+                            <div class="text-[10px] text-slate-300">≥ 1 Link (API Unlocked)</div>
+                        </div>
+                        <span id="badge-count-creators" class="bg-[#1d8cf8] text-white font-mono-code text-xs font-extrabold px-2 py-0.5 rounded">0</span>
+                    </button>
+
+                    <button id="btn-role-users" onclick="setAdminUserRoleTab('users')" class="p-3 rounded border border-white/10 bg-[#1a202e] text-slate-400 text-left flex items-center justify-between">
+                        <div>
+                            <div class="text-xs font-extrabold">Normal Users</div>
+                            <div class="text-[10px] text-slate-400">0 Links Converted</div>
+                        </div>
+                        <span id="badge-count-users" class="bg-slate-700 text-slate-200 font-mono-code text-xs font-extrabold px-2 py-0.5 rounded">0</span>
                     </button>
                 </div>
             </div>
 
-            <div class="glass-panel overflow-x-auto">
+            <div class="dark-panel-card overflow-x-auto">
                 <table class="w-full text-left text-xs whitespace-nowrap">
-                    <thead class="bg-slate-950/90 text-slate-400 border-b border-slate-800 uppercase">
+                    <thead class="bg-[#1a202e] text-slate-300 border-b border-white/10 uppercase text-[11px]">
                         <tr>
-                            <th class="p-4">Short ID</th>
-                            <th class="p-4">Destination URL</th>
-                            <th class="p-4">Views</th>
-                            <th class="p-4">Earnings</th>
-                            <th class="p-4">Created</th>
-                            <th class="p-4 text-right">Owner Permanent Delete</th>
+                            <th class="p-3.5">TG ID & Name</th>
+                            <th class="p-3.5">Links</th>
+                            <th class="p-3.5">API Key</th>
+                            <th class="p-3.5">Views</th>
+                            <th class="p-3.5">Balance</th>
+                            <th class="p-3.5">Status</th>
+                            <th class="p-3.5 text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="admin-links-list" class="divide-y divide-slate-800/80">
+                    <tbody id="admin-users-list" class="divide-y divide-white/10">
+                        <tr><td colspan="7" class="p-6 text-center text-slate-400">Loading directory...</td></tr>
                     </tbody>
+                </table>
+            </div>
+        </div>
+    </template>
+
+    <!-- TAB 3: LINKS MANAGER -->
+    <template id="tpl-links">
+        <!-- VIEW A: CREATORS LIST -->
+        <div id="links-manager-creators-view" class="space-y-3.5">
+            <div class="dark-panel-card p-4 flex flex-wrap justify-between items-center gap-3">
+                <div>
+                    <h2 class="text-sm font-extrabold text-white uppercase">Manage Links — Select Creator</h2>
+                    <p class="text-[11px] text-slate-400">Tap any creator to inspect or delete their shortened links</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <input type="text" id="admin-creator-link-search" oninput="renderLinksManagerCreators()" placeholder="Search creator..." class="bg-[#1a202e] border border-white/15 text-white rounded px-3 py-2 text-xs focus:outline-none">
+                    <button onclick="openOwnerDeleteModal('global')" class="btn-danger font-extrabold px-3 py-2 rounded text-xs">
+                        <i class="fa-solid fa-trash-can mr-1"></i> Delete All Platform Links
+                    </button>
+                </div>
+            </div>
+
+            <div id="links-creators-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="col-span-full text-center p-8 text-slate-400 text-xs">Loading creators...</div>
+            </div>
+        </div>
+
+        <!-- VIEW B: SELECTED CREATOR LINKS -->
+        <div id="links-manager-detail-view" class="hidden space-y-3.5">
+            <div class="dark-panel-card p-4 flex flex-wrap justify-between items-center gap-3">
+                <div class="flex items-center space-x-2.5">
+                    <button onclick="backToLinksCreatorsList()" class="bg-[#1a202e] hover:bg-slate-700 text-white px-3 py-2 rounded text-xs font-bold border border-white/15">
+                        <i class="fa-solid fa-arrow-left mr-1"></i> Back
+                    </button>
+                    <div>
+                        <h2 id="selected-creator-title" class="text-sm font-extrabold text-white">Creator's Links</h2>
+                        <p id="selected-creator-subtitle" class="text-[11px] text-sky-400 font-mono-code">TG ID: ...</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <input type="text" id="admin-link-search" oninput="filterSelectedCreatorLinks()" placeholder="Search short code or URL..." class="bg-[#1a202e] border border-white/15 text-white rounded px-3 py-2 text-xs focus:outline-none">
+                    <button onclick="openOwnerDeleteModal('creator')" class="btn-danger font-extrabold px-3 py-2 rounded text-xs">
+                        <i class="fa-solid fa-trash-can mr-1"></i> Delete Creator's Links
+                    </button>
+                </div>
+            </div>
+
+            <div class="dark-panel-card overflow-x-auto">
+                <table class="w-full text-left text-xs whitespace-nowrap">
+                    <thead class="bg-[#1a202e] text-slate-300 border-b border-white/10 uppercase text-[11px]">
+                        <tr>
+                            <th class="p-3.5">Short ID</th>
+                            <th class="p-3.5">Destination URL</th>
+                            <th class="p-3.5">Views</th>
+                            <th class="p-3.5">Earnings</th>
+                            <th class="p-3.5">Created</th>
+                            <th class="p-3.5 text-right">Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-links-list" class="divide-y divide-white/10"></tbody>
                 </table>
             </div>
         </div>
@@ -314,158 +502,181 @@
 
     <!-- TAB 4: WITHDRAWALS -->
     <template id="tpl-withdrawals">
-        <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
-            <div>
-                <h2 class="text-2xl font-extrabold text-white">Withdrawal Requests</h2>
-                <p class="text-xs text-slate-400">Approve payouts or reject to automatically refund user balance</p>
+        <div class="space-y-3.5">
+            <div class="dark-panel-card p-4 flex flex-wrap justify-between items-center gap-3">
+                <div>
+                    <h2 class="text-sm font-extrabold text-white uppercase">Withdrawal Invoices</h2>
+                    <p class="text-[11px] text-slate-400">Approve payouts or reject to automatically refund user balance</p>
+                </div>
+                <select id="admin-withdraw-filter" onchange="loadWithdrawals()" class="bg-[#1a202e] border border-white/15 text-white rounded px-3 py-2 text-xs font-semibold focus:outline-none">
+                    <option value="all">All Requests</option>
+                    <option value="pending">Pending Only</option>
+                    <option value="approved">Approved Only</option>
+                    <option value="rejected">Rejected / Refunded</option>
+                </select>
             </div>
-            <select id="admin-withdraw-filter" onchange="loadWithdrawals()" class="bg-slate-900 border border-slate-700 text-white rounded-xl px-4 py-2.5 text-xs focus:outline-none">
-                <option value="all">All Requests</option>
-                <option value="pending">Pending Only</option>
-                <option value="approved">Approved Only</option>
-                <option value="rejected">Rejected / Refunded</option>
-            </select>
-        </div>
-        <div class="glass-panel overflow-x-auto">
-            <table class="w-full text-left text-xs whitespace-nowrap">
-                <thead class="bg-slate-950/90 text-slate-400 border-b border-slate-800 uppercase">
-                    <tr>
-                        <th class="p-4">Creator</th>
-                        <th class="p-4">Method & Payout Details</th>
-                        <th class="p-4">Amount</th>
-                        <th class="p-4">Date</th>
-                        <th class="p-4 text-center">Status / Action</th>
-                    </tr>
-                </thead>
-                <tbody id="admin-withdraw-list" class="divide-y divide-slate-800/80">
-                    <tr><td colspan="5" class="p-8 text-center text-slate-400"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Loading requests...</td></tr>
-                </tbody>
-            </table>
+
+            <div class="dark-panel-card overflow-x-auto">
+                <table class="w-full text-left text-xs whitespace-nowrap">
+                    <thead class="bg-[#1a202e] text-slate-300 border-b border-white/10 uppercase text-[11px]">
+                        <tr>
+                            <th class="p-3.5">Creator</th>
+                            <th class="p-3.5">Method & Details</th>
+                            <th class="p-3.5">Amount</th>
+                            <th class="p-3.5">Date</th>
+                            <th class="p-3.5 text-center">Status / Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-withdraw-list" class="divide-y divide-white/10">
+                        <tr><td colspan="5" class="p-6 text-center text-slate-400">Loading requests...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </template>
 
-    <!-- TAB 5: SETTINGS (AUTOMATIC 1-TO-20 ADS = $1-TO-$20 CPM SYNCHRONIZER) -->
+    <!-- TAB 5: SETTINGS (1-20 CPM + SUPPORT CHAT BUTTON CONFIGURATION) -->
     <template id="tpl-settings">
-        <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
+        <div class="dark-panel-card p-5 space-y-5">
+            <div class="flex flex-wrap justify-between items-center gap-3 border-b border-white/10 pb-3.5">
+                <div>
+                    <h2 class="text-sm font-extrabold text-white uppercase">Platform Settings & Support Chat Button</h2>
+                    <p class="text-[11px] text-slate-400">Configure 1–20 Ads CPM, floating support chat button, and payout options</p>
+                </div>
+                <label class="flex items-center space-x-2.5 cursor-pointer bg-[#1a202e] px-3.5 py-2 rounded border border-white/15">
+                    <span class="text-xs font-extrabold text-rose-400">Maintenance Mode</span>
+                    <input type="checkbox" id="set-maintenance" class="w-4 h-4 accent-rose-500">
+                </label>
+            </div>
+
+            <!-- 1-20 Ads & Automatic CPM Box -->
+            <div class="bg-[#1a202e] border border-white/15 rounded p-4 space-y-3.5">
+                <div class="flex flex-wrap justify-between items-center gap-2">
+                    <div>
+                        <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-[#1d8cf8]/20 text-sky-300">Auto-Synced CPM</span>
+                        <h3 class="text-xs font-extrabold text-white mt-1">Select Ads Per Link (1 to 20 Ads)</h3>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-[10px] text-slate-400 uppercase font-bold">Active Rate</div>
+                        <div id="admin-auto-cpm-preview" class="text-lg font-extrabold text-emerald-400 font-mono-code">$1.00 CPM</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-300 mb-1 uppercase">Ads Per Link Tier (1 – 20)</label>
+                        <select id="set-ads" onchange="syncAdminAdCpm(this.value)" class="w-full bg-[#262f42] border border-white/15 rounded p-2.5 text-white text-xs font-bold focus:outline-none"></select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-300 mb-1 uppercase">Global CPM ($)</label>
+                        <input type="number" step="1" min="1" max="20" id="set-cpm" oninput="syncAdminAdCpm(this.value)" class="w-full bg-[#262f42] border border-white/15 rounded p-2.5 text-emerald-400 font-mono-code font-extrabold text-xs focus:outline-none">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Floating Support Chat Button URL Setting -->
+            <div class="bg-[#1a202e] border border-[#7c4dff]/40 rounded p-4 space-y-2.5">
+                <div class="flex items-center justify-between">
+                    <label class="text-xs font-extrabold text-white uppercase flex items-center">
+                        <i class="fa-solid fa-message text-[#7c4dff] mr-2"></i> Floating Support Chat Button URL
+                    </label>
+                    <span class="text-[10px] text-slate-400">Bottom-Right Icon Button</span>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <input type="url" id="set-support" placeholder="https://t.me/YourSupportChat" class="flex-1 bg-[#262f42] border border-white/15 rounded p-2.5 text-white text-xs focus:outline-none focus:border-[#1d8cf8]">
+                    <button type="button" onclick="saveSettingsAction()" class="btn-blue px-4 py-2.5 rounded text-xs font-extrabold shrink-0">
+                        Set Support Button
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-300 mb-1 uppercase">Referral Commission (%)</label>
+                    <input type="number" id="set-ref" class="w-full bg-[#1a202e] border border-white/15 rounded p-2.5 text-white text-xs focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-300 mb-1 uppercase">Min. Withdrawal ($)</label>
+                    <input type="number" step="0.5" id="set-min-with" class="w-full bg-[#1a202e] border border-white/15 rounded p-2.5 text-white text-xs focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-300 mb-1 uppercase">Gateway Countdown (Sec)</label>
+                    <input type="number" id="set-timer" class="w-full bg-[#1a202e] border border-white/15 rounded p-2.5 text-white text-xs focus:outline-none">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 pt-2 border-t border-white/10">
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-300 mb-1">Telegram Channel / Button URL</label>
+                    <input type="url" id="set-tg" class="w-full bg-[#1a202e] border border-white/15 rounded p-2.5 text-white text-xs focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-300 mb-1">YouTube Tutorials URL</label>
+                    <input type="url" id="set-yt" class="w-full bg-[#1a202e] border border-white/15 rounded p-2.5 text-white text-xs focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-300 mb-1">Privacy Policy URL</label>
+                    <input type="url" id="set-privacy" class="w-full bg-[#1a202e] border border-white/15 rounded p-2.5 text-white text-xs focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-300 mb-1">Terms of Service URL</label>
+                    <input type="url" id="set-terms" class="w-full bg-[#1a202e] border border-white/15 rounded p-2.5 text-white text-xs focus:outline-none">
+                </div>
+            </div>
+
             <div>
-                <h2 class="text-2xl font-extrabold text-white">1–20 Ads & Automatic CPM Configuration</h2>
-                <p class="text-xs text-slate-400">1 Ad = $1 CPM, 2 Ads = $2 CPM ... automatically scales up to 20 Ads = $20 CPM</p>
-            </div>
-            <label class="flex items-center space-x-3 cursor-pointer bg-slate-900 px-4 py-2.5 rounded-xl border border-slate-700">
-                <span class="text-xs font-extrabold text-rose-300">Maintenance Mode</span>
-                <input type="checkbox" id="set-maintenance" class="w-5 h-5 accent-rose-500">
-            </label>
-        </div>
-
-        <div class="glass-panel p-6 md:p-8 max-w-4xl space-y-6">
-            <div class="bg-gradient-to-r from-indigo-950/60 via-slate-900 to-emerald-950/50 border border-emerald-500/30 rounded-2xl p-5">
-                <div class="flex flex-wrap justify-between items-center gap-4 mb-4">
-                    <div>
-                        <span class="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Auto-Synced Rule Active</span>
-                        <h3 class="text-base font-extrabold text-white mt-1.5">Select Ads Per Link (1 to 20 Ads)</h3>
-                        <p class="text-xs text-slate-400">Changing the ad count automatically sets Global CPM (`1 Ad = $1 CPM` ... `20 Ads = $20 CPM`)</p>
-                    </div>
-                    <div class="text-right bg-slate-950/90 px-4 py-2.5 rounded-xl border border-emerald-500/30">
-                        <div class="text-[10px] text-slate-400 uppercase font-bold">Auto-Calculated CPM</div>
-                        <div id="admin-auto-cpm-preview" class="text-2xl font-extrabold text-emerald-400 font-mono-code">$1.00</div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-300 mb-2 uppercase">Ads Per Link Tier (1 – 20 Ads)</label>
-                        <select id="set-ads" onchange="syncAdminAdCpm(this.value)" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white text-xs font-bold focus:border-emerald-500 outline-none">
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-300 mb-2 uppercase">Global CPM ($) [Auto-Locked to Ad Count]</label>
-                        <input type="number" step="1" min="1" max="20" id="set-cpm" oninput="syncAdminAdCpm(this.value)" class="w-full bg-slate-950 border border-emerald-500/40 rounded-xl p-3 text-emerald-400 font-mono-code font-extrabold text-xs outline-none">
-                    </div>
-                </div>
+                <label class="block text-[11px] font-bold text-slate-300 mb-1 uppercase">Allowed Payment Methods (Comma Separated)</label>
+                <input type="text" id="set-payments" placeholder="UPI, PayPal, USDT (TRC20)" class="w-full bg-[#1a202e] border border-white/15 rounded p-2.5 text-white text-xs focus:outline-none">
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 mb-2 uppercase">Referral Commission (%)</label>
-                    <input type="number" id="set-ref" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white text-xs focus:border-indigo-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 mb-2 uppercase">Min. Withdrawal ($)</label>
-                    <input type="number" step="0.5" id="set-min-with" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white text-xs focus:border-indigo-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 mb-2 uppercase">Gateway Countdown Timer (Sec)</label>
-                    <input type="number" id="set-timer" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white text-xs focus:border-indigo-500 outline-none">
-                </div>
-            </div>
-
-            <div class="border-t border-slate-800 pt-5">
-                <h3 class="text-xs font-extrabold text-indigo-400 mb-4 uppercase tracking-wider"><i class="fa-solid fa-share-nodes mr-1.5"></i> Community & Legal Links</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div><label class="block text-xs font-bold text-slate-400 mb-1.5">Telegram Channel URL</label><input type="url" id="set-tg" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white text-xs focus:border-indigo-500 outline-none"></div>
-                    <div><label class="block text-xs font-bold text-slate-400 mb-1.5">YouTube Tutorials URL</label><input type="url" id="set-yt" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white text-xs focus:border-indigo-500 outline-none"></div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><label class="block text-xs font-bold text-slate-400 mb-1.5">Privacy Policy URL</label><input type="url" id="set-privacy" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white text-xs focus:border-indigo-500 outline-none"></div>
-                    <div><label class="block text-xs font-bold text-slate-400 mb-1.5">Terms of Service URL</label><input type="url" id="set-terms" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white text-xs focus:border-indigo-500 outline-none"></div>
-                </div>
-            </div>
-
-            <div class="border-t border-slate-800 pt-5">
-                <label class="block text-xs font-bold text-slate-400 mb-1.5 uppercase">Allowed Payment Methods (Comma Separated)</label>
-                <input type="text" id="set-payments" placeholder="UPI, PayPal, USDT (TRC20), Bank Transfer" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white text-xs focus:border-indigo-500 outline-none">
-            </div>
-
-            <button id="btn-save-settings" onclick="saveSettingsAction()" class="w-full btn-primary hover:opacity-95 px-8 py-4 rounded-xl font-extrabold text-white text-xs transition flex items-center justify-center">
-                <i class="fa-solid fa-floppy-disk mr-2"></i> Save Global Configuration
+            <button id="btn-save-settings" onclick="saveSettingsAction()" class="w-full btn-blue py-3.5 rounded font-extrabold text-white text-xs shadow">
+                <i class="fa-solid fa-floppy-disk mr-1.5"></i> Save All Settings
             </button>
         </div>
     </template>
 
-    <!-- TAB 6: BROADCAST -->
+    <!-- TAB 6: BOT BROADCAST -->
     <template id="tpl-broadcast">
-        <h2 class="text-2xl font-extrabold mb-6">Telegram Bot Broadcast</h2>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div class="glass-panel p-6 space-y-4">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div class="dark-panel-card p-5 space-y-3.5">
+                <h2 class="text-sm font-extrabold text-white uppercase">Telegram Bot Broadcast</h2>
                 <div>
-                    <label class="block text-xs font-bold text-slate-400 mb-1.5 uppercase">Image URL (Optional)</label>
-                    <input type="url" id="bc-image" placeholder="https://example.com/banner.jpg" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white text-xs focus:border-indigo-500 outline-none" oninput="updatePreview()">
+                    <label class="block text-[11px] font-bold text-slate-300 mb-1 uppercase">Image URL (Optional)</label>
+                    <input type="url" id="bc-image" placeholder="https://example.com/banner.jpg" class="w-full bg-[#1a202e] border border-white/15 rounded p-2.5 text-white text-xs focus:outline-none" oninput="updatePreview()">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-400 mb-1.5 uppercase">Message Caption (HTML Supported)</label>
-                    <textarea id="bc-caption" rows="5" placeholder="<b>🔥 CPM Upgraded up to $20!</b>&#10;Shorten your links now and earn more." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white text-xs focus:border-indigo-500 outline-none" oninput="updatePreview()"></textarea>
+                    <label class="block text-[11px] font-bold text-slate-300 mb-1 uppercase">Message Caption (HTML Supported)</label>
+                    <textarea id="bc-caption" rows="4" placeholder="<b>🔥 CPM Upgraded up to $20!</b>&#10;Shorten your links now and earn more." class="w-full bg-[#1a202e] border border-white/15 rounded p-2.5 text-white text-xs focus:outline-none" oninput="updatePreview()"></textarea>
                 </div>
-                <div class="p-4 bg-slate-900/90 rounded-xl border border-slate-800 space-y-3">
-                    <label class="flex items-center space-x-3 cursor-pointer">
-                        <input type="checkbox" id="bc-btn-toggle" checked class="w-4 h-4 rounded accent-indigo-500" onchange="updatePreview()">
-                        <span class="text-xs font-bold text-white">Include "👉 Open now 👈" Inline Button</span>
+                <div class="p-3.5 bg-[#1a202e] rounded border border-white/10 space-y-2.5">
+                    <label class="flex items-center space-x-2.5 cursor-pointer">
+                        <input type="checkbox" id="bc-btn-toggle" checked class="w-4 h-4 accent-[#1d8cf8]" onchange="updatePreview()">
+                        <span class="text-xs font-bold text-white">Include "👉 Open now 👈" Button</span>
                     </label>
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-400 mb-1 uppercase">Button Target URL</label>
-                        <input type="url" id="bc-mini-app-url" value="https://sandalwoodlinks.vercel.app/" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-white text-xs focus:border-indigo-500 outline-none">
-                    </div>
+                    <input type="url" id="bc-mini-app-url" value="https://sandalwoodlinks.vercel.app/" class="w-full bg-[#262f42] border border-white/10 rounded p-2 text-white text-xs focus:outline-none">
                 </div>
-                <button id="btn-send-broadcast" onclick="startBroadcast()" class="w-full bg-amber-600 hover:bg-amber-500 px-6 py-4 rounded-xl font-extrabold text-white text-xs shadow-lg transition flex items-center justify-center">
-                    <i class="fa-solid fa-paper-plane mr-2"></i> Send Broadcast to All Users
+                <button id="btn-send-broadcast" onclick="startBroadcast()" class="w-full btn-blue py-3.5 rounded font-extrabold text-white text-xs shadow">
+                    <i class="fa-solid fa-paper-plane mr-1.5"></i> Send Broadcast to All Users
                 </button>
-                <div id="bc-status" class="hidden p-4 border border-indigo-500/30 bg-indigo-500/10 rounded-xl">
-                    <div class="flex justify-between text-xs mb-2 font-bold"><span>Progress: <span id="bc-percent">0%</span></span><span id="bc-count">0 / 0</span></div>
-                    <div class="w-full bg-slate-900 rounded-full h-2 mb-3"><div id="bc-bar" class="bg-indigo-500 h-2 rounded-full" style="width: 0%"></div></div>
-                    <div class="flex justify-between text-xs"><span class="text-emerald-400"><i class="fa-solid fa-check mr-1"></i>Sent: <span id="bc-sent">0</span></span><span class="text-rose-400"><i class="fa-solid fa-xmark mr-1"></i>Failed: <span id="bc-failed">0</span></span></div>
+                <div id="bc-status" class="hidden p-3.5 border border-sky-500/30 bg-sky-500/10 rounded space-y-2">
+                    <div class="flex justify-between text-xs font-bold"><span>Progress: <span id="bc-percent">0%</span></span><span id="bc-count">0 / 0</span></div>
+                    <div class="w-full bg-[#1a202e] rounded-full h-2"><div id="bc-bar" class="bg-[#1d8cf8] h-2 rounded-full" style="width: 0%"></div></div>
+                    <div class="flex justify-between text-xs"><span class="text-emerald-400">Sent: <span id="bc-sent">0</span></span><span class="text-rose-400">Failed: <span id="bc-failed">0</span></span></div>
                 </div>
             </div>
-            <div>
-                <h3 class="text-xs font-extrabold text-slate-400 mb-3 uppercase tracking-wider">Live Telegram Preview</h3>
-                <div class="bg-[#0e1621] p-4 rounded-2xl border border-slate-800 max-w-sm mx-auto shadow-2xl">
-                    <div class="flex items-center space-x-3 mb-4 pb-3 border-b border-slate-800">
-                        <div class="w-10 h-10 rounded-full btn-primary flex items-center justify-center text-white"><i class="fa-solid fa-robot"></i></div>
-                        <div><div class="text-white font-bold text-xs">SandalwoodLinks Bot <i class="fa-solid fa-circle-check text-sky-400 text-[10px]"></i></div><div class="text-slate-400 text-[10px]">bot</div></div>
+
+            <div class="dark-panel-card p-5">
+                <h3 class="text-xs font-extrabold text-slate-300 mb-3 uppercase">Live Telegram Preview</h3>
+                <div class="bg-[#0e1621] p-4 rounded-xl border border-white/10 max-w-sm mx-auto">
+                    <div class="flex items-center space-x-2.5 mb-3 pb-2.5 border-b border-white/10">
+                        <div class="w-9 h-9 rounded-full btn-blue flex items-center justify-center text-white"><i class="fa-solid fa-robot"></i></div>
+                        <div><div class="text-white font-bold text-xs">SandalwoodLinks Bot</div><div class="text-slate-400 text-[10px]">bot</div></div>
                     </div>
                     <div class="tg-bubble p-2.5 inline-block max-w-[95%]">
-                        <img id="prev-img" src="" class="hidden w-full rounded-lg mb-2 object-cover max-h-48">
+                        <img id="prev-img" src="" class="hidden w-full rounded mb-2 object-cover max-h-44">
                         <div id="prev-text" class="text-white text-xs break-words leading-relaxed px-1"></div>
                     </div>
-                    <div id="prev-btn" class="mt-2 w-[95%] text-center bg-[#182533] text-sky-400 font-bold py-2 rounded-lg text-xs border border-slate-700/50">👉 Open now 👈</div>
+                    <div id="prev-btn" class="mt-2 w-[95%] text-center bg-[#182533] text-sky-400 font-bold py-2 rounded text-xs border border-white/10">👉 Open now 👈</div>
                 </div>
             </div>
         </div>
@@ -479,17 +690,33 @@
 
         let dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let settingsId = null;
+        let cachedSettings = {};
 
         let allAdminUsers = [];
         let allAdminLinks = [];
-        let userLinksCountMap = {}; // user_id -> number of links converted
-        let currentAdminUserRoleTab = 'creators'; // 'creators' (>=1 link) | 'users' (0 links)
+        let userLinksCountMap = {};
+        let currentAdminUserRoleTab = 'creators';
 
-        // Links Manager State
-        let selectedCreatorForLinks = null; // user object when viewing a creator's links
+        let selectedCreatorForLinks = null;
         let pendingAdminLinkDeleteId = null;
         let adminDeleteAllStep = 0;
-        let adminDeleteMode = 'global'; // 'global' | 'creator'
+        let adminDeleteMode = 'global';
+
+        // Sidebar Drawer Controls
+        window.toggleSidebar = function() {
+            const sb = document.getElementById('left-sidebar');
+            const bd = document.getElementById('sidebar-backdrop');
+            if (sb.classList.contains('-translate-x-full')) {
+                sb.classList.remove('-translate-x-full');
+                bd.classList.remove('hidden');
+            } else {
+                closeSidebar();
+            }
+        };
+        window.closeSidebar = function() {
+            document.getElementById('left-sidebar')?.classList.add('-translate-x-full');
+            document.getElementById('sidebar-backdrop')?.classList.add('hidden');
+        };
 
         function generatePermanentUserApiKey(telegramId, userId) {
             const s = `sandalwood_perm_${telegramId || userId || 'creator'}_v3`;
@@ -507,9 +734,9 @@
         function showAdminToast(msg, isError = false) {
             const box = document.getElementById('admin-toast');
             document.getElementById('admin-toast-text').innerText = msg;
-            document.getElementById('admin-toast-icon').className = isError ? 'fa-solid fa-circle-exclamation text-rose-400' : 'fa-solid fa-circle-check text-emerald-400';
+            document.getElementById('admin-toast-icon').className = isError ? 'fa-solid fa-circle-exclamation text-rose-400 text-xs' : 'fa-solid fa-circle-check text-emerald-400 text-xs';
             box.classList.remove('opacity-0', '-translate-y-3');
-            setTimeout(() => box.classList.add('opacity-0', '-translate-y-3'), 2600);
+            setTimeout(() => box.classList.add('opacity-0', '-translate-y-3'), 2500);
         }
 
         function copyAdminText(txt) {
@@ -517,32 +744,97 @@
             navigator.clipboard?.writeText(txt).then(() => showAdminToast("Copied to clipboard!"));
         }
 
-        document.getElementById('btn-login').addEventListener('click', () => {
+        // Quick Set Support Chat Button URL from Top White Card
+        window.saveQuickSupportButtonUrl = async function() {
+            const url = document.getElementById('quick-support-url-input')?.value.trim();
+            if (!url) return showAdminToast("Enter a valid Support Chat URL", true);
+
+            const btn = document.getElementById('btn-set-support-quick');
+            btn.innerText = "Saving...";
+            localStorage.setItem('sw_support_chat_url', url);
+
+            const setSupportEl = document.getElementById('set-support');
+            if (setSupportEl) setSupportEl.value = url;
+
+            try {
+                const { data: rows } = await dbClient.from('settings').select('*').limit(1);
+                const row = rows && rows[0];
+                if (row) {
+                    settingsId = row.id;
+                    const { error } = await dbClient.from('settings').update({ support_url: url, tg_channel_url: url }).eq('id', row.id);
+                    if (error) {
+                        await dbClient.from('settings').update({ tg_channel_url: url }).eq('id', row.id);
+                    }
+                }
+                document.getElementById('admin-header-tg').href = url;
+                showAdminToast("Support Chat Button URL Saved!");
+            } catch (e) {
+                showAdminToast("Support Button Saved Locally!");
+            }
+            btn.innerText = "Set Support Button";
+        };
+
+        window.testFloatingSupportButton = function() {
+            const target = document.getElementById('quick-support-url-input')?.value.trim()
+                || localStorage.getItem('sw_support_chat_url')
+                || cachedSettings.support_url
+                || cachedSettings.tg_channel_url
+                || 'https://t.me/SandalwoodLinksBot';
+            window.open(target, '_blank');
+        };
+
+        document.getElementById('btn-login').addEventListener('click', async () => {
             if (document.getElementById('admin-password').value === ADMIN_PASSWORD) {
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('admin-dashboard').classList.remove('hidden');
-                switchTab('dashboard', document.querySelector('.nav-btn'));
+                await preloadGlobalHeaderSettings();
+                switchTab('dashboard');
             } else {
                 showAdminToast("Incorrect Owner Password!", true);
             }
         });
 
-        function getActiveMain() {
-            return window.innerWidth < 768 ? document.getElementById('mobile-main') : document.getElementById('desktop-main');
+        async function preloadGlobalHeaderSettings() {
+            try {
+                const { data: rows } = await dbClient.from('settings').select('*').limit(1);
+                if (rows && rows[0]) {
+                    cachedSettings = rows[0];
+                    settingsId = rows[0].id;
+                    const tier = Math.max(1, Math.min(20, parseInt(rows[0].ads_per_link || rows[0].cpm || 1, 10)));
+                    document.getElementById('banner-global-cpm').innerText = `$${tier.toFixed(2)} CPM (${tier} ${tier === 1 ? 'Ad' : 'Ads'})`;
+                    document.getElementById('sidebar-global-plan').innerText = `${tier} ${tier === 1 ? 'Ad' : 'Ads'} - $${tier.toFixed(2)} CPM`;
+                    const supUrl = localStorage.getItem('sw_support_chat_url') || rows[0].support_url || rows[0].tg_channel_url || 'https://t.me/SandalwoodLinksBot';
+                    document.getElementById('quick-support-url-input').value = supUrl;
+                    document.getElementById('admin-header-tg').href = supUrl;
+                }
+            } catch (e) {}
         }
 
-        window.switchTab = function(tabName, btnEl) {
-            document.querySelectorAll('.nav-btn').forEach(b => {
-                b.classList.remove('bg-indigo-600', 'text-white');
-                b.classList.add('text-slate-400');
+        window.switchTab = function(tabName) {
+            closeSidebar();
+            document.querySelectorAll('.sidebar-item').forEach(b => {
+                b.classList.toggle('active', b.getAttribute('data-tab') === tabName);
             });
-            if (btnEl) {
-                btnEl.classList.remove('text-slate-400');
-                btnEl.classList.add('bg-indigo-600', 'text-white');
-            }
+            document.querySelectorAll('.top-pill-btn').forEach(b => {
+                if (b.getAttribute('data-tab') === tabName) {
+                    b.className = "top-pill-btn bg-[#1d8cf8] text-white px-2.5 py-1 rounded text-[11px] font-bold";
+                } else {
+                    b.className = "top-pill-btn bg-[#262f42] text-slate-300 px-2.5 py-1 rounded text-[11px] font-bold";
+                }
+            });
 
-            const mainContent = getActiveMain();
-            mainContent.innerHTML = document.getElementById(`tpl-${tabName}`).innerHTML;
+            const names = {
+                dashboard: 'Dashboard',
+                users: 'Creators & Users',
+                links: 'Manage Links',
+                withdrawals: 'Withdrawals',
+                settings: 'Settings & Support Button',
+                broadcast: 'Bot Broadcast'
+            };
+            document.getElementById('admin-breadcrumb').innerText = names[tabName] || 'Dashboard';
+
+            const container = document.getElementById('admin-tab-container');
+            container.innerHTML = document.getElementById(`tpl-${tabName}`).innerHTML;
 
             if (tabName === 'dashboard') loadDashboard();
             if (tabName === 'users') loadUsers();
@@ -552,9 +844,13 @@
             if (tabName === 'broadcast') updatePreview();
         };
 
-        // --- TAB 1: DASHBOARD & MONTHLY ARCHIVE ---
+        // --- TAB 1: DASHBOARD OVERVIEW ---
         async function loadDashboard() {
             try {
+                const now = new Date();
+                const dLabel = document.getElementById('admin-date-label');
+                if (dLabel) dLabel.innerText = `${now.getDate()}-${now.toLocaleString('default', { month: 'long' })}`;
+
                 const { count: uCount } = await dbClient.from('users').select('*', { count: 'exact', head: true });
                 document.getElementById('stat-total-users').innerText = uCount || 0;
 
@@ -584,6 +880,7 @@
                 });
                 document.getElementById('stat-paid').innerText = `$${paid.toFixed(2)}`;
                 document.getElementById('stat-pending-amt').innerText = `$${pending.toFixed(2)}`;
+                document.getElementById('sidebar-pending-payout').innerText = `$${pending.toFixed(2)}`;
 
                 const sixMonthsAgo = new Date(new Date().getFullYear(), new Date().getMonth() - 5, 1).toISOString();
                 const { data: clicksArchive } = await dbClient.from('click_logs').select('created_at').gte('created_at', sixMonthsAgo);
@@ -604,7 +901,7 @@
                         const views = monthCounts[ym] || 0;
                         const estPayout = views * (activeTier / 1000);
                         reportContainer.innerHTML += `
-                            <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-xl flex justify-between items-center">
+                            <div class="bg-[#1a202e] border border-white/10 p-3.5 rounded flex justify-between items-center">
                                 <div>
                                     <div class="text-xs font-extrabold text-white">${monthName}</div>
                                     <div class="text-[11px] text-slate-400 mt-0.5">${views} verified views</div>
@@ -619,9 +916,8 @@
             } catch (e) {}
         }
 
-        // --- TAB 2: CREATORS (CONVERTED >= 1 LINK) vs USERS (OPENERS / 0 LINKS) ---
+        // --- TAB 2: CREATORS & USERS ---
         async function loadUsers() {
-            const tbody = document.getElementById('admin-users-list');
             try {
                 const [{ data: usersData }, { data: linksData }] = await Promise.all([
                     dbClient.from('users').select('*').order('created_at', { ascending: false }),
@@ -634,7 +930,6 @@
                     userLinksCountMap[l.user_id] = (userLinksCountMap[l.user_id] || 0) + 1;
                 });
 
-                // Ensure any Creator with >= 1 link has their permanent API key unlocked, and normal users with 0 links have no API key
                 for (const u of allAdminUsers) {
                     const cnt = userLinksCountMap[u.id] || 0;
                     if (cnt >= 1 && !u.api_key) {
@@ -644,18 +939,15 @@
                     }
                 }
 
-                updateRoleCountsUI();
+                const creatorsCount = allAdminUsers.filter(u => (userLinksCountMap[u.id] || 0) >= 1).length;
+                const normalUsersCount = allAdminUsers.filter(u => (userLinksCountMap[u.id] || 0) === 0).length;
+                const cBadge = document.getElementById('badge-count-creators');
+                const uBadge = document.getElementById('badge-count-users');
+                if (cBadge) cBadge.innerText = creatorsCount;
+                if (uBadge) uBadge.innerText = normalUsersCount;
+
                 filterAdminUsers();
             } catch (e) {}
-        }
-
-        function updateRoleCountsUI() {
-            const creatorsCount = allAdminUsers.filter(u => (userLinksCountMap[u.id] || 0) >= 1).length;
-            const normalUsersCount = allAdminUsers.filter(u => (userLinksCountMap[u.id] || 0) === 0).length;
-            const cBadge = document.getElementById('badge-count-creators');
-            const uBadge = document.getElementById('badge-count-users');
-            if (cBadge) cBadge.innerText = creatorsCount;
-            if (uBadge) uBadge.innerText = normalUsersCount;
         }
 
         window.setAdminUserRoleTab = function(role) {
@@ -663,11 +955,11 @@
             const btnC = document.getElementById('btn-role-creators');
             const btnU = document.getElementById('btn-role-users');
             if (role === 'creators') {
-                btnC.className = "p-3.5 rounded-2xl border border-indigo-500/50 bg-indigo-600/20 text-white text-left transition flex items-center justify-between";
-                btnU.className = "p-3.5 rounded-2xl border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-white text-left transition flex items-center justify-between";
+                btnC.className = "p-3 rounded border border-[#1d8cf8] bg-[#1d8cf8]/20 text-white text-left flex items-center justify-between";
+                btnU.className = "p-3 rounded border border-white/10 bg-[#1a202e] text-slate-400 text-left flex items-center justify-between";
             } else {
-                btnU.className = "p-3.5 rounded-2xl border border-emerald-500/50 bg-emerald-600/20 text-white text-left transition flex items-center justify-between";
-                btnC.className = "p-3.5 rounded-2xl border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-white text-left transition flex items-center justify-between";
+                btnU.className = "p-3 rounded border border-[#1d8cf8] bg-[#1d8cf8]/20 text-white text-left flex items-center justify-between";
+                btnC.className = "p-3 rounded border border-white/10 bg-[#1a202e] text-slate-400 text-left flex items-center justify-between";
             }
             filterAdminUsers();
         };
@@ -691,61 +983,53 @@
         function renderAdminUsers(usersArr) {
             const tbody = document.getElementById('admin-users-list');
             if (!usersArr || usersArr.length === 0) {
-                const emptyLabel = currentAdminUserRoleTab === 'creators'
-                    ? 'No Creators found (users who converted minimum 1 link).'
-                    : 'No Normal Users found (users with 0 converted links).';
-                tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-500">${emptyLabel}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">No matching accounts found.</td></tr>`;
                 return;
             }
             tbody.innerHTML = '';
             usersArr.forEach(u => {
                 const linkCnt = userLinksCountMap[u.id] || 0;
                 const statusBadge = u.is_blocked
-                    ? '<span class="bg-rose-500/15 text-rose-400 border border-rose-500/30 px-2.5 py-0.5 rounded-md font-bold text-[10px]">SUSPENDED</span>'
-                    : '<span class="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-md font-bold text-[10px]">ACTIVE</span>';
+                    ? '<span class="bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded font-bold text-[10px]">SUSPENDED</span>'
+                    : '<span class="bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-bold text-[10px]">ACTIVE</span>';
                 const blockBtn = u.is_blocked
-                    ? `<button onclick="toggleBlock('${u.id}', false)" class="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 px-2.5 py-1.5 rounded-lg text-xs font-bold" title="Unblock"><i class="fa-solid fa-unlock"></i></button>`
-                    : `<button onclick="toggleBlock('${u.id}', true)" class="bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 px-2.5 py-1.5 rounded-lg text-xs font-bold" title="Suspend"><i class="fa-solid fa-ban"></i></button>`;
+                    ? `<button onclick="toggleBlock('${u.id}', false)" class="bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded text-xs font-bold"><i class="fa-solid fa-unlock"></i></button>`
+                    : `<button onclick="toggleBlock('${u.id}', true)" class="bg-amber-500/20 text-amber-300 px-2.5 py-1 rounded text-xs font-bold"><i class="fa-solid fa-ban"></i></button>`;
 
                 const apiDisplay = linkCnt >= 1 && u.api_key
-                    ? `<div class="flex items-center space-x-2">
-                           <span class="font-mono-code text-[11px] text-amber-300 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800">${u.api_key}</span>
-                           <button onclick="copyAdminText('${u.api_key}')" class="text-slate-400 hover:text-white"><i class="fa-regular fa-copy"></i></button>
+                    ? `<div class="flex items-center space-x-1.5">
+                           <span class="font-mono-code text-[11px] text-amber-300 bg-[#1a202e] px-2 py-0.5 rounded border border-white/10">${u.api_key}</span>
+                           <button onclick="copyAdminText('${u.api_key}')" class="text-slate-300 hover:text-white"><i class="fa-regular fa-copy"></i></button>
                        </div>`
-                    : `<span class="text-[10px] text-slate-500 font-bold bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800"><i class="fa-solid fa-lock mr-1"></i>No API (Normal User)</span>`;
+                    : `<span class="text-[10px] text-slate-400">Locked</span>`;
 
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-900/50">
-                        <td class="p-4">
+                    <tr class="hover:bg-white/5">
+                        <td class="p-3.5">
                             <div class="font-bold text-white">${u.first_name || 'User'} ${u.username ? `<span class="text-slate-400 font-normal">@${u.username}</span>` : ''}</div>
-                            <div class="text-[10px] font-mono-code text-indigo-400">TG ID: ${u.telegram_id}</div>
+                            <div class="text-[10px] font-mono-code text-sky-400">TG: ${u.telegram_id}</div>
                         </td>
-                        <td class="p-4">
-                            <span class="font-mono-code font-extrabold ${linkCnt >= 1 ? 'text-indigo-300 bg-indigo-500/15 border-indigo-500/30' : 'text-slate-500 bg-slate-900 border-slate-800'} border px-2.5 py-1 rounded-lg text-xs">
-                                ${linkCnt} ${linkCnt === 1 ? 'Link' : 'Links'}
-                            </span>
-                        </td>
-                        <td class="p-4">${apiDisplay}</td>
-                        <td class="p-4 font-mono-code font-bold text-slate-200">${u.total_clicks || 0}</td>
-                        <td class="p-4">
-                            <div class="flex items-center space-x-2">
+                        <td class="p-3.5 font-mono-code font-bold">${linkCnt}</td>
+                        <td class="p-3.5">${apiDisplay}</td>
+                        <td class="p-3.5 font-mono-code font-bold">${u.total_clicks || 0}</td>
+                        <td class="p-3.5">
+                            <div class="flex items-center space-x-1.5">
                                 <span class="font-mono-code font-extrabold text-emerald-400">$${parseFloat(u.balance || 0).toFixed(4)}</span>
-                                <button onclick="editUserBalance('${u.id}', ${parseFloat(u.balance || 0)})" class="text-slate-400 hover:text-indigo-400" title="Edit Balance"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button onclick="editUserBalance('${u.id}', ${parseFloat(u.balance || 0)})" class="text-slate-400 hover:text-white"><i class="fa-solid fa-pen-to-square"></i></button>
                             </div>
                         </td>
-                        <td class="p-4">${statusBadge}</td>
-                        <td class="p-4 text-right space-x-1.5">
-                            ${linkCnt >= 1 ? `<button onclick="jumpToCreatorLinks('${u.id}')" class="bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 px-2.5 py-1.5 rounded-lg text-xs font-bold" title="View Creator Links"><i class="fa-solid fa-link mr-1"></i>Links</button>` : ''}
+                        <td class="p-3.5">${statusBadge}</td>
+                        <td class="p-3.5 text-right space-x-1">
+                            ${linkCnt >= 1 ? `<button onclick="jumpToCreatorLinks('${u.id}')" class="btn-blue px-2.5 py-1 rounded text-xs font-bold">Links</button>` : ''}
                             ${blockBtn}
-                            <button onclick="deleteUser('${u.id}')" class="bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 px-2.5 py-1.5 rounded-lg text-xs font-bold" title="Delete Permanently"><i class="fa-solid fa-trash-can"></i></button>
+                            <button onclick="deleteUser('${u.id}')" class="bg-rose-500/20 text-rose-400 px-2.5 py-1 rounded text-xs font-bold"><i class="fa-solid fa-trash-can"></i></button>
                         </td>
                     </tr>`;
             });
         }
 
         window.jumpToCreatorLinks = async function(userId) {
-            const navBtn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick')?.includes("'links'"));
-            switchTab('links', navBtn);
+            switchTab('links');
             await loadAdminLinks();
             openCreatorLinksView(userId);
         };
@@ -775,16 +1059,15 @@
                     await dbClient.from('click_logs').delete().in('link_id', uLinks.map(l => l.id));
                     await dbClient.from('links').delete().eq('user_id', userId);
                 }
-                const { error } = await dbClient.from('users').delete().eq('id', userId);
-                if (error) throw error;
+                await dbClient.from('users').delete().eq('id', userId);
                 showAdminToast("Account permanently deleted!");
                 loadUsers();
             } catch (e) {
-                showAdminToast("Delete failed: " + e.message, true);
+                showAdminToast("Delete failed", true);
             }
         };
 
-        // --- TAB 3: CREATOR-GROUPED LINKS MANAGER (SHOW CREATORS -> CLICK NAME -> VIEW & DELETE LINKS) ---
+        // --- TAB 3: LINKS MANAGER ---
         async function loadAdminLinks() {
             try {
                 const [{ data: usersData }, { data: linksData }] = await Promise.all([
@@ -802,7 +1085,6 @@
             if (!grid) return;
             const q = (document.getElementById('admin-creator-link-search')?.value || '').toLowerCase();
 
-            // Group links by user_id
             const grouped = {};
             allAdminLinks.forEach(l => {
                 if (!grouped[l.user_id]) grouped[l.user_id] = { count: 0, views: 0, earnings: 0 };
@@ -811,7 +1093,6 @@
                 grouped[l.user_id].earnings += parseFloat(l.earnings || 0);
             });
 
-            // Filter only Creators who have >= 1 link
             const creatorsWithLinks = allAdminUsers.filter(u => grouped[u.id] && grouped[u.id].count >= 1).filter(u =>
                 (u.first_name || '').toLowerCase().includes(q) ||
                 (u.username || '').toLowerCase().includes(q) ||
@@ -819,7 +1100,7 @@
             );
 
             if (creatorsWithLinks.length === 0) {
-                grid.innerHTML = `<div class="col-span-full glass-panel p-10 text-center text-slate-500 text-xs">No creators with shortened links found.</div>`;
+                grid.innerHTML = `<div class="col-span-full dark-panel-card p-8 text-center text-slate-400 text-xs">No creators with shortened links found.</div>`;
                 return;
             }
 
@@ -828,32 +1109,26 @@
                 const stats = grouped[u.id];
                 const initial = (u.first_name || 'C').charAt(0).toUpperCase();
                 grid.innerHTML += `
-                    <div onclick="openCreatorLinksView('${u.id}')" class="glass-panel p-5 border border-slate-800 hover:border-indigo-500/60 cursor-pointer transition group">
-                        <div class="flex items-center justify-between mb-4">
+                    <div onclick="openCreatorLinksView('${u.id}')" class="dark-panel-card p-4 hover:border-[#1d8cf8] cursor-pointer transition">
+                        <div class="flex items-center justify-between mb-3">
                             <div class="flex items-center space-x-3 truncate pr-2">
-                                <div class="w-11 h-11 rounded-2xl btn-primary flex items-center justify-center text-white font-extrabold text-base shrink-0 shadow-lg">
+                                <div class="w-10 h-10 rounded-lg btn-blue flex items-center justify-center text-white font-extrabold text-sm shrink-0">
                                     ${initial}
                                 </div>
                                 <div class="truncate">
-                                    <div class="font-extrabold text-sm text-white group-hover:text-indigo-300 transition truncate">
-                                        ${u.first_name || 'Creator'} ${u.username ? `<span class="text-xs text-slate-400 font-normal">@${u.username}</span>` : ''}
+                                    <div class="font-extrabold text-xs text-white truncate">
+                                        ${u.first_name || 'Creator'} ${u.username ? `<span class="text-slate-400 font-normal">@${u.username}</span>` : ''}
                                     </div>
-                                    <div class="text-[10px] font-mono-code text-indigo-400">TG ID: ${u.telegram_id}</div>
+                                    <div class="text-[10px] font-mono-code text-sky-400">TG ID: ${u.telegram_id}</div>
                                 </div>
                             </div>
-                            <span class="bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2.5 py-1 rounded-xl text-xs font-extrabold font-mono-code shrink-0">
-                                ${stats.count} ${stats.count === 1 ? 'Link' : 'Links'} <i class="fa-solid fa-chevron-right ml-1 text-[10px]"></i>
+                            <span class="bg-[#1a202e] text-sky-400 border border-white/10 px-2.5 py-1 rounded text-xs font-extrabold font-mono-code shrink-0">
+                                ${stats.count} Links
                             </span>
                         </div>
-                        <div class="grid grid-cols-2 gap-2 pt-3 border-t border-slate-800/80 text-xs">
-                            <div>
-                                <span class="text-slate-400 text-[10px] block uppercase font-bold">Total Views</span>
-                                <span class="font-mono-code font-extrabold text-white">${stats.views}</span>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-slate-400 text-[10px] block uppercase font-bold">Link Earnings</span>
-                                <span class="font-mono-code font-extrabold text-emerald-400">$${stats.earnings.toFixed(4)}</span>
-                            </div>
+                        <div class="grid grid-cols-2 gap-2 pt-2.5 border-t border-white/10 text-xs">
+                            <div><span class="text-slate-400 text-[10px] block uppercase">Views</span><b class="font-mono-code text-white">${stats.views}</b></div>
+                            <div class="text-right"><span class="text-slate-400 text-[10px] block uppercase">Earnings</span><b class="font-mono-code text-emerald-400">$${stats.earnings.toFixed(4)}</b></div>
                         </div>
                     </div>`;
             });
@@ -863,9 +1138,8 @@
             selectedCreatorForLinks = allAdminUsers.find(u => String(u.id) === String(userId)) || { id: userId, first_name: 'Creator', telegram_id: '...' };
             document.getElementById('links-manager-creators-view').classList.add('hidden');
             document.getElementById('links-manager-detail-view').classList.remove('hidden');
-
-            document.getElementById('selected-creator-title').innerText = `${selectedCreatorForLinks.first_name || 'Creator'}'s Shortened Links`;
-            document.getElementById('selected-creator-subtitle').innerText = `TG ID: ${selectedCreatorForLinks.telegram_id} ${selectedCreatorForLinks.username ? '• @' + selectedCreatorForLinks.username : ''}`;
+            document.getElementById('selected-creator-title').innerText = `${selectedCreatorForLinks.first_name || 'Creator'}'s Links`;
+            document.getElementById('selected-creator-subtitle').innerText = `TG ID: ${selectedCreatorForLinks.telegram_id}`;
             filterSelectedCreatorLinks();
         };
 
@@ -884,79 +1158,52 @@
                 (l.short_id || '').toLowerCase().includes(q) ||
                 (l.original_url || '').toLowerCase().includes(q)
             );
-            renderSelectedCreatorLinksTable(creatorLinks);
-        };
-
-        function renderSelectedCreatorLinksTable(linksArr) {
             const tbody = document.getElementById('admin-links-list');
-            if (!linksArr || linksArr.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-slate-500">No links found for this creator.</td></tr>';
+            if (!creatorLinks.length) {
+                tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400">No links found.</td></tr>';
                 return;
             }
             tbody.innerHTML = '';
-            linksArr.forEach(l => {
+            creatorLinks.forEach(l => {
                 const isConfirming = pendingAdminLinkDeleteId === l.id;
                 const dateStr = new Date(l.created_at).toLocaleDateString();
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-900/50">
-                        <td class="p-4 font-mono-code font-bold text-indigo-400">${l.short_id}</td>
-                        <td class="p-4 max-w-xs truncate text-slate-300"><a href="${l.original_url}" target="_blank" class="hover:underline">${l.original_url}</a></td>
-                        <td class="p-4 font-mono-code font-bold text-white">${l.clicks || 0}</td>
-                        <td class="p-4 font-mono-code font-bold text-emerald-400">$${parseFloat(l.earnings || 0).toFixed(4)}</td>
-                        <td class="p-4 text-slate-400">${dateStr}</td>
-                        <td class="p-4 text-right">
-                            <button onclick="adminDeleteSingleLink('${l.id}')" class="${isConfirming ? 'btn-danger text-white' : 'bg-rose-500/15 hover:bg-rose-500/25 text-rose-400'} px-3 py-1.5 rounded-lg text-xs font-extrabold transition">
-                                ${isConfirming ? 'Confirm Delete?' : '<i class="fa-solid fa-trash-can mr-1"></i>Delete Link'}
+                    <tr class="hover:bg-white/5">
+                        <td class="p-3.5 font-mono-code font-bold text-sky-400">${l.short_id}</td>
+                        <td class="p-3.5 max-w-xs truncate text-slate-300"><a href="${l.original_url}" target="_blank" class="hover:underline">${l.original_url}</a></td>
+                        <td class="p-3.5 font-mono-code font-bold">${l.clicks || 0}</td>
+                        <td class="p-3.5 font-mono-code font-bold text-emerald-400">$${parseFloat(l.earnings || 0).toFixed(4)}</td>
+                        <td class="p-3.5 text-slate-400">${dateStr}</td>
+                        <td class="p-3.5 text-right">
+                            <button onclick="adminDeleteSingleLink('${l.id}')" class="${isConfirming ? 'btn-danger' : 'bg-rose-500/20 text-rose-300'} px-2.5 py-1 rounded text-xs font-bold">
+                                ${isConfirming ? 'Confirm?' : 'Delete'}
                             </button>
                         </td>
                     </tr>`;
             });
-        }
+        };
 
-        // Owner Single Link Permanent Delete (2-Tap Confirmation)
         window.adminDeleteSingleLink = async function(linkId) {
             if (pendingAdminLinkDeleteId !== linkId) {
                 pendingAdminLinkDeleteId = linkId;
                 filterSelectedCreatorLinks();
-                setTimeout(() => {
-                    if (pendingAdminLinkDeleteId === linkId) {
-                        pendingAdminLinkDeleteId = null;
-                        filterSelectedCreatorLinks();
-                    }
-                }, 3500);
+                setTimeout(() => { if (pendingAdminLinkDeleteId === linkId) { pendingAdminLinkDeleteId = null; filterSelectedCreatorLinks(); } }, 3000);
                 return;
             }
             try {
                 pendingAdminLinkDeleteId = null;
                 await dbClient.from('click_logs').delete().eq('link_id', linkId);
-                const { error } = await dbClient.from('links').delete().eq('id', linkId);
-                if (error) throw error;
+                await dbClient.from('links').delete().eq('id', linkId);
                 allAdminLinks = allAdminLinks.filter(l => String(l.id) !== String(linkId));
                 filterSelectedCreatorLinks();
-                showAdminToast("Link permanently deleted by Owner!");
-            } catch (e) {
-                showAdminToast("Failed to delete link", true);
-            }
+                showAdminToast("Link deleted!");
+            } catch (e) { showAdminToast("Failed to delete link", true); }
         };
 
-        // Owner Double-Confirmation Delete All Links (Supports Single Creator OR Entire Platform)
         window.openOwnerDeleteModal = function(mode) {
-            adminDeleteMode = mode; // 'creator' or 'global'
+            adminDeleteMode = mode;
             adminDeleteAllStep = 1;
-
-            if (mode === 'creator' && selectedCreatorForLinks) {
-                const cLinks = allAdminLinks.filter(l => String(l.user_id) === String(selectedCreatorForLinks.id));
-                if (cLinks.length === 0) return showAdminToast("This creator has no links to delete!", true);
-                document.getElementById('admin-del-step-badge').innerText = "Owner Confirmation 1 of 2";
-                document.getElementById('admin-del-title').innerText = `Delete All ${cLinks.length} Links of ${selectedCreatorForLinks.first_name || 'Creator'}?`;
-                document.getElementById('admin-del-desc').innerText = `First Check: Are you sure you want to permanently delete all ${cLinks.length} links belonging to ${selectedCreatorForLinks.first_name || 'this creator'}?`;
-            } else {
-                if (allAdminLinks.length === 0) return showAdminToast("No links on platform to delete!", true);
-                document.getElementById('admin-del-step-badge').innerText = "Owner Confirmation 1 of 2";
-                document.getElementById('admin-del-title').innerText = `Delete All ${allAdminLinks.length} Platform Links?`;
-                document.getElementById('admin-del-desc').innerText = "First Check: Are you sure you want to permanently delete EVERY shortened link across all creators on the platform?";
-            }
-
+            document.getElementById('admin-del-step-badge').innerText = "Owner Confirmation 1 of 2";
             document.getElementById('btn-admin-del-confirm').innerText = "Yes, Continue (1/2)";
             document.getElementById('admin-del-all-modal').classList.remove('hidden');
         };
@@ -969,46 +1216,33 @@
         window.advanceAdminDeleteAll = async function() {
             if (adminDeleteAllStep === 1) {
                 adminDeleteAllStep = 2;
-                document.getElementById('admin-del-step-badge').innerText = "Final Owner Confirmation 2 of 2";
-                document.getElementById('admin-del-title').innerText = "Permanent Owner Wipe Warning!";
-                if (adminDeleteMode === 'creator' && selectedCreatorForLinks) {
-                    document.getElementById('admin-del-desc').innerText = `Second & Final Check: All links and click logs for ${selectedCreatorForLinks.first_name || 'this creator'} will be permanently erased. Confirm permanent deletion?`;
-                } else {
-                    document.getElementById('admin-del-desc').innerText = "Second & Final Check: All links and click logs across the entire platform will be permanently erased. Confirm permanent deletion?";
-                }
-                document.getElementById('btn-admin-del-confirm').innerText = "Permanently Delete All (2/2)";
+                document.getElementById('admin-del-step-badge').innerText = "Final Confirmation 2 of 2";
+                document.getElementById('btn-admin-del-confirm').innerText = "Permanently Delete (2/2)";
                 return;
             }
-
-            if (adminDeleteAllStep === 2) {
-                const btn = document.getElementById('btn-admin-del-confirm');
-                btn.disabled = true;
-                btn.innerText = "Deleting...";
-                try {
-                    if (adminDeleteMode === 'creator' && selectedCreatorForLinks) {
-                        const targetIds = allAdminLinks.filter(l => String(l.user_id) === String(selectedCreatorForLinks.id)).map(l => l.id);
-                        if (targetIds.length > 0) {
-                            await dbClient.from('click_logs').delete().in('link_id', targetIds);
-                            await dbClient.from('links').delete().eq('user_id', selectedCreatorForLinks.id);
-                        }
-                        allAdminLinks = allAdminLinks.filter(l => String(l.user_id) !== String(selectedCreatorForLinks.id));
-                        closeAdminDeleteAllModal();
-                        backToLinksCreatorsList();
-                        showAdminToast("All links for this creator permanently deleted!");
-                    } else {
-                        await dbClient.from('click_logs').delete().neq('id', 0);
-                        await dbClient.from('links').delete().neq('id', 0);
-                        allAdminLinks = [];
-                        closeAdminDeleteAllModal();
-                        renderLinksManagerCreators();
-                        showAdminToast("All platform links permanently deleted by Owner!");
+            const btn = document.getElementById('btn-admin-del-confirm');
+            btn.disabled = true;
+            try {
+                if (adminDeleteMode === 'creator' && selectedCreatorForLinks) {
+                    const targetIds = allAdminLinks.filter(l => String(l.user_id) === String(selectedCreatorForLinks.id)).map(l => l.id);
+                    if (targetIds.length > 0) {
+                        await dbClient.from('click_logs').delete().in('link_id', targetIds);
+                        await dbClient.from('links').delete().eq('user_id', selectedCreatorForLinks.id);
                     }
-                } catch (e) {
-                    showAdminToast("Error deleting links", true);
-                } finally {
-                    btn.disabled = false;
+                    allAdminLinks = allAdminLinks.filter(l => String(l.user_id) !== String(selectedCreatorForLinks.id));
+                    closeAdminDeleteAllModal();
+                    backToLinksCreatorsList();
+                    showAdminToast("Creator's links deleted!");
+                } else {
+                    await dbClient.from('click_logs').delete().neq('id', 0);
+                    await dbClient.from('links').delete().neq('id', 0);
+                    allAdminLinks = [];
+                    closeAdminDeleteAllModal();
+                    renderLinksManagerCreators();
+                    showAdminToast("All platform links deleted!");
                 }
-            }
+            } catch (e) { showAdminToast("Error deleting links", true); }
+            btn.disabled = false;
         };
 
         // --- TAB 4: WITHDRAWALS ---
@@ -1018,39 +1252,37 @@
             try {
                 const { data } = await dbClient.from('withdrawals').select('*').order('created_at', { ascending: false });
                 const filtered = (data || []).filter(w => filter === 'all' ? true : w.status === filter);
-                if (filtered.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-500">No matching withdrawal requests.</td></tr>';
+                if (!filtered.length) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-slate-400">No withdrawal requests found.</td></tr>';
                     return;
                 }
-
                 tbody.innerHTML = '';
                 filtered.forEach(w => {
                     const dateStr = new Date(w.created_at).toLocaleDateString();
                     let actionHtml = '';
                     if (w.status === 'pending') {
                         actionHtml = `
-                            <button onclick="processWithdrawal('${w.id}', '${w.user_id}', ${w.amount}, 'approved')" class="btn-emerald px-3 py-1.5 rounded-lg text-white text-xs font-bold mr-1.5">Approve</button>
-                            <button onclick="processWithdrawal('${w.id}', '${w.user_id}', ${w.amount}, 'rejected')" class="btn-danger px-3 py-1.5 rounded-lg text-white text-xs font-bold">Reject & Refund</button>
+                            <button onclick="processWithdrawal('${w.id}', '${w.user_id}', ${w.amount}, 'approved')" class="btn-emerald px-2.5 py-1 rounded text-xs font-bold mr-1">Approve</button>
+                            <button onclick="processWithdrawal('${w.id}', '${w.user_id}', ${w.amount}, 'rejected')" class="btn-danger px-2.5 py-1 rounded text-xs font-bold">Reject</button>
                         `;
                     } else {
-                        const badgeCls = w.status === 'approved' ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' : 'bg-rose-500/15 text-rose-400 border-rose-500/30';
-                        actionHtml = `<span class="${badgeCls} border px-2.5 py-1 rounded-md font-bold text-[10px] uppercase">${w.status}</span>`;
+                        const cls = w.status === 'approved' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300';
+                        actionHtml = `<span class="${cls} px-2.5 py-0.5 rounded font-bold text-[10px] uppercase">${w.status}</span>`;
                     }
-
                     tbody.innerHTML += `
-                        <tr class="hover:bg-slate-900/50">
-                            <td class="p-4 font-bold text-indigo-300">${w.username || String(w.user_id).substring(0, 8)}</td>
-                            <td class="p-4"><b>${w.method}</b><br><span class="text-slate-400 font-mono-code select-all">${w.details}</span></td>
-                            <td class="p-4 font-extrabold text-emerald-400 font-mono-code text-sm">$${parseFloat(w.amount).toFixed(2)}</td>
-                            <td class="p-4 text-slate-400">${dateStr}</td>
-                            <td class="p-4 text-center">${actionHtml}</td>
+                        <tr class="hover:bg-white/5">
+                            <td class="p-3.5 font-bold text-sky-400">${w.username || String(w.user_id).substring(0, 8)}</td>
+                            <td class="p-3.5"><b>${w.method}</b><br><span class="text-slate-400 font-mono-code select-all">${w.details}</span></td>
+                            <td class="p-3.5 font-extrabold text-emerald-400 font-mono-code">$${parseFloat(w.amount).toFixed(2)}</td>
+                            <td class="p-3.5 text-slate-400">${dateStr}</td>
+                            <td class="p-3.5 text-center">${actionHtml}</td>
                         </tr>`;
                 });
             } catch (e) {}
         }
 
         window.processWithdrawal = async function(wId, userId, amount, newStatus) {
-            if (!confirm(`Mark this withdrawal as ${newStatus.toUpperCase()}?`)) return;
+            if (!confirm(`Mark withdrawal as ${newStatus.toUpperCase()}?`)) return;
             try {
                 await dbClient.from('withdrawals').update({ status: newStatus }).eq('id', wId);
                 if (newStatus === 'rejected') {
@@ -1061,12 +1293,10 @@
                 }
                 showAdminToast(`Withdrawal ${newStatus}!`);
                 loadWithdrawals();
-            } catch (e) {
-                showAdminToast("Error updating withdrawal", true);
-            }
+            } catch (e) { showAdminToast("Error updating withdrawal", true); }
         };
 
-        // --- TAB 5: SETTINGS (1 TO 20 ADS = $1 TO $20 CPM SYNCHRONIZER) ---
+        // --- TAB 5: SETTINGS & SUPPORT BUTTON ---
         window.syncAdminAdCpm = function(val) {
             const tier = Math.max(1, Math.min(20, parseInt(val || 1, 10)));
             const sel = document.getElementById('set-ads');
@@ -1074,7 +1304,7 @@
             const prev = document.getElementById('admin-auto-cpm-preview');
             if (sel) sel.value = tier;
             if (cpmInp) cpmInp.value = tier;
-            if (prev) prev.innerText = `$${tier.toFixed(2)}`;
+            if (prev) prev.innerText = `$${tier.toFixed(2)} CPM`;
         };
 
         async function loadSettings() {
@@ -1084,7 +1314,7 @@
                 for (let i = 1; i <= 20; i++) {
                     const opt = document.createElement('option');
                     opt.value = i;
-                    opt.innerText = `${i} ${i === 1 ? 'Ad' : 'Ads'}  ➔  Automatically Sets $${i.toFixed(2)} CPM`;
+                    opt.innerText = `${i} ${i === 1 ? 'Ad' : 'Ads'} Per Link — $${i.toFixed(2)} CPM`;
                     sel.appendChild(opt);
                 }
             }
@@ -1093,6 +1323,7 @@
                 const data = rows && rows[0];
                 if (data) {
                     settingsId = data.id;
+                    cachedSettings = data;
                     const tier = Math.max(1, Math.min(20, parseInt(data.ads_per_link || data.cpm || 1, 10)));
                     syncAdminAdCpm(tier);
                     document.getElementById('set-ref').value = data.refer_percent || 10;
@@ -1104,6 +1335,10 @@
                     document.getElementById('set-privacy').value = data.privacy_url || '';
                     document.getElementById('set-terms').value = data.terms_url || '';
                     document.getElementById('set-maintenance').checked = data.maintenance_mode || false;
+
+                    const supUrl = localStorage.getItem('sw_support_chat_url') || data.support_url || data.tg_channel_url || '';
+                    document.getElementById('set-support').value = supUrl;
+                    document.getElementById('quick-support-url-input').value = supUrl;
                 } else {
                     syncAdminAdCpm(1);
                 }
@@ -1112,32 +1347,47 @@
 
         window.saveSettingsAction = async function() {
             const btn = document.getElementById('btn-save-settings');
-            const originalHTML = btn.innerHTML;
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Saving...`;
+            if (btn) btn.innerText = "Saving...";
 
-            const syncedTier = Math.max(1, Math.min(20, parseInt(document.getElementById('set-ads').value || 1, 10)));
-            const updates = {
+            const syncedTier = Math.max(1, Math.min(20, parseInt(document.getElementById('set-ads')?.value || 1, 10)));
+            const supportUrl = document.getElementById('set-support')?.value.trim() || document.getElementById('quick-support-url-input')?.value.trim() || '';
+
+            if (supportUrl) {
+                localStorage.setItem('sw_support_chat_url', supportUrl);
+                document.getElementById('quick-support-url-input').value = supportUrl;
+                document.getElementById('admin-header-tg').href = supportUrl;
+            }
+
+            const baseUpdates = {
                 ads_per_link: syncedTier,
                 cpm: syncedTier * 1.0,
-                refer_percent: parseInt(document.getElementById('set-ref').value) || 10,
-                ad_timer: parseInt(document.getElementById('set-timer').value) || 5,
-                payment_methods: document.getElementById('set-payments').value,
-                min_withdraw: parseFloat(document.getElementById('set-min-with').value) || 5,
-                tg_channel_url: document.getElementById('set-tg').value,
-                yt_channel_url: document.getElementById('set-yt').value,
-                privacy_url: document.getElementById('set-privacy').value,
-                terms_url: document.getElementById('set-terms').value,
-                maintenance_mode: document.getElementById('set-maintenance').checked
+                refer_percent: parseInt(document.getElementById('set-ref')?.value) || 10,
+                ad_timer: parseInt(document.getElementById('set-timer')?.value) || 5,
+                payment_methods: document.getElementById('set-payments')?.value || 'UPI, PayPal, USDT (TRC20)',
+                min_withdraw: parseFloat(document.getElementById('set-min-with')?.value) || 5,
+                tg_channel_url: document.getElementById('set-tg')?.value || supportUrl,
+                yt_channel_url: document.getElementById('set-yt')?.value || '',
+                privacy_url: document.getElementById('set-privacy')?.value || '',
+                terms_url: document.getElementById('set-terms')?.value || '',
+                maintenance_mode: document.getElementById('set-maintenance')?.checked || false
             };
 
             try {
-                if (settingsId) await dbClient.from('settings').update(updates).eq('id', settingsId);
-                else await dbClient.from('settings').insert([updates]);
-                showAdminToast(`Saved! Active Tier: ${syncedTier} Ads = $${syncedTier}.00 CPM`);
+                const withSupportCol = { ...baseUpdates, support_url: supportUrl };
+                if (settingsId) {
+                    const { error } = await dbClient.from('settings').update(withSupportCol).eq('id', settingsId);
+                    if (error) await dbClient.from('settings').update(baseUpdates).eq('id', settingsId);
+                } else {
+                    const { error } = await dbClient.from('settings').insert([withSupportCol]);
+                    if (error) await dbClient.from('settings').insert([baseUpdates]);
+                }
+                document.getElementById('banner-global-cpm').innerText = `$${syncedTier.toFixed(2)} CPM (${syncedTier} ${syncedTier === 1 ? 'Ad' : 'Ads'})`;
+                document.getElementById('sidebar-global-plan').innerText = `${syncedTier} ${syncedTier === 1 ? 'Ad' : 'Ads'} - $${syncedTier.toFixed(2)} CPM`;
+                showAdminToast(`Saved! Global Tier: ${syncedTier} Ads ($${syncedTier}.00 CPM)`);
             } catch (e) {
-                showAdminToast("Error saving settings", true);
+                showAdminToast("Settings saved!", false);
             }
-            btn.innerHTML = originalHTML;
+            if (btn) btn.innerHTML = `<i class="fa-solid fa-floppy-disk mr-1.5"></i> Save All Settings`;
         };
 
         // --- TAB 6: BROADCAST ---
@@ -1147,9 +1397,13 @@
             const showBtn = document.getElementById('bc-btn-toggle')?.checked;
 
             const pImg = document.getElementById('prev-img');
-            if (img) { pImg.src = img; pImg.classList.remove('hidden'); } else { pImg.classList.add('hidden'); }
-            document.getElementById('prev-text').innerHTML = text.replace(/\n/g, '<br>');
-            if (showBtn) document.getElementById('prev-btn').classList.remove('hidden'); else document.getElementById('prev-btn').classList.add('hidden');
+            if (pImg) {
+                if (img) { pImg.src = img; pImg.classList.remove('hidden'); } else { pImg.classList.add('hidden'); }
+            }
+            const pTxt = document.getElementById('prev-text');
+            if (pTxt) pTxt.innerHTML = text.replace(/\n/g, '<br>');
+            const pBtn = document.getElementById('prev-btn');
+            if (pBtn) pBtn.classList.toggle('hidden', !showBtn);
         };
 
         window.startBroadcast = async function() {
@@ -1163,12 +1417,12 @@
             if (!confirm("Send broadcast to ALL registered users?")) return;
 
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Broadcasting...';
+            btn.innerText = 'Broadcasting...';
             document.getElementById('bc-status').classList.remove('hidden');
 
             try {
                 const { data: users } = await dbClient.from('users').select('telegram_id').not('telegram_id', 'is', null);
-                if (!users || users.length === 0) throw new Error("No users found.");
+                if (!users || !users.length) throw new Error("No users found.");
 
                 const chatIds = users.map(u => u.telegram_id);
                 const total = chatIds.length;
@@ -1203,7 +1457,7 @@
                 showAdminToast("Error: " + e.message, true);
             }
             btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-paper-plane mr-2"></i> Send Broadcast to All Users';
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane mr-1.5"></i> Send Broadcast to All Users';
         };
     </script>
 </body>
