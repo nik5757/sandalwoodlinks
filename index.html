@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#0b0f19">
     <!-- MONETAG VERIFICATION -->
     <meta name="monetag" content="f0b68ca446e2d27961b50517265938d7">
-    <title>Sandalwood Links — Next-Gen Creator Hub</title>
+    <title>Sandalwood Links — Next-Gen Creator hub</title>
 
     <!-- MONETAG SDK (FOR STEP 2 VERIFICATION) -->
     <script src="https://libtl.com/sdk.js" data-zone="12154661" data-sdk="show_12154661" async data-keep-ad="true"></script>
@@ -17,18 +17,46 @@
         const EDGE_AD_SCRIPT_SRC = 'https://quge5.com/88/tag.min.js';
         const EDGE_AD_ZONE = '303844';
 
-        // Supports decimal CPM (0.5, 1, 1.5, 2, etc.)
-        function parseCpmValue(v, fallback = 1.0) {
-            const n = parseFloat(v);
-            return (!isNaN(n) && n >= 0.1) ? parseFloat(n.toFixed(2)) : fallback;
-        }
+        // 20-Step Milestone Schedule supporting 1 to 20 Ads
+        // 1 Ad = $0.50 CPM, 2 Ads = $1.00 CPM, 3 Ads = $1.50 CPM ... 20 Ads = $10.00 CPM Max
+        const AD_MILESTONE_SECONDS = [
+            16, 32, 48, 64, 80, 96, 112, 128, 144, 160,
+            176, 192, 208, 224, 240, 256, 272, 288, 304, 320
+        ];
+
         function clampAdTier(v) {
             const n = parseInt(v || 1, 10);
             return Math.max(1, Math.min(20, isNaN(n) ? 1 : n));
         }
 
+        // 1 Ad = 0.50 CPM, 2 Ads = 1.00 CPM, ..., 20 Ads = 10.00 CPM Max
+        function getAutoCpmByAds(adCount) {
+            return parseFloat((clampAdTier(adCount) * 0.5).toFixed(2));
+        }
+
+        function getAdsByCpm(cpmVal) {
+            const c = parseFloat(cpmVal);
+            if (isNaN(c) || c <= 0.5) return 1;
+            return clampAdTier(Math.round(c / 0.5));
+        }
+
+        function parseCpmValue(v, fallback = 0.5) {
+            const n = parseFloat(v);
+            if (isNaN(n) || n < 0.5) return fallback;
+            return Math.min(10.0, parseFloat((Math.round(n * 2) / 2).toFixed(2)));
+        }
+
+        function getAdDurationSeconds(adCount) {
+            const t = clampAdTier(adCount);
+            return AD_MILESTONE_SECONDS[t - 1] || (t * 16);
+        }
+
+        function getTriggerMilestones(adCount) {
+            return AD_MILESTONE_SECONDS.slice(0, clampAdTier(adCount));
+        }
+
         // Injects ONLY the requested quge5.com (zone 303844) ad script on Page 1 (First Page) & Page 3 (Final Page)
-        function triggerEdgePageAd(stageName) {
+        function triggerEdgePageAd() {
             if (!window.__isGatewayMode) return;
             try {
                 const oldTag = document.getElementById('sw-edge-ad-script');
@@ -68,7 +96,6 @@
         }
         .font-mono-code { font-family: 'JetBrains Mono', monospace; }
 
-        /* Next-Gen Cyber-Glass UI */
         .nextgen-header {
             background: rgba(15, 23, 42, 0.88);
             backdrop-filter: blur(18px);
@@ -123,7 +150,6 @@
         }
         .btn-cyber:active { transform: scale(0.97); }
 
-        /* Unique Message-Type Support Floating Button */
         .premium-support-fab {
             background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 55%, #8b5cf6 100%);
             box-shadow: 0 10px 28px -4px rgba(99, 102, 241, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.35);
@@ -211,7 +237,7 @@
                         <div class="w-8 h-8 rounded-lg btn-cyber flex items-center justify-center font-black text-white text-sm">S</div>
                         <div>
                             <div class="text-xs font-extrabold text-white tracking-wide">SANDALWOOD</div>
-                            <div class="text-[9px] text-sky-400 font-bold uppercase">Creator Hub v4.0</div>
+                            <div class="text-[9px] text-sky-400 font-bold uppercase">Creator Hub v4.2</div>
                         </div>
                     </div>
                     <button onclick="closeSidebar()" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 flex items-center justify-center text-xs">
@@ -263,11 +289,11 @@
 
             <div class="p-4 border-t border-white/10 bg-[#090d16]">
                 <div class="text-[10px] text-slate-400 font-bold uppercase">Active Revenue Rate</div>
-                <div class="text-xs font-extrabold text-sky-400 mt-0.5 font-mono-code" id="sidebar-plan-label">$1.00 CPM</div>
+                <div class="text-xs font-extrabold text-sky-400 mt-0.5 font-mono-code" id="sidebar-plan-label">$0.50 CPM (1 Ad)</div>
             </div>
         </aside>
 
-        <!-- MAIN CONTAINER (DIRECTLY STARTS WITH CREATE MONETIZED SHORT LINK) -->
+        <!-- MAIN CONTAINER -->
         <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 pt-4 space-y-4">
 
             <!-- NEXT-GEN SHORTENER CARD -->
@@ -314,7 +340,7 @@
                     </div>
                     <div>
                         <div class="text-[10px] uppercase font-bold text-sky-100">Active Monetization Plan</div>
-                        <div class="text-xs font-extrabold text-white" id="home-active-cpm-badge">$1.00 CPM</div>
+                        <div class="text-xs font-extrabold text-white" id="home-active-cpm-badge">$0.50 CPM (1 Ad)</div>
                     </div>
                 </div>
                 <button onclick="switchPage('page-profile')" class="bg-white text-slate-950 hover:bg-slate-100 px-3 py-1.5 rounded-xl text-[11px] font-extrabold shrink-0 shadow">
@@ -379,7 +405,7 @@
                     <div class="neo-card p-4 flex items-center justify-between">
                         <div>
                             <div class="text-[11px] text-slate-400 font-semibold">Active CPM</div>
-                            <div class="text-lg font-extrabold text-amber-400 font-mono-code mt-1" id="home-cpm-card">$1.00</div>
+                            <div class="text-lg font-extrabold text-amber-400 font-mono-code mt-1" id="home-cpm-card">$0.50</div>
                             <div class="text-[10px] text-slate-400 mt-1">Per 1,000 Views</div>
                         </div>
                         <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-400/25 flex items-center justify-center text-amber-400">
@@ -521,7 +547,7 @@
                 </div>
             </div>
 
-            <!-- PAGE 6: CPM PLAN & PROFILE SETTINGS -->
+            <!-- PAGE 6: CPM PLAN & PROFILE SETTINGS (0.5 CPM PER AD UP TO 10 CPM MAX) -->
             <div id="page-profile" class="page-content hidden space-y-3.5">
                 <div class="neo-card p-5 flex items-center space-x-4">
                     <div id="profile-avatar" class="w-14 h-14 rounded-2xl btn-cyber text-white flex items-center justify-center text-xl font-extrabold shrink-0">C</div>
@@ -535,12 +561,13 @@
                 <div class="neo-card p-5 space-y-4">
                     <div class="flex justify-between items-center">
                         <div>
-                            <h3 class="text-xs font-extrabold text-white uppercase">Select CPM Rate / Plan</h3>
-                            <p class="text-[11px] text-slate-400" id="profile-tier-badge">Flexible CPM Tier</p>
+                            <h3 class="text-xs font-extrabold text-white uppercase">Select Ad Tier & CPM Plan</h3>
+                            <p class="text-[11px] text-slate-400" id="profile-tier-badge">1 Ad / Link ($0.50 CPM)</p>
                         </div>
-                        <div class="text-lg font-extrabold text-emerald-400 font-mono-code" id="profile-cpm-big">$1.00 CPM</div>
+                        <div class="text-lg font-extrabold text-emerald-400 font-mono-code" id="profile-cpm-big">$0.50 CPM</div>
                     </div>
-                    <select id="profile-ad-tier-select" onchange="updateUserCpmPlan(this.value)" class="w-full bg-[#0b0f19] border border-white/15 rounded-xl p-3 text-xs text-white font-bold"></select>
+                    <input type="range" id="profile-ad-tier-slider" min="1" max="20" step="1" value="1" oninput="updateUserAdTier(this.value)" class="w-full accent-sky-400 cursor-pointer">
+                    <select id="profile-ad-tier-select" onchange="updateUserAdTier(this.value)" class="w-full bg-[#0b0f19] border border-white/15 rounded-xl p-3 text-xs text-white font-bold"></select>
                 </div>
             </div>
 
@@ -549,7 +576,6 @@
         <!-- UNIQUE OVERLAPPING MESSAGE BUBBLE SUPPORT LOGO (CONNECTED TO ADMIN.HTML) -->
         <button id="floating-support-btn" onclick="openSupportChat()" aria-label="Support Chat" class="premium-support-fab fixed bottom-5 right-5 z-40 w-14 h-14 rounded-2xl text-white flex items-center justify-center">
             <span class="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-400 ring-2 ring-[#0b0f19] animate-pulse"></span>
-            <!-- Custom Overlapping Dual Chat Bubble SVG Icon -->
             <svg class="w-7 h-7 text-white drop-shadow" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path opacity="0.35" d="M20.5 4.5H7.5C5.567 4.5 4 6.067 4 8V15.5C4 17.433 5.567 19 7.5 19H9V22.25L12.75 19H20.5C22.433 19 24 17.433 24 15.5V8C24 6.067 22.433 4.5 20.5 4.5Z" fill="currentColor"/>
                 <path d="M21 8.5H9.5C7.84315 8.5 6.5 9.84315 6.5 11.5V18C6.5 19.6569 7.84315 21 9.5 21H15.75L20.25 24.25V21H21C22.6569 21 24 19.6569 24 18V11.5C24 9.84315 22.6569 8.5 21 8.5Z" fill="currentColor"/>
@@ -561,7 +587,7 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- === LINK GATEWAY VIEWER (QUGE5 ON 1 & 3, CANCEL & REDIRECT) ===== -->
+    <!-- === LINK GATEWAY VIEWER (FULL AD TIMER WAIT & AUTO REDIRECT) ==== -->
     <!-- ================================================================= -->
     <div id="ui-ad-viewer" class="hidden min-h-screen flex flex-col items-center justify-center p-4 bg-[#0b0f19]">
 
@@ -629,8 +655,9 @@ let pendingSingleDeleteId = null;
 let deleteAllConfirmStep = 0;
 
 let adminSettings = {
-    cpm: 1.0,
+    cpm: 0.5,
     ad_timer: 5,
+    last_page_timer: 5,
     ads_per_link: 1,
     refer_percent: 10,
     min_withdraw: 5.0,
@@ -645,10 +672,9 @@ let adminSettings = {
 const tg = window.Telegram?.WebApp || { expand: () => {}, ready: () => {}, close: () => window.close(), openLink: (u) => window.open(u, '_blank'), openTelegramLink: (u) => { window.top.location.href = u; } };
 try { tg.ready(); tg.expand(); tg.setHeaderColor('#0b0f19'); tg.setBackgroundColor('#0b0f19'); } catch(e) {}
 
-let targetOriginalUrl = null, currentGatewayStage = 1, activeStageInterval = null;
+let targetOriginalUrl = null, linkCreatorUserId = null, currentGatewayStage = 1, activeStageInterval = null;
 window.invalidClickReason = null;
 
-// Timeout-protected fetch so the app NEVER hangs
 async function fetchWithTimeout(url, options = {}, timeoutMs = 4500) {
     const ctrl = new AbortController();
     const id = setTimeout(() => ctrl.abort(), timeoutMs);
@@ -670,7 +696,6 @@ async function supabaseRestGet(table, query) {
     try { return await res.json(); } catch (e) { return null; }
 }
 
-// Parse embedded metadata from settings.payment_methods
 function unpackSettingsRow(row) {
     if (!row) return;
     let rawMethods = row.payment_methods || "UPI, PayPal, USDT (TRC20)";
@@ -680,11 +705,16 @@ function unpackSettingsRow(row) {
         rawMethods = parts[0].trim();
         try { meta = JSON.parse(parts[1] || '{}'); } catch (e) {}
     }
+    const resolvedAds = clampAdTier(meta.ads_per_link ?? row.ads_per_link ?? 1);
+    const resolvedCpm = parseCpmValue(meta.custom_cpm ?? getAutoCpmByAds(resolvedAds), 0.5);
     adminSettings = {
         ...adminSettings,
         ...row,
         payment_methods: rawMethods,
-        cpm: parseCpmValue(meta.custom_cpm ?? row.cpm, 1.0),
+        ads_per_link: resolvedAds,
+        cpm: resolvedCpm,
+        ad_timer: Math.max(1, parseInt(row.ad_timer || 5, 10)),
+        last_page_timer: Math.max(1, parseInt(meta.last_page_timer ?? 5, 10)),
         support_url: meta.support_url || row.support_url || row.tg_channel_url || `https://t.me/${BOT_USERNAME}`,
         announcements: Array.isArray(meta.announcements) ? meta.announcements : [],
         user_cpm_overrides: meta.user_cpm_overrides || {}
@@ -722,7 +752,6 @@ window.openSupportChat = function() {
     }
 };
 
-// Safe Ad Overlay Cleaner (Closes ad popups/iframes WITHOUT deleting the ad SDK scripts)
 function isRemovableAdOverlay(el) {
     if (!el || !el.tagName) return false;
     const tag = el.tagName.toUpperCase();
@@ -796,7 +825,6 @@ function switchPage(pageId) {
     closeSidebar();
     document.querySelectorAll('.page-content').forEach(el => el.classList.add('hidden'));
     document.getElementById(pageId)?.classList.remove('hidden');
-
     document.querySelectorAll('.sidebar-link').forEach(el => el.classList.toggle('active', el.getAttribute('data-target') === pageId));
 
     if (pageId === 'page-links') loadLinks();
@@ -819,48 +847,55 @@ function generatePermanentUserApiKey(telegramId, userId) {
     return `sw_${telegramId || 'u'}_${(h2 >>> 0).toString(16).padStart(8, '0') + (h1 >>> 0).toString(16).padStart(8, '0')}`;
 }
 
-// Supports Decimal CPM Rates (0.5, 1, 1.5, 2, 2.5 ... 20)
-function populateCpmPlanSelect() {
+// 1 Ad = $0.50 CPM, 2 Ads = $1.00 CPM, 3 Ads = $1.50 CPM ... up to 20 Ads = $10.00 CPM Max
+function populateAdTierSelect() {
     const sel = document.getElementById('profile-ad-tier-select');
     if (!sel) return;
     sel.innerHTML = '';
-    const presets = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 7.5, 10.0, 15.0, 20.0];
-    const currentActive = getActiveCpmRate();
-    if (!presets.includes(currentActive)) presets.push(currentActive);
-    presets.sort((a, b) => a - b);
-
-    presets.forEach(rate => {
+    for (let i = 1; i <= 20; i++) {
+        const cpm = getAutoCpmByAds(i);
         const opt = document.createElement('option');
-        opt.value = rate;
-        opt.innerText = `$${rate.toFixed(2)} CPM Plan ($${(rate / 1000).toFixed(4)} / Verified View)`;
+        opt.value = i;
+        opt.innerText = `${i} ${i === 1 ? 'Ad' : 'Ads'} Per Link — $${cpm.toFixed(2)} CPM ($${(cpm / 1000).toFixed(4)} / View)`;
         sel.appendChild(opt);
-    });
+    }
+}
+
+function getActiveAdTier() {
+    const uid = currentUserData?.id || currentUserData?.telegram_id;
+    if (uid && adminSettings.user_cpm_overrides && adminSettings.user_cpm_overrides[uid] !== undefined) {
+        return getAdsByCpm(adminSettings.user_cpm_overrides[uid]);
+    }
+    const savedTier = localStorage.getItem('sw_user_ad_tier');
+    if (savedTier) return clampAdTier(savedTier);
+    return clampAdTier(adminSettings.ads_per_link || getAdsByCpm(adminSettings.cpm) || 1);
 }
 
 function getActiveCpmRate() {
     const uid = currentUserData?.id || currentUserData?.telegram_id;
     if (uid && adminSettings.user_cpm_overrides && adminSettings.user_cpm_overrides[uid] !== undefined) {
-        return parseCpmValue(adminSettings.user_cpm_overrides[uid], adminSettings.cpm);
+        return parseCpmValue(adminSettings.user_cpm_overrides[uid], 0.5);
     }
-    const saved = localStorage.getItem('sw_user_cpm_rate');
-    if (saved) return parseCpmValue(saved, adminSettings.cpm);
-    return parseCpmValue(adminSettings.cpm, 1.0);
+    return getAutoCpmByAds(getActiveAdTier());
 }
 
-window.updateUserCpmPlan = function(val, silent = false) {
-    const rate = parseCpmValue(val, 1.0);
+window.updateUserAdTier = function(adCountVal, silent = false) {
+    const tier = clampAdTier(adCountVal);
+    const rate = getAutoCpmByAds(tier);
+    localStorage.setItem('sw_user_ad_tier', String(tier));
     localStorage.setItem('sw_user_cpm_rate', String(rate));
-    populateCpmPlanSelect();
 
-    const se = document.getElementById('profile-ad-tier-select'); if (se) se.value = rate;
+    populateAdTierSelect();
+    const se = document.getElementById('profile-ad-tier-select'); if (se) se.value = tier;
+    const sl = document.getElementById('profile-ad-tier-slider'); if (sl) sl.value = tier;
     const pcb = document.getElementById('profile-cpm-big'); if (pcb) pcb.innerText = `$${rate.toFixed(2)} CPM`;
-    const ptb = document.getElementById('profile-tier-badge'); if (ptb) ptb.innerText = `Earns $${(rate / 1000).toFixed(4)} per view`;
-    const hcb = document.getElementById('home-active-cpm-badge'); if (hcb) hcb.innerText = `$${rate.toFixed(2)} CPM ($${(rate / 1000).toFixed(4)}/view)`;
+    const ptb = document.getElementById('profile-tier-badge'); if (ptb) ptb.innerText = `${tier} ${tier === 1 ? 'Ad' : 'Ads'} / Link ($${(rate / 1000).toFixed(4)}/view)`;
+    const hcb = document.getElementById('home-active-cpm-badge'); if (hcb) hcb.innerText = `$${rate.toFixed(2)} CPM (${tier} ${tier === 1 ? 'Ad' : 'Ads'})`;
     const hcc = document.getElementById('home-cpm-card'); if (hcc) hcc.innerText = `$${rate.toFixed(2)}`;
-    const spl = document.getElementById('sidebar-plan-label'); if (spl) spl.innerText = `$${rate.toFixed(2)} CPM`;
+    const spl = document.getElementById('sidebar-plan-label'); if (spl) spl.innerText = `$${rate.toFixed(2)} CPM (${tier} ${tier === 1 ? 'Ad' : 'Ads'})`;
 
     if (!silent) {
-        showToast(`CPM Plan updated to $${rate.toFixed(2)} CPM`);
+        showToast(`Updated: ${tier} ${tier === 1 ? 'Ad' : 'Ads'} = $${rate.toFixed(2)} CPM`);
         generateDateReport();
     }
 };
@@ -917,6 +952,7 @@ async function verifyLinkStatus() {
         const linkData = await resolveDestinationUrlFromDb(window.currentShortId);
         if (linkData && linkData.original_url) {
             targetOriginalUrl = normalizeDestinationUrl(linkData.original_url);
+            linkCreatorUserId = linkData.user_id;
             const anchor = document.getElementById('btn-get-link');
             if (anchor) anchor.href = targetOriginalUrl;
 
@@ -941,6 +977,7 @@ async function loadAdminSettings() {
 }
 
 async function initApp() {
+    populateAdTierSelect();
     const startParam = extractStartParam();
     const isGateway = Boolean(startParam && !startParam.startsWith('ref_'));
     window.__isGatewayMode = isGateway;
@@ -950,8 +987,8 @@ async function initApp() {
         document.getElementById('ui-main-app').classList.add('hidden');
         document.getElementById('ui-ad-viewer').classList.remove('hidden');
 
-        verifyLinkStatus();
-        loadAdminSettings();
+        // Load settings & destination in parallel before starting gateway timers
+        await Promise.all([loadAdminSettings(), verifyLinkStatus()]);
         startAdFlow();
         return;
     }
@@ -976,7 +1013,7 @@ async function initApp() {
     }
 
     renderAnnouncements();
-    updateUserCpmPlan(getActiveCpmRate(), true);
+    updateUserAdTier(getActiveAdTier(), true);
 
     if (tgUser && dbClient) {
         try {
@@ -1023,7 +1060,7 @@ function setupDashboard() {
         document.getElementById('header-tg-btn').href = adminSettings.tg_channel_url;
     }
 
-    updateUserCpmPlan(getActiveCpmRate(), true);
+    updateUserAdTier(getActiveAdTier(), true);
     renderAnnouncements();
 
     document.getElementById('header-balance').innerText = `$${parseFloat(currentUserData.balance || 0).toFixed(4)}`;
@@ -1103,7 +1140,6 @@ function setupApiTab() {
     }
 }
 
-// Fixed Daily Report Breakdown
 async function generateDateReport() {
     const listDiv = document.getElementById('earnings-list');
     if (!listDiv) return;
@@ -1349,7 +1385,7 @@ async function fetchReferralDetails() {
 }
 
 // ============================================================================
-// === 3-STAGE GATEWAY ENGINE (QUGE5 ON 1 & 3, MONETAG ON 2, AUTO REDIRECT) ===
+// === 3-STAGE GATEWAY ENGINE (FULL AD TIMER WAIT ON MIDDLE PAGE) =============
 // ============================================================================
 function setGatewayStepPills(stage) {
     currentGatewayStage = stage;
@@ -1368,14 +1404,21 @@ window.manualAdvanceIfReady = function() {
     }
 };
 
+function getGatewayAdTierForLink() {
+    if (linkCreatorUserId && adminSettings.user_cpm_overrides && adminSettings.user_cpm_overrides[linkCreatorUserId] !== undefined) {
+        return getAdsByCpm(adminSettings.user_cpm_overrides[linkCreatorUserId]);
+    }
+    return clampAdTier(adminSettings.ads_per_link || getAdsByCpm(adminSettings.cpm) || 1);
+}
+
 function startAdFlow() {
     window.__isGatewayMode = true;
     setGatewayStepPills(1);
 
     // 1. First Page: Load ONLY the requested quge5.com ad script (zone 303844)
-    triggerEdgePageAd('first');
+    triggerEdgePageAd();
 
-    let waitSec = 5;
+    let waitSec = Math.max(1, parseInt(adminSettings.ad_timer || 5, 10));
     const timerEl = document.getElementById('ad-timer-text');
     const badgeEl = document.getElementById('hud-timer-badge');
     const btn = document.getElementById('btn-watch-ad');
@@ -1410,38 +1453,66 @@ function runSecondPageVerification() {
     const hudBadge = document.getElementById('hud-timer-badge');
     const timerEl = document.getElementById('ad-timer-text');
 
-    let waitSec = Math.max(5, parseInt(adminSettings.ad_timer || 6, 10));
-    document.getElementById('gateway-progress-bar').style.width = '65%';
+    // Full Ad Duration based on Ad Tier (1 Ad = 16s, 2 Ads = 32s, etc.) so middle page NEVER closes before the ad timer finishes
+    const adTier = getGatewayAdTierForLink();
+    const totalSec = getAdDurationSeconds(adTier);
+    const milestones = getTriggerMilestones(adTier);
+    let elapsed = 0;
+
+    document.getElementById('gateway-progress-bar').style.width = '50%';
     document.getElementById('ad-loader-ring').classList.remove('hidden');
-    hudLabel.innerText = "2. Verifying Link";
+    hudLabel.innerText = `2. Verify (${adTier} ${adTier === 1 ? 'Ad' : 'Ads'})`;
     document.getElementById('ad-step-title').innerText = "2. Verifying Link";
-    document.getElementById('ad-step-subtitle').innerText = "Auto-advancing to Final Page...";
+    document.getElementById('ad-step-subtitle').innerText = `Please wait ${totalSec}s for ad verification to complete...`;
 
-    // Trigger Monetag SDK Ad on Page 2
-    if (typeof window[MONETAG_AD_FUNCTION] === 'function') {
-        try {
-            const p = window[MONETAG_AD_FUNCTION]();
-            if (p && typeof p.catch === 'function') p.catch(() => {});
-        } catch (e) {}
-    }
+    const fireMonetagAd = () => {
+        if (typeof window[MONETAG_AD_FUNCTION] === 'function') {
+            try {
+                const p = window[MONETAG_AD_FUNCTION]();
+                if (p && typeof p.catch === 'function') p.catch(() => {});
+            } catch (e) {}
+        }
+    };
 
-    timerEl.innerText = waitSec;
-    hudBadge.innerText = `${waitSec}s`;
-    btn.innerText = `Final Page in ${waitSec}s...`;
+    fireMonetagAd();
+    timerEl.innerText = totalSec;
+    hudBadge.innerText = `${totalSec}s`;
+    btn.innerText = `Verifying Ad (${totalSec}s)...`;
 
     if (activeStageInterval) clearInterval(activeStageInterval);
-    activeStageInterval = setInterval(() => {
-        waitSec--;
-        timerEl.innerText = Math.max(0, waitSec);
-        hudBadge.innerText = `${Math.max(0, waitSec)}s`;
-        btn.innerText = `Final Page in ${Math.max(0, waitSec)}s...`;
+    const startTs = Date.now();
+    const firedMilestones = new Set();
 
-        if (waitSec <= 0) {
+    activeStageInterval = setInterval(() => {
+        const nowElapsed = Math.floor((Date.now() - startTs) / 1000);
+        if (nowElapsed <= elapsed) return;
+        elapsed = nowElapsed;
+
+        const left = Math.max(0, totalSec - elapsed);
+        timerEl.innerText = left;
+        hudBadge.innerText = `${left}s`;
+        btn.innerText = `Verifying Ad (${left}s)...`;
+        document.getElementById('gateway-progress-bar').style.width = `${Math.min(92, 35 + Math.round((elapsed / totalSec) * 57))}%`;
+
+        // Only close the current ad & trigger the next ad when each 16s ad milestone completes
+        AD_MILESTONE_SECONDS.forEach(mSec => {
+            if (elapsed >= mSec && !firedMilestones.has(mSec)) {
+                firedMilestones.add(mSec);
+                forceCloseOverlayAds();
+                if (left > 0 && milestones.includes(mSec)) {
+                    setTimeout(() => {
+                        if (currentGatewayStage === 2) fireMonetagAd();
+                    }, 450);
+                }
+            }
+        });
+
+        if (left <= 0) {
             clearInterval(activeStageInterval);
             forceCloseOverlayAds();
             runFinalPageAndRedirect();
         }
-    }, 1000);
+    }, 250);
 }
 
 function executeFinalRedirect(rawUrl) {
@@ -1479,7 +1550,7 @@ async function runFinalPageAndRedirect() {
     setGatewayStepPills(3);
 
     // 3. Final Page: Inject ONLY the requested quge5.com ad script (zone 303844)
-    triggerEdgePageAd('final');
+    triggerEdgePageAd();
 
     document.getElementById('gateway-progress-bar').style.width = '100%';
     document.getElementById('btn-watch-ad').classList.add('hidden');
@@ -1492,7 +1563,7 @@ async function runFinalPageAndRedirect() {
 
     if (window.invalidClickReason !== "self" && window.invalidClickReason !== "duplicate" && window.currentShortId) {
         const clickerId = tg.initDataUnsafe?.user?.id || 0;
-        const watchedTier = clampAdTier(adminSettings.ads_per_link || 1);
+        const watchedTier = getGatewayAdTierForLink();
         fetchWithTimeout(`${VERCEL_API_URL}/reward`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1516,6 +1587,7 @@ async function runFinalPageAndRedirect() {
     const getLinkAnchor = document.getElementById('btn-get-link');
     const getLinkText = document.getElementById('btn-get-link-text');
     const timerEl = document.getElementById('ad-timer-text');
+    const badgeEl = document.getElementById('hud-timer-badge');
 
     getLinkAnchor.href = cleanDest;
     getLinkAnchor.onclick = (e) => {
@@ -1523,14 +1595,17 @@ async function runFinalPageAndRedirect() {
         executeFinalRedirect(cleanDest);
     };
 
-    let finalSec = 3;
+    // Final Page Countdown Timer set via Admin Panel (`last_page_timer`)
+    let finalSec = Math.max(1, parseInt(adminSettings.last_page_timer || 5, 10));
     timerEl.innerText = finalSec;
+    badgeEl.innerText = `${finalSec}s`;
     getLinkText.innerText = `Redirecting in ${finalSec}s... (Tap to Open Now)`;
 
     if (activeStageInterval) clearInterval(activeStageInterval);
     activeStageInterval = setInterval(() => {
         finalSec--;
         timerEl.innerText = Math.max(0, finalSec);
+        badgeEl.innerText = finalSec > 0 ? `${finalSec}s` : 'GO';
         getLinkText.innerText = finalSec > 0 ? `Redirecting in ${finalSec}s... (Tap to Open Now)` : `Opening Destination...`;
         if (finalSec <= 0) {
             clearInterval(activeStageInterval);
