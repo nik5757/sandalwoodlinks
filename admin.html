@@ -25,7 +25,6 @@
         }
         .font-mono-code { font-family: 'JetBrains Mono', monospace; }
 
-        /* Next-Gen Cyber-Glass UI */
         .nextgen-header {
             background: rgba(15, 23, 42, 0.88);
             backdrop-filter: blur(18px);
@@ -77,17 +76,18 @@
         .btn-danger { background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); color: #ffffff; }
         .tg-bubble { background-color: #182533; border-radius: 12px 12px 12px 2px; }
 
-        /* Premium Support Floating Button */
+        /* Matching Unique Dual Message-Bubble Floating Support Button */
         .premium-support-fab {
-            background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
-            box-shadow: 0 10px 25px -4px rgba(168, 85, 247, 0.65), 0 0 0 3px rgba(255, 255, 255, 0.12);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 55%, #8b5cf6 100%);
+            box-shadow: 0 10px 28px -4px rgba(99, 102, 241, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
         }
         .premium-support-fab:hover {
-            transform: translateY(-2px) scale(1.03);
-            box-shadow: 0 14px 30px -4px rgba(168, 85, 247, 0.85), 0 0 0 4px rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px) scale(1.04);
+            box-shadow: 0 14px 32px -4px rgba(14, 165, 233, 0.8), inset 0 1px 2px rgba(255, 255, 255, 0.45);
         }
-        .premium-support-fab:active { transform: scale(0.95); }
+        .premium-support-fab:active { transform: scale(0.94); }
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: #0b0f19; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
@@ -128,14 +128,14 @@
                 <i class="fa-solid fa-crown"></i>
             </div>
             <h2 class="text-lg font-extrabold text-white mb-1">Owner Control Center</h2>
-            <p class="text-xs text-slate-400 mb-5">Sandalwood Links Next-Gen Infrastructure v4.0</p>
+            <p class="text-xs text-slate-400 mb-5">Sandalwood Links Next-Gen Infrastructure v4.2</p>
             <input type="password" id="admin-password" onkeydown="if(event.key==='Enter') document.getElementById('btn-login').click()" placeholder="Enter Owner Password" class="w-full bg-[#070a12] border border-white/15 text-white px-4 py-3 rounded-xl mb-4 focus:outline-none focus:border-sky-400 text-center tracking-widest text-sm">
             <button id="btn-login" class="w-full btn-cyber font-extrabold py-3 rounded-xl text-xs uppercase tracking-wider shadow">Unlock Admin Panel</button>
         </div>
     </div>
 
     <!-- ================================================================= -->
-    <!-- === NEXT-GEN ADMIN DASHBOARD ==================================== -->
+    <!-- === NEXT-GEN ADMIN DASHBOARD (CLEAN HEADER + SIDEBAR ONLY) ====== -->
     <!-- ================================================================= -->
     <div id="admin-dashboard" class="hidden min-h-screen flex flex-col">
 
@@ -151,7 +151,7 @@
                 </a>
             </div>
 
-            <div class="flex items-center space-x-2.5">
+            <div class="flex items-center space-x-2">
                 <button onclick="switchTab('links')" class="bg-slate-800/90 hover:bg-slate-700 border border-white/10 text-sky-300 px-3 py-1.5 rounded-xl text-xs font-bold">
                     <i class="fa-solid fa-magnifying-glass mr-1"></i> Inspect Link
                 </button>
@@ -167,7 +167,7 @@
         <!-- SIDEBAR BACKDROP -->
         <div id="sidebar-backdrop" onclick="closeSidebar()" class="fixed inset-0 bg-black/65 backdrop-blur-xs z-40 hidden"></div>
 
-        <!-- SLIDE-OUT LEFT SIDEBAR -->
+        <!-- SLIDE-OUT LEFT SIDEBAR (ALL ADMIN SECTIONS ACCESSED VIA ☰ MENU) -->
         <aside id="left-sidebar" class="nextgen-sidebar fixed top-0 left-0 bottom-0 w-64 z-50 -translate-x-full flex flex-col justify-between overflow-y-auto">
             <div>
                 <div class="p-3.5 flex items-center justify-between border-b border-white/10">
@@ -175,7 +175,7 @@
                         <div class="w-8 h-8 rounded-lg btn-cyber flex items-center justify-center font-black text-white text-sm">S</div>
                         <div>
                             <div class="text-xs font-extrabold text-white tracking-wide">SANDALWOOD</div>
-                            <div class="text-[9px] text-emerald-400 font-bold uppercase">Owner Control v4.0</div>
+                            <div class="text-[9px] text-emerald-400 font-bold uppercase">Owner Control v4.2</div>
                         </div>
                     </div>
                     <button onclick="closeSidebar()" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 flex items-center justify-center text-xs">
@@ -215,7 +215,7 @@
                         <i class="fa-solid fa-angle-right text-[10px]"></i>
                     </button>
                     <button class="sidebar-link" data-tab="settings" onclick="switchTab('settings')">
-                        <span class="flex items-center"><i class="fa-solid fa-sliders w-6 text-pink-400"></i> Settings & Support Logo</span>
+                        <span class="flex items-center"><i class="fa-solid fa-sliders w-6 text-pink-400"></i> Settings & Timers</span>
                         <i class="fa-solid fa-angle-right text-[10px]"></i>
                     </button>
                     <button class="sidebar-link" data-tab="broadcast" onclick="switchTab('broadcast')">
@@ -226,24 +226,13 @@
             </div>
 
             <div class="p-4 border-t border-white/10 bg-[#090d16]">
-                <div class="text-[10px] text-slate-400 font-bold uppercase">Global Default CPM</div>
-                <div class="text-xs font-extrabold text-emerald-400 mt-0.5 font-mono-code" id="sidebar-global-plan">$1.00 CPM</div>
+                <div class="text-[10px] text-slate-400 font-bold uppercase">Global Default Plan</div>
+                <div class="text-xs font-extrabold text-emerald-400 mt-0.5 font-mono-code" id="sidebar-global-plan">$0.50 CPM (1 Ad)</div>
             </div>
         </aside>
 
-        <!-- MAIN CONTENT AREA -->
+        <!-- MAIN CONTENT AREA (NO TOP GRID CLUTTER) -->
         <main class="flex-1 max-w-4xl w-full mx-auto px-3.5 pt-4 space-y-4">
-
-            <!-- Quick 7-Tab Navigation Pills (No clutter card on every page) -->
-            <div class="grid grid-cols-3 sm:grid-cols-7 gap-1.5">
-                <button onclick="switchTab('dashboard')" class="top-pill-btn bg-sky-500 text-white py-2 rounded-xl text-[11px] font-extrabold shadow" data-tab="dashboard"><i class="fa-solid fa-chart-pie mr-1"></i>Overview</button>
-                <button onclick="switchTab('announcements')" class="top-pill-btn bg-slate-900/90 text-slate-300 border border-white/10 py-2 rounded-xl text-[11px] font-bold" data-tab="announcements"><i class="fa-solid fa-bullhorn mr-1"></i>Announce</button>
-                <button onclick="switchTab('links')" class="top-pill-btn bg-slate-900/90 text-slate-300 border border-white/10 py-2 rounded-xl text-[11px] font-bold" data-tab="links"><i class="fa-solid fa-link mr-1"></i>Links</button>
-                <button onclick="switchTab('users')" class="top-pill-btn bg-slate-900/90 text-slate-300 border border-white/10 py-2 rounded-xl text-[11px] font-bold" data-tab="users"><i class="fa-solid fa-users mr-1"></i>Creators</button>
-                <button onclick="switchTab('withdrawals')" class="top-pill-btn bg-slate-900/90 text-slate-300 border border-white/10 py-2 rounded-xl text-[11px] font-bold" data-tab="withdrawals"><i class="fa-solid fa-wallet mr-1"></i>Payouts</button>
-                <button onclick="switchTab('settings')" class="top-pill-btn bg-slate-900/90 text-slate-300 border border-white/10 py-2 rounded-xl text-[11px] font-bold" data-tab="settings"><i class="fa-solid fa-sliders mr-1"></i>Settings</button>
-                <button onclick="switchTab('broadcast')" class="top-pill-btn bg-slate-900/90 text-slate-300 border border-white/10 py-2 rounded-xl text-[11px] font-bold col-span-3 sm:col-span-1" data-tab="broadcast"><i class="fa-solid fa-paper-plane mr-1"></i>Broadcast</button>
-            </div>
 
             <!-- ACTIVE GLOBAL CPM BANNER -->
             <div class="cpm-banner-pill px-4 py-3 flex items-center justify-between">
@@ -253,7 +242,7 @@
                     </div>
                     <div>
                         <div class="text-[10px] uppercase font-bold text-sky-100">Global Default Creator Rate</div>
-                        <div class="text-xs font-extrabold text-white" id="banner-global-cpm">$1.00 CPM</div>
+                        <div class="text-xs font-extrabold text-white" id="banner-global-cpm">$0.50 CPM (1 Ad)</div>
                     </div>
                 </div>
                 <button onclick="switchTab('settings')" class="bg-white text-slate-950 hover:bg-slate-100 px-3 py-1.5 rounded-xl text-[11px] font-extrabold shrink-0 shadow">
@@ -266,10 +255,16 @@
 
         </main>
 
-        <!-- PREMIUM SUPPORT CONCIERGE FLOATING BUTTON -->
-        <button onclick="testFloatingSupportButton()" aria-label="Premium Support" class="premium-support-fab fixed bottom-5 right-5 z-40 w-14 h-14 rounded-2xl text-white flex items-center justify-center">
+        <!-- MATCHING UNIQUE OVERLAPPING MESSAGE BUBBLE SUPPORT LOGO -->
+        <button onclick="testFloatingSupportButton()" aria-label="Support Chat" class="premium-support-fab fixed bottom-5 right-5 z-40 w-14 h-14 rounded-2xl text-white flex items-center justify-center">
             <span class="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-400 ring-2 ring-[#0b0f19] animate-pulse"></span>
-            <i class="fa-solid fa-headset text-xl"></i>
+            <svg class="w-7 h-7 text-white drop-shadow" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path opacity="0.35" d="M20.5 4.5H7.5C5.567 4.5 4 6.067 4 8V15.5C4 17.433 5.567 19 7.5 19H9V22.25L12.75 19H20.5C22.433 19 24 17.433 24 15.5V8C24 6.067 22.433 4.5 20.5 4.5Z" fill="currentColor"/>
+                <path d="M21 8.5H9.5C7.84315 8.5 6.5 9.84315 6.5 11.5V18C6.5 19.6569 7.84315 21 9.5 21H15.75L20.25 24.25V21H21C22.6569 21 24 19.6569 24 18V11.5C24 9.84315 22.6569 8.5 21 8.5Z" fill="currentColor"/>
+                <circle cx="11.5" cy="14.75" r="1.35" fill="#1e1b4b"/>
+                <circle cx="15.25" cy="14.75" r="1.35" fill="#1e1b4b"/>
+                <circle cx="19" cy="14.75" r="1.35" fill="#1e1b4b"/>
+            </svg>
         </button>
     </div>
 
@@ -328,7 +323,7 @@
                     <div>
                         <div class="text-[11px] text-slate-400 font-semibold">Shortened Links</div>
                         <div class="text-xl font-extrabold text-white mt-1 font-mono-code" id="stat-total-links">0</div>
-                        <div class="text-[10px] text-sky-400 mt-1">CPM: <b id="stat-active-cpm">$1.00</b></div>
+                        <div class="text-[10px] text-sky-400 mt-1">CPM: <b id="stat-active-cpm">$0.50</b></div>
                     </div>
                     <div class="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-400/25 flex items-center justify-center text-purple-400">
                         <i class="fa-solid fa-link"></i>
@@ -347,19 +342,17 @@
         </div>
     </template>
 
-    <!-- TAB 2: ANNOUNCEMENTS MANAGER (PUBLISH & DELETE DASHBOARD ANNOUNCEMENTS) -->
+    <!-- TAB 2: ANNOUNCEMENTS MANAGER -->
     <template id="tpl-announcements">
         <div class="space-y-4">
             <div class="neo-card p-5 space-y-3.5 border border-amber-500/30">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-2">
-                        <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center">
-                            <i class="fa-solid fa-bullhorn"></i>
-                        </span>
-                        <div>
-                            <h2 class="text-sm font-extrabold text-white uppercase">Post Dashboard Announcement</h2>
-                            <p class="text-[11px] text-slate-400">Appears immediately on every creator's Home Dashboard</p>
-                        </div>
+                <div class="flex items-center space-x-2">
+                    <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center">
+                        <i class="fa-solid fa-bullhorn"></i>
+                    </span>
+                    <div>
+                        <h2 class="text-sm font-extrabold text-white uppercase">Post Dashboard Announcement</h2>
+                        <p class="text-[11px] text-slate-400">Appears immediately on every creator's Home Dashboard</p>
                     </div>
                 </div>
 
@@ -390,31 +383,28 @@
         </div>
     </template>
 
-    <!-- TAB 3: GLOBAL LINK INSPECTOR & LINKS MANAGER -->
+    <!-- TAB 3: GLOBAL LINK INSPECTOR & PAGINATED CREATOR LINKS MANAGER (NEVER FREEZES) -->
     <template id="tpl-links">
         <div class="space-y-4">
             <!-- GLOBAL LINK SEARCH & DESTINATION INSPECTOR -->
             <div class="neo-card p-5 space-y-3.5 border border-sky-400/35">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-2.5">
-                        <span class="w-9 h-9 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center">
-                            <i class="fa-solid fa-magnifying-glass-location"></i>
-                        </span>
-                        <div>
-                            <h2 class="text-sm font-extrabold text-white uppercase">Global Short Link Inspector</h2>
-                            <p class="text-[11px] text-slate-400">Paste any shortened link, `short_id`, or destination URL to check which link was shortened & who created it</p>
-                        </div>
+                <div class="flex items-center space-x-2.5">
+                    <span class="w-9 h-9 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-magnifying-glass-location"></i>
+                    </span>
+                    <div>
+                        <h2 class="text-sm font-extrabold text-white uppercase">Global Short Link Inspector</h2>
+                        <p class="text-[11px] text-slate-400">Paste any shortened link, `short_id`, or destination URL to check which link was shortened & who created it</p>
                     </div>
                 </div>
 
                 <div class="flex flex-col sm:flex-row gap-2">
-                    <input type="text" id="global-link-inspect-input" oninput="runGlobalLinkInspector()" placeholder="Paste full t.me short link, short code (e.g. a8f9k2), or destination URL..." class="flex-1 bg-[#0b0f19] border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-sky-400">
+                    <input type="text" id="global-link-inspect-input" onkeydown="if(event.key==='Enter') runGlobalLinkInspector()" placeholder="Paste full t.me short link, short code (e.g. a8f9k2), or destination URL..." class="flex-1 bg-[#0b0f19] border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-sky-400">
                     <button onclick="runGlobalLinkInspector()" class="btn-cyber px-5 py-2.5 rounded-xl text-xs font-extrabold shrink-0">
                         <i class="fa-solid fa-magnifying-glass mr-1"></i> Check Link
                     </button>
                 </div>
 
-                <!-- Inspector Results Container -->
                 <div id="global-link-inspect-results" class="hidden space-y-2 pt-2 border-t border-white/10"></div>
             </div>
 
@@ -423,7 +413,7 @@
                 <div class="neo-card p-4 flex flex-wrap justify-between items-center gap-3">
                     <div>
                         <h2 class="text-xs font-extrabold text-white uppercase">Browse Links by Creator</h2>
-                        <p class="text-[11px] text-slate-400">Tap any creator card to view or delete their links</p>
+                        <p class="text-[11px] text-slate-400">Tap any creator card to inspect which links they shortened</p>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
                         <input type="text" id="admin-creator-link-search" oninput="renderLinksManagerCreators()" placeholder="Filter creator name or TG ID..." class="bg-[#0b0f19] border border-white/15 text-white rounded-xl px-3 py-2 text-xs focus:outline-none">
@@ -438,11 +428,11 @@
                 </div>
             </div>
 
-            <!-- VIEW B: SELECTED CREATOR LINKS -->
+            <!-- VIEW B: SELECTED CREATOR LINKS (PAGINATED 50 AT A TIME SO BROWSER NEVER FREEZES) -->
             <div id="links-manager-detail-view" class="hidden space-y-3.5">
                 <div class="neo-card p-4 flex flex-wrap justify-between items-center gap-3">
                     <div class="flex items-center space-x-2.5">
-                        <button onclick="backToLinksCreatorsList()" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-xl text-xs font-bold border border-white/15">
+                        <button type="button" onclick="backToLinksCreatorsList()" class="bg-slate-800 hover:bg-slate-700 text-white px-3.5 py-2 rounded-xl text-xs font-extrabold border border-white/15">
                             <i class="fa-solid fa-arrow-left mr-1"></i> Back
                         </button>
                         <div>
@@ -451,8 +441,8 @@
                         </div>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
-                        <input type="text" id="admin-link-search" oninput="filterSelectedCreatorLinks()" placeholder="Filter short code or URL..." class="bg-[#0b0f19] border border-white/15 text-white rounded-xl px-3 py-2 text-xs focus:outline-none">
-                        <button onclick="openOwnerDeleteModal('creator')" class="btn-danger font-extrabold px-3 py-2 rounded-xl text-xs">
+                        <input type="text" id="admin-link-search" oninput="resetAndFilterCreatorLinks()" placeholder="Search short code or destination URL..." class="bg-[#0b0f19] border border-white/15 text-white rounded-xl px-3 py-2 text-xs focus:outline-none">
+                        <button type="button" onclick="openOwnerDeleteModal('creator')" class="btn-danger font-extrabold px-3 py-2 rounded-xl text-xs">
                             <i class="fa-solid fa-trash-can mr-1"></i> Delete Creator's Links
                         </button>
                     </div>
@@ -463,7 +453,7 @@
                         <thead class="bg-[#0b0f19] text-slate-300 border-b border-white/10 uppercase text-[10px]">
                             <tr>
                                 <th class="p-3.5">Short Code & Bot Link</th>
-                                <th class="p-3.5">Shortened Destination URL</th>
+                                <th class="p-3.5">Shortened Destination URL (Original Link)</th>
                                 <th class="p-3.5">Views</th>
                                 <th class="p-3.5">Earnings</th>
                                 <th class="p-3.5">Created</th>
@@ -473,18 +463,24 @@
                         <tbody id="admin-links-list" class="divide-y divide-white/10"></tbody>
                     </table>
                 </div>
+
+                <div id="creator-links-load-more-box" class="hidden text-center pt-1">
+                    <button type="button" onclick="loadMoreCreatorLinks()" class="bg-slate-800 hover:bg-slate-700 border border-white/15 text-sky-300 px-5 py-2.5 rounded-xl text-xs font-extrabold">
+                        Load More Links (<span id="creator-links-remaining-count">0</span> more)
+                    </button>
+                </div>
             </div>
         </div>
     </template>
 
-    <!-- TAB 4: CREATORS & USERS DIRECTORY (WITH CUSTOM DECIMAL CPM PER CREATOR) -->
+    <!-- TAB 4: CREATORS & USERS DIRECTORY -->
     <template id="tpl-users">
         <div class="space-y-3.5">
             <div class="neo-card p-4 space-y-3">
                 <div class="flex flex-wrap justify-between items-center gap-3">
                     <div>
                         <h2 class="text-sm font-extrabold text-white uppercase">Creators & Users Directory</h2>
-                        <p class="text-[11px] text-slate-400">Set custom decimal CPM (`0.5`, `1`, `1.5`, `2`, etc.) for any creator or edit wallet balances</p>
+                        <p class="text-[11px] text-slate-400">Set custom CPM (`0.5`, `1`, `1.5`, `2` ... up to `10` max) for any creator or edit wallet balances</p>
                     </div>
                     <input type="text" id="admin-user-search" oninput="filterAdminUsers()" placeholder="Search name, @username, TG ID or API..." class="bg-[#0b0f19] border border-white/15 text-white rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-sky-400 w-full sm:w-64">
                 </div>
@@ -514,7 +510,7 @@
                         <tr>
                             <th class="p-3.5">TG ID & Creator</th>
                             <th class="p-3.5">Links</th>
-                            <th class="p-3.5">Creator CPM Rate</th>
+                            <th class="p-3.5">Creator CPM Plan</th>
                             <th class="p-3.5">Views</th>
                             <th class="p-3.5">Wallet Balance</th>
                             <th class="p-3.5">API Key</th>
@@ -564,13 +560,13 @@
         </div>
     </template>
 
-    <!-- TAB 6: SETTINGS (FLEXIBLE DECIMAL CPM 0.5 / 1 / 1.5 / 2 + SUPPORT CHAT URL HERE ONLY) -->
+    <!-- TAB 6: SETTINGS (0.5 CPM PER AD UP TO 10 CPM MAX + FIRST & LAST PAGE TIMERS + SUPPORT BUTTON) -->
     <template id="tpl-settings">
         <div class="neo-card p-5 space-y-5">
             <div class="flex flex-wrap justify-between items-center gap-3 border-b border-white/10 pb-3.5">
                 <div>
-                    <h2 class="text-sm font-extrabold text-white uppercase">Global CPM & Support Chat Configuration</h2>
-                    <p class="text-[11px] text-slate-400">Set any decimal CPM rate (`0.5`, `1`, `1.5`, `2`, etc.) and configure the Premium Support Chat button</p>
+                    <h2 class="text-sm font-extrabold text-white uppercase">Global CPM, Gateway Timers & Support Chat</h2>
+                    <p class="text-[11px] text-slate-400">Default: `1 Ad = $0.50 CPM`, `2 Ads = $1.00 CPM`, `3 Ads = $1.50 CPM` ... up to `20 Ads = $10.00 CPM` Max</p>
                 </div>
                 <label class="flex items-center space-x-2.5 cursor-pointer bg-[#0b0f19] px-3.5 py-2 rounded-xl border border-white/15">
                     <span class="text-xs font-extrabold text-rose-400">Maintenance Mode</span>
@@ -578,61 +574,52 @@
                 </label>
             </div>
 
-            <!-- FLEXIBLE DECIMAL GLOBAL CPM CONFIGURATOR -->
+            <!-- 0.5 CPM PER AD (MAX $10.00 CPM) CONFIGURATOR -->
             <div class="bg-[#0b0f19] border border-sky-400/30 rounded-2xl p-4 space-y-3.5">
                 <div class="flex flex-wrap justify-between items-center gap-2">
                     <div>
-                        <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-sky-500/20 text-sky-300">Custom Decimal CPM Supported</span>
-                        <h3 class="text-xs font-extrabold text-white mt-1">Set Global Default Creator CPM ($ per 1,000 Views)</h3>
-                        <p class="text-[11px] text-slate-400">Type any rate like `0.5`, `1`, `1.5`, `2`, `2.5`, `5`, or click a quick preset pill below</p>
+                        <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-sky-500/20 text-sky-300">0.50 CPM Per Ad Formula (Max $10.00 CPM)</span>
+                        <h3 class="text-xs font-extrabold text-white mt-1">Select Default Ads Per Link & Global CPM</h3>
                     </div>
                     <div class="text-right">
-                        <div class="text-[10px] text-slate-400 uppercase font-bold">Active Global CPM</div>
-                        <div id="admin-auto-cpm-preview" class="text-lg font-extrabold text-emerald-400 font-mono-code">$1.00 CPM</div>
+                        <div class="text-[10px] text-slate-400 uppercase font-bold">Active Rate</div>
+                        <div id="admin-auto-cpm-preview" class="text-lg font-extrabold text-emerald-400 font-mono-code">$0.50 CPM (1 Ad)</div>
                     </div>
                 </div>
 
-                <!-- Quick Decimal Preset Pills -->
+                <!-- Quick Preset Pills -->
                 <div class="flex flex-wrap gap-1.5">
-                    <button type="button" onclick="setGlobalDecimalCpm(0.5)" class="bg-slate-800 hover:bg-sky-500/20 border border-white/10 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-mono-code font-bold">$0.50</button>
-                    <button type="button" onclick="setGlobalDecimalCpm(1.0)" class="bg-slate-800 hover:bg-sky-500/20 border border-white/10 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-mono-code font-bold">$1.00</button>
-                    <button type="button" onclick="setGlobalDecimalCpm(1.5)" class="bg-slate-800 hover:bg-sky-500/20 border border-white/10 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-mono-code font-bold">$1.50</button>
-                    <button type="button" onclick="setGlobalDecimalCpm(2.0)" class="bg-slate-800 hover:bg-sky-500/20 border border-white/10 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-mono-code font-bold">$2.00</button>
-                    <button type="button" onclick="setGlobalDecimalCpm(2.5)" class="bg-slate-800 hover:bg-sky-500/20 border border-white/10 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-mono-code font-bold">$2.50</button>
-                    <button type="button" onclick="setGlobalDecimalCpm(3.0)" class="bg-slate-800 hover:bg-sky-500/20 border border-white/10 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-mono-code font-bold">$3.00</button>
-                    <button type="button" onclick="setGlobalDecimalCpm(5.0)" class="bg-slate-800 hover:bg-sky-500/20 border border-white/10 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-mono-code font-bold">$5.00</button>
-                    <button type="button" onclick="setGlobalDecimalCpm(10.0)" class="bg-slate-800 hover:bg-sky-500/20 border border-white/10 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-mono-code font-bold">$10.00</button>
+                    <button type="button" onclick="syncAdminAdTierByCpm(0.5)" class="bg-slate-800 hover:bg-sky-500/20 border border-white/10 text-slate-200 px-2.5 py-1.5 rounded-lg text-[11px] font-mono-code font-bold">1 Ad ($0.50)</button>
+                    <button type="button" onclick="syncAdminAdTierByCpm(1.0)" class="bg-slate-800 hover:bg-sky-500/20 border border-white/10 text-slate-200 px-2.5 py-1.5 rounded-lg text-[11px] font-mono-code font-bold">2 Ads ($1.00)</button>
+                    <button type="button" onclick="syncAdminAdTierByCpm(1.5)" class="bg-slate-800 hover:bg-sky-500/20 border border-white/10 text-slate-200 px-2.5 py-1.5 rounded-lg text-[11px] font-mono-code font-bold">3 Ads ($1.50)</button>
+                    <button type="button" onclick="syncAdminAdTierByCpm(2.0)" class="bg-slate-800 hover:bg-sky-500/20 border border-white/10 text-slate-200 px-2.5 py-1.5 rounded-lg text-[11px] font-mono-code font-bold">4 Ads ($2.00)</button>
+                    <button type="button" onclick="syncAdminAdTierByCpm(2.5)" class="bg-slate-800 hover:bg-sky-500/20 border border-white/10 text-slate-200 px-2.5 py-1.5 rounded-lg text-[11px] font-mono-code font-bold">5 Ads ($2.50)</button>
+                    <button type="button" onclick="syncAdminAdTierByCpm(5.0)" class="bg-slate-800 hover:bg-sky-500/20 border border-white/10 text-slate-200 px-2.5 py-1.5 rounded-lg text-[11px] font-mono-code font-bold">10 Ads ($5.00)</button>
+                    <button type="button" onclick="syncAdminAdTierByCpm(10.0)" class="bg-slate-800 hover:bg-sky-500/20 border border-white/10 text-slate-200 px-2.5 py-1.5 rounded-lg text-[11px] font-mono-code font-bold">20 Ads ($10.00 Max)</button>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-300 mb-1 uppercase">Custom Global CPM Rate ($)</label>
-                        <input type="number" step="0.1" min="0.1" max="100" id="set-cpm" oninput="setGlobalDecimalCpm(this.value)" class="w-full bg-[#111827] border border-white/15 rounded-xl p-2.5 text-emerald-400 font-mono-code font-extrabold text-xs focus:outline-none focus:border-sky-400">
+                        <label class="block text-[11px] font-bold text-slate-300 mb-1 uppercase">Ads Per Link (1 – 20 Ads)</label>
+                        <select id="set-ads" onchange="syncAdminAdTierByAds(this.value)" class="w-full bg-[#111827] border border-white/15 rounded-xl p-2.5 text-white font-bold text-xs focus:outline-none focus:border-sky-400"></select>
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-300 mb-1 uppercase">Ads Per Link Step Count (1 – 20)</label>
-                        <input type="number" step="1" min="1" max="20" id="set-ads" class="w-full bg-[#111827] border border-white/15 rounded-xl p-2.5 text-white font-mono-code font-bold text-xs focus:outline-none">
+                        <label class="block text-[11px] font-bold text-slate-300 mb-1 uppercase">Global CPM Rate ($0.50 – $10.00 Max)</label>
+                        <input type="number" step="0.5" min="0.5" max="10" id="set-cpm" oninput="syncAdminAdTierByCpm(this.value)" class="w-full bg-[#111827] border border-white/15 rounded-xl p-2.5 text-emerald-400 font-mono-code font-extrabold text-xs focus:outline-none focus:border-sky-400">
                     </div>
                 </div>
             </div>
 
-            <!-- PREMIUM SUPPORT CHAT FLOATING BUTTON URL (ONLY IN SETTINGS TAB) -->
-            <div class="bg-[#0b0f19] border border-purple-500/35 rounded-2xl p-4 space-y-2.5">
-                <div class="flex items-center justify-between">
-                    <label class="text-xs font-extrabold text-white uppercase flex items-center">
-                        <i class="fa-solid fa-headset text-purple-400 mr-2"></i> Premium Floating Support Chat Button URL
-                    </label>
-                    <span class="text-[10px] text-purple-300 font-bold">Connected to index.html</span>
+            <!-- FIRST PAGE & LAST PAGE TIMERS + REFERRAL & WITHDRAWAL -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                <div>
+                    <label class="block text-[11px] font-bold text-sky-300 mb-1 uppercase">1. First Page Timer (Sec)</label>
+                    <input type="number" min="1" max="60" id="set-timer" class="w-full bg-[#0b0f19] border border-sky-400/30 rounded-xl p-2.5 text-white font-mono-code font-bold text-xs focus:outline-none">
                 </div>
-                <div class="flex flex-col sm:flex-row gap-2">
-                    <input type="url" id="set-support" placeholder="https://t.me/YourSupportUsername" class="flex-1 bg-[#111827] border border-white/15 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-purple-400">
-                    <button type="button" onclick="testFloatingSupportButton()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2.5 rounded-xl text-xs font-bold shrink-0">
-                        Test Support Link
-                    </button>
+                <div>
+                    <label class="block text-[11px] font-bold text-emerald-300 mb-1 uppercase">3. Final Page Timer (Sec)</label>
+                    <input type="number" min="1" max="60" id="set-last-timer" class="w-full bg-[#0b0f19] border border-emerald-400/30 rounded-xl p-2.5 text-white font-mono-code font-bold text-xs focus:outline-none">
                 </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
                 <div>
                     <label class="block text-[11px] font-bold text-slate-300 mb-1 uppercase">Referral Commission (%)</label>
                     <input type="number" id="set-ref" class="w-full bg-[#0b0f19] border border-white/15 rounded-xl p-2.5 text-white text-xs focus:outline-none">
@@ -641,9 +628,21 @@
                     <label class="block text-[11px] font-bold text-slate-300 mb-1 uppercase">Min. Withdrawal ($)</label>
                     <input type="number" step="0.5" id="set-min-with" class="w-full bg-[#0b0f19] border border-white/15 rounded-xl p-2.5 text-white text-xs focus:outline-none">
                 </div>
-                <div>
-                    <label class="block text-[11px] font-bold text-slate-300 mb-1 uppercase">Verification Timer (Sec)</label>
-                    <input type="number" id="set-timer" class="w-full bg-[#0b0f19] border border-white/15 rounded-xl p-2.5 text-white text-xs focus:outline-none">
+            </div>
+
+            <!-- FLOATING MESSAGE-BUBBLE SUPPORT CHAT BUTTON URL -->
+            <div class="bg-[#0b0f19] border border-indigo-500/35 rounded-2xl p-4 space-y-2.5">
+                <div class="flex items-center justify-between">
+                    <label class="text-xs font-extrabold text-white uppercase flex items-center">
+                        <i class="fa-solid fa-comment-dots text-sky-400 mr-2"></i> Floating Support Chat Button URL
+                    </label>
+                    <span class="text-[10px] text-sky-300 font-bold">Connected to index.html</span>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <input type="url" id="set-support" placeholder="https://t.me/YourSupportUsername" class="flex-1 bg-[#111827] border border-white/15 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-sky-400">
+                    <button type="button" onclick="testFloatingSupportButton()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2.5 rounded-xl text-xs font-bold shrink-0">
+                        Test Support Link
+                    </button>
                 </div>
             </div>
 
@@ -664,7 +663,7 @@
             </div>
 
             <button id="btn-save-settings" onclick="saveSettingsAction()" class="w-full btn-cyber py-3.5 rounded-xl font-extrabold text-white text-xs shadow">
-                <i class="fa-solid fa-floppy-disk mr-1.5"></i> Save Global Settings & Support URL
+                <i class="fa-solid fa-floppy-disk mr-1.5"></i> Save Global Settings, Timers & Support URL
             </button>
         </div>
     </template>
@@ -727,11 +726,14 @@
 
         let dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let settingsId = null;
+
+        // Default: 1 Ad = $0.50 CPM, 2 Ads = $1.00 CPM ... Max 20 Ads = $10.00 CPM
         let cachedSettings = {
-            cpm: 1.0,
+            cpm: 0.5,
             ads_per_link: 1,
             refer_percent: 10,
             ad_timer: 5,
+            last_page_timer: 5,
             min_withdraw: 5,
             payment_methods: 'UPI, PayPal, USDT (TRC20)',
             tg_channel_url: 'https://t.me/SandalwoodLinksBot',
@@ -745,18 +747,45 @@
         let userLinksCountMap = {};
         let currentAdminUserRoleTab = 'creators';
 
+        // Paginated Creator Links State (Prevents browser freeze when a creator has hundreds/thousands of links)
         let selectedCreatorForLinks = null;
+        let filteredCreatorLinksCache = [];
+        let creatorLinksRenderLimit = 50;
         let pendingAdminLinkDeleteId = null;
         let adminDeleteAllStep = 0;
         let adminDeleteMode = 'global';
 
-        function parseCpmValue(v, fallback = 1.0) {
-            const n = parseFloat(v);
-            return (!isNaN(n) && n >= 0.1) ? parseFloat(n.toFixed(2)) : fallback;
+        function clampAdTier(v) {
+            const n = parseInt(v || 1, 10);
+            return Math.max(1, Math.min(20, isNaN(n) ? 1 : n));
         }
 
-        // Timeout-protected fetch so Admin Panel NEVER hangs
-        async function fetchWithTimeout(url, options = {}, timeoutMs = 4500) {
+        function getAutoCpmByAds(adCount) {
+            return parseFloat((clampAdTier(adCount) * 0.5).toFixed(2));
+        }
+
+        function getAdsByCpm(cpmVal) {
+            const c = parseFloat(cpmVal);
+            if (isNaN(c) || c <= 0.5) return 1;
+            return clampAdTier(Math.round(c / 0.5));
+        }
+
+        function parseCpmValue(v, fallback = 0.5) {
+            const n = parseFloat(v);
+            if (isNaN(n) || n < 0.5) return fallback;
+            return Math.min(10.0, parseFloat((Math.round(n * 2) / 2).toFixed(2)));
+        }
+
+        function escapeHtml(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        async function fetchWithTimeout(url, options = {}, timeoutMs = 5000) {
             const ctrl = new AbortController();
             const id = setTimeout(() => ctrl.abort(), timeoutMs);
             try {
@@ -777,7 +806,6 @@
             try { return await res.json(); } catch (e) { return null; }
         }
 
-        // Unpack & Pack Metadata inside `payment_methods` so custom decimal CPM, Announcements, Support URL, & per-user CPM work without schema migration errors
         function unpackAdminSettingsRow(row) {
             if (!row) return;
             settingsId = row.id;
@@ -788,11 +816,17 @@
                 rawMethods = parts[0].trim();
                 try { meta = JSON.parse(parts[1] || '{}'); } catch (e) {}
             }
+            const resolvedAds = clampAdTier(meta.ads_per_link ?? row.ads_per_link ?? 1);
+            const resolvedCpm = parseCpmValue(meta.custom_cpm ?? getAutoCpmByAds(resolvedAds), 0.5);
+
             cachedSettings = {
                 ...cachedSettings,
                 ...row,
                 payment_methods: rawMethods,
-                cpm: parseCpmValue(meta.custom_cpm ?? row.cpm, 1.0),
+                ads_per_link: resolvedAds,
+                cpm: resolvedCpm,
+                ad_timer: Math.max(1, parseInt(row.ad_timer || 5, 10)),
+                last_page_timer: Math.max(1, parseInt(meta.last_page_timer ?? 5, 10)),
                 support_url: meta.support_url || row.support_url || row.tg_channel_url || 'https://t.me/SandalwoodLinksBot',
                 announcements: Array.isArray(meta.announcements) ? meta.announcements : [],
                 user_cpm_overrides: meta.user_cpm_overrides || {}
@@ -801,7 +835,9 @@
 
         function packPaymentMethodsWithMeta(cleanMethodsStr) {
             const metaPayload = {
-                custom_cpm: parseCpmValue(cachedSettings.cpm, 1.0),
+                custom_cpm: parseCpmValue(cachedSettings.cpm, 0.5),
+                ads_per_link: clampAdTier(cachedSettings.ads_per_link),
+                last_page_timer: Math.max(1, parseInt(cachedSettings.last_page_timer || 5, 10)),
                 support_url: cachedSettings.support_url || 'https://t.me/SandalwoodLinksBot',
                 announcements: cachedSettings.announcements || [],
                 user_cpm_overrides: cachedSettings.user_cpm_overrides || {}
@@ -814,11 +850,10 @@
             const updates = {
                 payment_methods: packedMethods,
                 cpm: Math.max(1, Math.round(cachedSettings.cpm)),
-                ads_per_link: Math.max(1, Math.min(20, parseInt(cachedSettings.ads_per_link || 1, 10)))
+                ads_per_link: clampAdTier(cachedSettings.ads_per_link)
             };
             if (settingsId) {
-                const { error } = await dbClient.from('settings').update({ ...updates, cpm: cachedSettings.cpm }).eq('id', settingsId);
-                if (error) await dbClient.from('settings').update(updates).eq('id', settingsId);
+                await dbClient.from('settings').update(updates).eq('id', settingsId);
             } else {
                 const { data } = await dbClient.from('settings').insert([updates]).select('*').limit(1);
                 if (data && data[0]) settingsId = data[0].id;
@@ -827,18 +862,18 @@
         }
 
         function updateHeaderCpmBanners() {
-            const cpm = parseCpmValue(cachedSettings.cpm, 1.0);
+            const cpm = parseCpmValue(cachedSettings.cpm, 0.5);
+            const ads = clampAdTier(cachedSettings.ads_per_link || getAdsByCpm(cpm));
             const bEl = document.getElementById('banner-global-cpm');
             const sEl = document.getElementById('sidebar-global-plan');
-            if (bEl) bEl.innerText = `$${cpm.toFixed(2)} CPM ($${(cpm / 1000).toFixed(4)} / view)`;
-            if (sEl) sEl.innerText = `$${cpm.toFixed(2)} CPM`;
+            if (bEl) bEl.innerText = `$${cpm.toFixed(2)} CPM (${ads} ${ads === 1 ? 'Ad' : 'Ads'} • $${(cpm / 1000).toFixed(4)}/view)`;
+            if (sEl) sEl.innerText = `$${cpm.toFixed(2)} CPM (${ads} ${ads === 1 ? 'Ad' : 'Ads'})`;
             if (cachedSettings.tg_channel_url) {
                 const hTg = document.getElementById('admin-header-tg');
                 if (hTg) hTg.href = cachedSettings.tg_channel_url;
             }
         }
 
-        // Sidebar Controls
         window.toggleSidebar = function() {
             const sb = document.getElementById('left-sidebar');
             const bd = document.getElementById('sidebar-backdrop');
@@ -913,14 +948,6 @@
             document.querySelectorAll('.sidebar-link').forEach(b => {
                 b.classList.toggle('active', b.getAttribute('data-tab') === tabName);
             });
-            document.querySelectorAll('.top-pill-btn').forEach(b => {
-                const isExtraCol = b.getAttribute('data-tab') === 'broadcast' ? ' col-span-3 sm:col-span-1' : '';
-                if (b.getAttribute('data-tab') === tabName) {
-                    b.className = `top-pill-btn bg-sky-500 text-white py-2 rounded-xl text-[11px] font-extrabold shadow${isExtraCol}`;
-                } else {
-                    b.className = `top-pill-btn bg-slate-900/90 text-slate-300 border border-white/10 py-2 rounded-xl text-[11px] font-bold${isExtraCol}`;
-                }
-            });
 
             const container = document.getElementById('admin-tab-container');
             container.innerHTML = document.getElementById(`tpl-${tabName}`).innerHTML;
@@ -934,7 +961,7 @@
             if (tabName === 'broadcast') updatePreview();
         };
 
-        // --- TAB 1: DASHBOARD OVERVIEW (FAST PARALLEL QUERIES) ---
+        // --- TAB 1: DASHBOARD OVERVIEW ---
         async function loadDashboard() {
             try {
                 const now = new Date();
@@ -967,7 +994,7 @@
                 });
                 document.getElementById('stat-active-users').innerText = activeTodaySet.size;
 
-                const activeCpm = parseCpmValue(cachedSettings.cpm, 1.0);
+                const activeCpm = parseCpmValue(cachedSettings.cpm, 0.5);
                 document.getElementById('stat-active-cpm').innerText = `$${activeCpm.toFixed(2)}`;
 
                 let paid = 0, pending = 0;
@@ -1026,8 +1053,8 @@
                 listEl.innerHTML += `
                     <div class="bg-[#0b0f19] border border-white/10 rounded-xl p-3.5 flex items-start justify-between gap-3">
                         <div class="space-y-1">
-                            <div class="text-xs font-extrabold text-amber-300">${item.title || 'Announcement'}</div>
-                            <p class="text-xs text-slate-200 leading-relaxed">${item.message || ''}</p>
+                            <div class="text-xs font-extrabold text-amber-300">${escapeHtml(item.title || 'Announcement')}</div>
+                            <p class="text-xs text-slate-200 leading-relaxed">${escapeHtml(item.message || '')}</p>
                             <span class="text-[10px] font-mono-code text-slate-500 block">${dateStr}</span>
                         </div>
                         <button onclick="deleteSingleAnnouncement('${item.id}')" class="bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 px-3 py-1.5 rounded-xl text-xs font-bold shrink-0">
@@ -1080,12 +1107,14 @@
             showAdminToast("All announcements cleared!");
         };
 
-        // --- TAB 3: GLOBAL SHORT LINK INSPECTOR & LINKS MANAGER ---
+        // --- TAB 3: GLOBAL SHORT LINK INSPECTOR & FREEZE-FREE PAGINATED LINKS MANAGER ---
         async function loadAdminLinks() {
+            const grid = document.getElementById('links-creators-grid');
+            if (grid) grid.innerHTML = `<div class="col-span-full text-center p-8 text-slate-400 text-xs"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Loading creators & links...</div>`;
             try {
                 const [usersData, linksData] = await Promise.all([
-                    supabaseRestGet('users', 'select=*&order=created_at.desc'),
-                    supabaseRestGet('links', 'select=*&order=created_at.desc')
+                    supabaseRestGet('users', 'select=id,telegram_id,first_name,username&order=created_at.desc'),
+                    supabaseRestGet('links', 'select=id,user_id,short_id,original_url,clicks,earnings,created_at&order=created_at.desc&limit=5000')
                 ]);
                 allAdminUsers = usersData || [];
                 allAdminLinks = linksData || [];
@@ -1093,8 +1122,7 @@
             } catch (e) {}
         }
 
-        // Global Link Search & Destination Inspector
-        window.runGlobalLinkInspector = function() {
+        window.runGlobalLinkInspector = async function() {
             const rawInput = (document.getElementById('global-link-inspect-input')?.value || '').trim();
             const resBox = document.getElementById('global-link-inspect-results');
             if (!resBox) return;
@@ -1105,7 +1133,6 @@
                 return;
             }
 
-            // Extract short_id if the owner pasted a full Telegram Mini App short link (e.g. https://t.me/...?startapp=link_abc123)
             let extractedCode = rawInput.toLowerCase();
             if (extractedCode.includes('startapp=')) {
                 const afterStart = extractedCode.split('startapp=')[1].split('&')[0];
@@ -1115,32 +1142,38 @@
             }
 
             const userMap = {};
-            allAdminUsers.forEach(u => { userMap[u.id] = u; });
+            allAdminUsers.forEach(u => { userMap[String(u.id)] = u; });
 
-            const matches = allAdminLinks.filter(l => {
+            let matches = allAdminLinks.filter(l => {
                 const sid = (l.short_id || '').toLowerCase();
                 const orig = (l.original_url || '').toLowerCase();
                 return sid.includes(extractedCode) || orig.includes(rawInput.toLowerCase());
             }).slice(0, 15);
 
+            // Live DB fallback if link wasn't in initial batch
+            if (matches.length === 0) {
+                const dbMatches = await supabaseRestGet('links', `select=*&or=(short_id.ilike.*${encodeURIComponent(extractedCode)}*,original_url.ilike.*${encodeURIComponent(rawInput)}*)&limit=10`);
+                if (dbMatches && dbMatches.length > 0) matches = dbMatches;
+            }
+
             resBox.classList.remove('hidden');
             if (matches.length === 0) {
-                resBox.innerHTML = `<div class="bg-[#0b0f19] border border-rose-500/30 rounded-xl p-3.5 text-center text-xs text-rose-300">No matching shortened link found for "<b>${rawInput}</b>".</div>`;
+                resBox.innerHTML = `<div class="bg-[#0b0f19] border border-rose-500/30 rounded-xl p-3.5 text-center text-xs text-rose-300">No matching shortened link found for "<b>${escapeHtml(rawInput)}</b>".</div>`;
                 return;
             }
 
-            resBox.innerHTML = '';
-            matches.forEach(l => {
-                const creator = userMap[l.user_id] || { first_name: 'Creator', telegram_id: 'Unknown' };
+            const htmlParts = matches.map(l => {
+                const creator = userMap[String(l.user_id)] || { first_name: 'Creator', telegram_id: 'Unknown' };
                 const fullShortUrl = `https://t.me/${BOT_USERNAME}/${APP_SHORT_NAME}?startapp=link_${l.short_id}`;
+                const safeOrig = escapeHtml(l.original_url || '');
                 const dateStr = l.created_at ? new Date(l.created_at).toLocaleString() : '';
 
-                resBox.innerHTML += `
+                return `
                     <div class="bg-[#0b0f19] border border-sky-400/30 rounded-xl p-4 space-y-2.5">
                         <div class="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-2">
                             <div class="flex items-center space-x-2">
-                                <span class="bg-sky-500/20 text-sky-300 font-mono-code text-xs font-extrabold px-2.5 py-0.5 rounded-lg">Code: ${l.short_id}</span>
-                                <span class="text-xs text-slate-300">By <b class="text-white">${creator.first_name || 'Creator'}</b> <span class="font-mono-code text-sky-400">(TG: ${creator.telegram_id})</span></span>
+                                <span class="bg-sky-500/20 text-sky-300 font-mono-code text-xs font-extrabold px-2.5 py-0.5 rounded-lg">Code: ${escapeHtml(l.short_id)}</span>
+                                <span class="text-xs text-slate-300">By <b class="text-white">${escapeHtml(creator.first_name || 'Creator')}</b> <span class="font-mono-code text-sky-400">(TG: ${escapeHtml(creator.telegram_id)})</span></span>
                             </div>
                             <div class="flex items-center space-x-2">
                                 <span class="text-xs font-mono-code text-slate-300"><i class="fa-solid fa-eye text-sky-400 mr-1"></i>${l.clicks || 0} views</span>
@@ -1152,23 +1185,24 @@
                             <div class="text-[10px] text-slate-400 uppercase font-bold">Shortened Bot Link:</div>
                             <div class="flex items-center justify-between bg-slate-900/90 px-3 py-1.5 rounded-lg border border-white/5">
                                 <span class="font-mono-code text-sky-300 truncate pr-2 select-all">${fullShortUrl}</span>
-                                <button onclick="copyAdminText('${fullShortUrl}')" class="text-slate-300 hover:text-white text-xs font-bold shrink-0"><i class="fa-regular fa-copy mr-1"></i>Copy</button>
+                                <button type="button" onclick="copyAdminText('${fullShortUrl}')" class="text-slate-300 hover:text-white text-xs font-bold shrink-0"><i class="fa-regular fa-copy mr-1"></i>Copy</button>
                             </div>
                         </div>
 
                         <div class="space-y-1 text-xs">
                             <div class="text-[10px] text-emerald-400 uppercase font-bold">Original Destination URL (Which Link Was Shortened):</div>
                             <div class="flex items-center justify-between bg-emerald-950/30 px-3 py-2 rounded-lg border border-emerald-500/30">
-                                <a href="${l.original_url}" target="_blank" class="font-mono-code text-emerald-300 hover:underline truncate pr-2 select-all">${l.original_url}</a>
+                                <a href="${safeOrig}" target="_blank" rel="noopener noreferrer" class="font-mono-code text-emerald-300 hover:underline truncate pr-2 select-all">${safeOrig}</a>
                                 <div class="flex items-center space-x-1.5 shrink-0">
-                                    <a href="${l.original_url}" target="_blank" class="bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded text-[11px] font-bold">Open URL</a>
-                                    <button onclick="adminDeleteInspectedLink('${l.id}')" class="bg-rose-500/20 text-rose-300 px-2.5 py-1 rounded text-[11px] font-bold">Delete</button>
+                                    <a href="${safeOrig}" target="_blank" rel="noopener noreferrer" class="bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded text-[11px] font-bold">Open URL</a>
+                                    <button type="button" onclick="adminDeleteInspectedLink('${l.id}')" class="bg-rose-500/20 text-rose-300 px-2.5 py-1 rounded text-[11px] font-bold">Delete</button>
                                 </div>
                             </div>
                         </div>
                         <div class="text-[10px] text-slate-500">Created: ${dateStr}</div>
                     </div>`;
             });
+            resBox.innerHTML = htmlParts.join('');
         };
 
         window.adminDeleteInspectedLink = async function(linkId) {
@@ -1190,13 +1224,14 @@
 
             const grouped = {};
             allAdminLinks.forEach(l => {
-                if (!grouped[l.user_id]) grouped[l.user_id] = { count: 0, views: 0, earnings: 0 };
-                grouped[l.user_id].count += 1;
-                grouped[l.user_id].views += (l.clicks || 0);
-                grouped[l.user_id].earnings += parseFloat(l.earnings || 0);
+                const uid = String(l.user_id);
+                if (!grouped[uid]) grouped[uid] = { count: 0, views: 0, earnings: 0 };
+                grouped[uid].count += 1;
+                grouped[uid].views += parseInt(l.clicks || 0, 10);
+                grouped[uid].earnings += parseFloat(l.earnings || 0);
             });
 
-            const creatorsWithLinks = allAdminUsers.filter(u => grouped[u.id] && grouped[u.id].count >= 1).filter(u =>
+            const creatorsWithLinks = allAdminUsers.filter(u => grouped[String(u.id)] && grouped[String(u.id)].count >= 1).filter(u =>
                 (u.first_name || '').toLowerCase().includes(q) ||
                 (u.username || '').toLowerCase().includes(q) ||
                 String(u.telegram_id || '').includes(q)
@@ -1207,11 +1242,12 @@
                 return;
             }
 
-            grid.innerHTML = '';
-            creatorsWithLinks.forEach(u => {
-                const stats = grouped[u.id];
-                const initial = (u.first_name || 'C').charAt(0).toUpperCase();
-                grid.innerHTML += `
+            const cardsHtml = creatorsWithLinks.map(u => {
+                const stats = grouped[String(u.id)];
+                const initial = escapeHtml((u.first_name || 'C').charAt(0).toUpperCase());
+                const safeName = escapeHtml(u.first_name || 'Creator');
+                const safeUser = u.username ? `<span class="text-slate-400 font-normal">@${escapeHtml(u.username)}</span>` : '';
+                return `
                     <div onclick="openCreatorLinksView('${u.id}')" class="neo-card p-4 hover:border-sky-400 cursor-pointer transition">
                         <div class="flex items-center justify-between mb-3">
                             <div class="flex items-center space-x-3 truncate pr-2">
@@ -1220,9 +1256,9 @@
                                 </div>
                                 <div class="truncate">
                                     <div class="font-extrabold text-xs text-white truncate">
-                                        ${u.first_name || 'Creator'} ${u.username ? `<span class="text-slate-400 font-normal">@${u.username}</span>` : ''}
+                                        ${safeName} ${safeUser}
                                     </div>
-                                    <div class="text-[10px] font-mono-code text-sky-400">TG ID: ${u.telegram_id}</div>
+                                    <div class="text-[10px] font-mono-code text-sky-400">TG ID: ${escapeHtml(u.telegram_id)}</div>
                                 </div>
                             </div>
                             <span class="bg-[#0b0f19] text-sky-400 border border-white/10 px-2.5 py-1 rounded-lg text-xs font-extrabold font-mono-code shrink-0">
@@ -1235,14 +1271,31 @@
                         </div>
                     </div>`;
             });
+            grid.innerHTML = cardsHtml.join('');
         };
 
-        window.openCreatorLinksView = function(userId) {
+        // Freeze-Free Paginated Creator Links View
+        window.openCreatorLinksView = async function(userId) {
             selectedCreatorForLinks = allAdminUsers.find(u => String(u.id) === String(userId)) || { id: userId, first_name: 'Creator', telegram_id: '...' };
             document.getElementById('links-manager-creators-view').classList.add('hidden');
             document.getElementById('links-manager-detail-view').classList.remove('hidden');
-            document.getElementById('selected-creator-title').innerText = `${selectedCreatorForLinks.first_name || 'Creator'}'s Links`;
+            document.getElementById('selected-creator-title').innerText = `${selectedCreatorForLinks.first_name || 'Creator'}'s Shortened Links`;
             document.getElementById('selected-creator-subtitle').innerText = `TG ID: ${selectedCreatorForLinks.telegram_id}`;
+
+            const searchEl = document.getElementById('admin-link-search');
+            if (searchEl) searchEl.value = '';
+
+            const tbody = document.getElementById('admin-links-list');
+            if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Loading links...</td></tr>';
+
+            // Fetch fresh links for this creator directly so it's always complete & fast
+            const freshCreatorLinks = await supabaseRestGet('links', `select=*&user_id=eq.${encodeURIComponent(userId)}&order=created_at.desc&limit=1000`);
+            if (freshCreatorLinks) {
+                const otherLinks = allAdminLinks.filter(l => String(l.user_id) !== String(userId));
+                allAdminLinks = [...freshCreatorLinks, ...otherLinks];
+            }
+
+            creatorLinksRenderLimit = 50;
             filterSelectedCreatorLinks();
         };
 
@@ -1254,47 +1307,89 @@
             renderLinksManagerCreators();
         };
 
+        window.resetAndFilterCreatorLinks = function() {
+            creatorLinksRenderLimit = 50;
+            filterSelectedCreatorLinks();
+        };
+
+        window.loadMoreCreatorLinks = function() {
+            creatorLinksRenderLimit += 50;
+            renderCreatorLinksBatch();
+        };
+
         window.filterSelectedCreatorLinks = function() {
             if (!selectedCreatorForLinks) return;
-            const q = (document.getElementById('admin-link-search')?.value || '').toLowerCase();
-            const creatorLinks = allAdminLinks.filter(l => String(l.user_id) === String(selectedCreatorForLinks.id)).filter(l =>
-                (l.short_id || '').toLowerCase().includes(q) ||
-                (l.original_url || '').toLowerCase().includes(q)
+            const q = (document.getElementById('admin-link-search')?.value || '').toLowerCase().trim();
+            filteredCreatorLinksCache = allAdminLinks.filter(l => String(l.user_id) === String(selectedCreatorForLinks.id)).filter(l =>
+                !q || (l.short_id || '').toLowerCase().includes(q) || (l.original_url || '').toLowerCase().includes(q)
             );
+            renderCreatorLinksBatch();
+        };
+
+        function renderCreatorLinksBatch() {
             const tbody = document.getElementById('admin-links-list');
-            if (!creatorLinks.length) {
-                tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400">No links found.</td></tr>';
+            const moreBox = document.getElementById('creator-links-load-more-box');
+            const remCountEl = document.getElementById('creator-links-remaining-count');
+            if (!tbody) return;
+
+            if (!filteredCreatorLinksCache.length) {
+                tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400">No shortened links found for this creator.</td></tr>';
+                if (moreBox) moreBox.classList.add('hidden');
                 return;
             }
-            tbody.innerHTML = '';
-            creatorLinks.forEach(l => {
-                const isConfirming = pendingAdminLinkDeleteId === l.id;
-                const dateStr = new Date(l.created_at).toLocaleDateString();
-                const fullShort = `https://t.me/${BOT_USERNAME}/${APP_SHORT_NAME}?startapp=link_${l.short_id}`;
-                tbody.innerHTML += `
+
+            const visibleSlice = filteredCreatorLinksCache.slice(0, creatorLinksRenderLimit);
+            const remaining = filteredCreatorLinksCache.length - visibleSlice.length;
+
+            if (moreBox) {
+                if (remaining > 0) {
+                    moreBox.classList.remove('hidden');
+                    if (remCountEl) remCountEl.innerText = remaining;
+                } else {
+                    moreBox.classList.add('hidden');
+                }
+            }
+
+            const rowsHtml = visibleSlice.map(l => {
+                const isConfirming = String(pendingAdminLinkDeleteId) === String(l.id);
+                const dateStr = l.created_at ? new Date(l.created_at).toLocaleDateString() : '';
+                const safeShort = escapeHtml(l.short_id || '');
+                const safeOrig = escapeHtml(l.original_url || '');
+                const fullShort = `https://t.me/${BOT_USERNAME}/${APP_SHORT_NAME}?startapp=link_${safeShort}`;
+
+                return `
                     <tr class="hover:bg-white/5">
                         <td class="p-3.5">
-                            <div class="font-mono-code font-bold text-sky-400">${l.short_id}</div>
-                            <button onclick="copyAdminText('${fullShort}')" class="text-[10px] text-slate-400 hover:text-white"><i class="fa-regular fa-copy mr-1"></i>Copy Short Link</button>
+                            <div class="font-mono-code font-bold text-sky-400">${safeShort}</div>
+                            <button type="button" onclick="copyAdminText('${fullShort}')" class="text-[10px] text-slate-400 hover:text-white"><i class="fa-regular fa-copy mr-1"></i>Copy Bot Link</button>
                         </td>
-                        <td class="p-3.5 max-w-xs truncate text-emerald-300 font-mono-code"><a href="${l.original_url}" target="_blank" class="hover:underline">${l.original_url}</a></td>
-                        <td class="p-3.5 font-mono-code font-bold">${l.clicks || 0}</td>
+                        <td class="p-3.5 max-w-xs truncate font-mono-code">
+                            <a href="${safeOrig}" target="_blank" rel="noopener noreferrer" class="text-emerald-300 hover:underline select-all">${safeOrig}</a>
+                        </td>
+                        <td class="p-3.5 font-mono-code font-bold text-white">${l.clicks || 0}</td>
                         <td class="p-3.5 font-mono-code font-bold text-emerald-400">$${parseFloat(l.earnings || 0).toFixed(4)}</td>
                         <td class="p-3.5 text-slate-400">${dateStr}</td>
                         <td class="p-3.5 text-right">
-                            <button onclick="adminDeleteSingleLink('${l.id}')" class="${isConfirming ? 'btn-danger' : 'bg-rose-500/20 text-rose-300'} px-2.5 py-1 rounded-lg text-xs font-bold">
+                            <button type="button" onclick="adminDeleteSingleLink('${l.id}')" class="${isConfirming ? 'btn-danger' : 'bg-rose-500/20 text-rose-300'} px-2.5 py-1 rounded-lg text-xs font-bold">
                                 ${isConfirming ? 'Confirm?' : 'Delete'}
                             </button>
                         </td>
                     </tr>`;
             });
-        };
+
+            tbody.innerHTML = rowsHtml.join('');
+        }
 
         window.adminDeleteSingleLink = async function(linkId) {
-            if (pendingAdminLinkDeleteId !== linkId) {
+            if (String(pendingAdminLinkDeleteId) !== String(linkId)) {
                 pendingAdminLinkDeleteId = linkId;
-                filterSelectedCreatorLinks();
-                setTimeout(() => { if (pendingAdminLinkDeleteId === linkId) { pendingAdminLinkDeleteId = null; filterSelectedCreatorLinks(); } }, 3000);
+                renderCreatorLinksBatch();
+                setTimeout(() => {
+                    if (String(pendingAdminLinkDeleteId) === String(linkId)) {
+                        pendingAdminLinkDeleteId = null;
+                        renderCreatorLinksBatch();
+                    }
+                }, 3000);
                 return;
             }
             try {
@@ -1352,12 +1447,12 @@
             btn.disabled = false;
         };
 
-        // --- TAB 4: CREATORS & USERS (WITH PER-CREATOR CUSTOM DECIMAL CPM) ---
+        // --- TAB 4: CREATORS & USERS (0.5 CPM TO 10 CPM MAX PER CREATOR) ---
         async function loadUsers() {
             try {
                 const [usersData, linksData] = await Promise.all([
                     supabaseRestGet('users', 'select=*&order=created_at.desc'),
-                    supabaseRestGet('links', 'select=id,user_id')
+                    supabaseRestGet('links', 'select=id,user_id&limit=5000')
                 ]);
 
                 allAdminUsers = usersData || [];
@@ -1413,36 +1508,37 @@
                 tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">No matching accounts found.</td></tr>`;
                 return;
             }
-            tbody.innerHTML = '';
             const overrides = cachedSettings.user_cpm_overrides || {};
 
-            usersArr.forEach(u => {
+            const rowsHtml = usersArr.map(u => {
                 const linkCnt = userLinksCountMap[u.id] || 0;
                 const customCpm = overrides[u.id] !== undefined ? overrides[u.id] : overrides[u.telegram_id];
-                const effectiveCpm = parseCpmValue(customCpm ?? cachedSettings.cpm, 1.0);
+                const effectiveCpm = parseCpmValue(customCpm ?? cachedSettings.cpm, 0.5);
+                const effectiveAds = getAdsByCpm(effectiveCpm);
                 const isCustomCpm = customCpm !== undefined;
 
                 const blockBtn = u.is_blocked
                     ? `<button onclick="toggleBlock('${u.id}', false)" class="bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded-lg text-xs font-bold"><i class="fa-solid fa-unlock"></i></button>`
                     : `<button onclick="toggleBlock('${u.id}', true)" class="bg-amber-500/20 text-amber-300 px-2.5 py-1 rounded-lg text-xs font-bold"><i class="fa-solid fa-ban"></i></button>`;
 
+                const permKey = u.api_key || generatePermanentUserApiKey(u.telegram_id, u.id);
                 const apiDisplay = linkCnt >= 1
                     ? `<div class="flex items-center space-x-1.5">
-                           <span class="font-mono-code text-[11px] text-amber-300 bg-[#0b0f19] px-2 py-0.5 rounded border border-white/10">${u.api_key || generatePermanentUserApiKey(u.telegram_id, u.id)}</span>
-                           <button onclick="copyAdminText('${u.api_key || generatePermanentUserApiKey(u.telegram_id, u.id)}')" class="text-slate-300 hover:text-white"><i class="fa-regular fa-copy"></i></button>
+                           <span class="font-mono-code text-[11px] text-amber-300 bg-[#0b0f19] px-2 py-0.5 rounded border border-white/10">${permKey}</span>
+                           <button onclick="copyAdminText('${permKey}')" class="text-slate-300 hover:text-white"><i class="fa-regular fa-copy"></i></button>
                        </div>`
                     : `<span class="text-[10px] text-slate-500">Locked</span>`;
 
-                tbody.innerHTML += `
+                return `
                     <tr class="hover:bg-white/5">
                         <td class="p-3.5">
-                            <div class="font-bold text-white">${u.first_name || 'User'} ${u.username ? `<span class="text-slate-400 font-normal">@${u.username}</span>` : ''}</div>
-                            <div class="text-[10px] font-mono-code text-sky-400">TG: ${u.telegram_id}</div>
+                            <div class="font-bold text-white">${escapeHtml(u.first_name || 'User')} ${u.username ? `<span class="text-slate-400 font-normal">@${escapeHtml(u.username)}</span>` : ''}</div>
+                            <div class="text-[10px] font-mono-code text-sky-400">TG: ${escapeHtml(u.telegram_id)}</div>
                         </td>
                         <td class="p-3.5 font-mono-code font-bold">${linkCnt}</td>
                         <td class="p-3.5">
                             <div class="flex items-center space-x-1.5">
-                                <span class="font-mono-code font-extrabold ${isCustomCpm ? 'text-amber-300' : 'text-sky-400'}">$${effectiveCpm.toFixed(2)} CPM</span>
+                                <span class="font-mono-code font-extrabold ${isCustomCpm ? 'text-amber-300' : 'text-sky-400'}">$${effectiveCpm.toFixed(2)} (${effectiveAds} ${effectiveAds === 1 ? 'Ad' : 'Ads'})</span>
                                 <button onclick="setCreatorCustomCpm('${u.id}', '${u.telegram_id}', ${effectiveCpm})" class="bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 px-2 py-0.5 rounded text-[10px] font-bold">Set CPM</button>
                             </div>
                         </td>
@@ -1461,10 +1557,11 @@
                         </td>
                     </tr>`;
             });
+            tbody.innerHTML = rowsHtml.join('');
         }
 
         window.setCreatorCustomCpm = async function(userId, tgId, currentRate) {
-            const input = prompt("Enter custom CPM rate ($) for this creator (e.g. 0.5, 1, 1.5, 2, 3.5) or leave empty to reset to Global Default:", currentRate);
+            const input = prompt("Enter custom CPM rate ($) for this creator (0.5, 1, 1.5, 2 ... up to 10 max) or leave empty to reset to Global Default:", currentRate);
             if (input === null) return;
             if (!cachedSettings.user_cpm_overrides) cachedSettings.user_cpm_overrides = {};
 
@@ -1476,14 +1573,12 @@
                 return showAdminToast("Creator reset to Global Default CPM!");
             }
 
-            const rate = parseFloat(input);
-            if (isNaN(rate) || rate < 0.1) return showAdminToast("Enter a valid CPM (minimum 0.1)", true);
-
-            cachedSettings.user_cpm_overrides[userId] = parseFloat(rate.toFixed(2));
-            cachedSettings.user_cpm_overrides[tgId] = parseFloat(rate.toFixed(2));
+            const rate = parseCpmValue(input, 0.5);
+            cachedSettings.user_cpm_overrides[userId] = rate;
+            cachedSettings.user_cpm_overrides[tgId] = rate;
             await persistMetadataToSupabase();
             filterAdminUsers();
-            showAdminToast(`Creator CPM set to $${rate.toFixed(2)} CPM!`);
+            showAdminToast(`Creator Plan set to $${rate.toFixed(2)} CPM (${getAdsByCpm(rate)} Ads)!`);
         };
 
         window.jumpToCreatorLinks = async function(userId) {
@@ -1549,8 +1644,8 @@
                     }
                     tbody.innerHTML += `
                         <tr class="hover:bg-white/5">
-                            <td class="p-3.5 font-bold text-sky-400">${w.username || String(w.user_id).substring(0, 8)}</td>
-                            <td class="p-3.5"><b>${w.method}</b><br><span class="text-slate-400 font-mono-code select-all">${w.details}</span></td>
+                            <td class="p-3.5 font-bold text-sky-400">${escapeHtml(w.username || String(w.user_id).substring(0, 8))}</td>
+                            <td class="p-3.5"><b>${escapeHtml(w.method)}</b><br><span class="text-slate-400 font-mono-code select-all">${escapeHtml(w.details)}</span></td>
                             <td class="p-3.5 font-extrabold text-emerald-400 font-mono-code">$${parseFloat(w.amount).toFixed(2)}</td>
                             <td class="p-3.5 text-slate-400">${dateStr}</td>
                             <td class="p-3.5 text-center">${actionHtml}</td>
@@ -1574,25 +1669,52 @@
             } catch (e) { showAdminToast("Error updating withdrawal", true); }
         };
 
-        // --- TAB 6: SETTINGS (DECIMAL CPM 0.5 / 1 / 1.5 / 2 & SUPPORT BUTTON) ---
-        window.setGlobalDecimalCpm = function(val) {
-            const rate = parseCpmValue(val, 1.0);
+        // --- TAB 6: SETTINGS (0.5 CPM PER AD UP TO 10 CPM MAX + FIRST & LAST PAGE TIMERS) ---
+        function populateAdminAdSelect() {
+            const sel = document.getElementById('set-ads');
+            if (!sel) return;
+            sel.innerHTML = '';
+            for (let i = 1; i <= 20; i++) {
+                const cpm = getAutoCpmByAds(i);
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.innerText = `${i} ${i === 1 ? 'Ad' : 'Ads'} Per Link — $${cpm.toFixed(2)} CPM`;
+                sel.appendChild(opt);
+            }
+        }
+
+        window.syncAdminAdTierByAds = function(adCountVal) {
+            const ads = clampAdTier(adCountVal);
+            const cpm = getAutoCpmByAds(ads);
+            const sel = document.getElementById('set-ads');
             const cpmInp = document.getElementById('set-cpm');
             const prev = document.getElementById('admin-auto-cpm-preview');
-            if (cpmInp && Number(cpmInp.value) !== rate) cpmInp.value = rate;
-            if (prev) prev.innerText = `$${rate.toFixed(2)} CPM`;
+            if (sel) sel.value = ads;
+            if (cpmInp) cpmInp.value = cpm;
+            if (prev) prev.innerText = `$${cpm.toFixed(2)} CPM (${ads} ${ads === 1 ? 'Ad' : 'Ads'})`;
+        };
+
+        window.syncAdminAdTierByCpm = function(cpmVal) {
+            const cpm = parseCpmValue(cpmVal, 0.5);
+            const ads = getAdsByCpm(cpm);
+            const sel = document.getElementById('set-ads');
+            const cpmInp = document.getElementById('set-cpm');
+            const prev = document.getElementById('admin-auto-cpm-preview');
+            if (sel) sel.value = ads;
+            if (cpmInp && Number(cpmInp.value) !== cpm) cpmInp.value = cpm;
+            if (prev) prev.innerText = `$${cpm.toFixed(2)} CPM (${ads} ${ads === 1 ? 'Ad' : 'Ads'})`;
         };
 
         async function loadSettings() {
+            populateAdminAdSelect();
             try {
                 const rows = await supabaseRestGet('settings', 'select=*&limit=1');
                 if (rows && rows[0]) unpackAdminSettingsRow(rows[0]);
 
-                setGlobalDecimalCpm(cachedSettings.cpm);
-                document.getElementById('set-cpm').value = cachedSettings.cpm;
-                document.getElementById('set-ads').value = cachedSettings.ads_per_link || 1;
+                syncAdminAdTierByAds(cachedSettings.ads_per_link || getAdsByCpm(cachedSettings.cpm));
                 document.getElementById('set-ref').value = cachedSettings.refer_percent || 10;
                 document.getElementById('set-timer').value = cachedSettings.ad_timer || 5;
+                document.getElementById('set-last-timer').value = cachedSettings.last_page_timer || 5;
                 document.getElementById('set-payments').value = cachedSettings.payment_methods || 'UPI, PayPal, USDT (TRC20)';
                 document.getElementById('set-min-with').value = cachedSettings.min_withdraw || 5;
                 document.getElementById('set-tg').value = cachedSettings.tg_channel_url || '';
@@ -1606,17 +1728,20 @@
             const btn = document.getElementById('btn-save-settings');
             if (btn) btn.innerText = "Saving...";
 
-            const customCpm = parseCpmValue(document.getElementById('set-cpm')?.value, 1.0);
-            const adsCount = Math.max(1, Math.min(20, parseInt(document.getElementById('set-ads')?.value || 1, 10)));
+            const customCpm = parseCpmValue(document.getElementById('set-cpm')?.value, 0.5);
+            const adsCount = getAdsByCpm(customCpm);
+            const firstPageTimer = Math.max(1, parseInt(document.getElementById('set-timer')?.value || 5, 10));
+            const lastPageTimer = Math.max(1, parseInt(document.getElementById('set-last-timer')?.value || 5, 10));
             const supportUrl = document.getElementById('set-support')?.value.trim() || 'https://t.me/SandalwoodLinksBot';
             const cleanPayments = document.getElementById('set-payments')?.value.trim() || 'UPI, PayPal, USDT (TRC20)';
 
             cachedSettings.cpm = customCpm;
             cachedSettings.ads_per_link = adsCount;
+            cachedSettings.ad_timer = firstPageTimer;
+            cachedSettings.last_page_timer = lastPageTimer;
             cachedSettings.support_url = supportUrl;
             cachedSettings.payment_methods = cleanPayments;
             cachedSettings.refer_percent = parseInt(document.getElementById('set-ref')?.value) || 10;
-            cachedSettings.ad_timer = parseInt(document.getElementById('set-timer')?.value) || 5;
             cachedSettings.min_withdraw = parseFloat(document.getElementById('set-min-with')?.value) || 5;
             cachedSettings.tg_channel_url = document.getElementById('set-tg')?.value.trim() || supportUrl;
             cachedSettings.yt_channel_url = document.getElementById('set-yt')?.value.trim() || '';
@@ -1629,7 +1754,7 @@
                 ads_per_link: adsCount,
                 cpm: Math.max(1, Math.round(customCpm)),
                 refer_percent: cachedSettings.refer_percent,
-                ad_timer: cachedSettings.ad_timer,
+                ad_timer: firstPageTimer,
                 payment_methods: packedPaymentMethods,
                 min_withdraw: cachedSettings.min_withdraw,
                 tg_channel_url: cachedSettings.tg_channel_url,
@@ -1639,17 +1764,16 @@
 
             try {
                 if (settingsId) {
-                    const { error } = await dbClient.from('settings').update({ ...dbPayload, cpm: customCpm }).eq('id', settingsId);
-                    if (error) await dbClient.from('settings').update(dbPayload).eq('id', settingsId);
+                    await dbClient.from('settings').update(dbPayload).eq('id', settingsId);
                 } else {
-                    const { error } = await dbClient.from('settings').insert([dbPayload]);
+                    await dbClient.from('settings').insert([dbPayload]);
                 }
                 updateHeaderCpmBanners();
-                showAdminToast(`Saved! Global Rate: $${customCpm.toFixed(2)} CPM`);
+                showAdminToast(`Saved! ${adsCount} Ads = $${customCpm.toFixed(2)} CPM | Timers: ${firstPageTimer}s / ${lastPageTimer}s`);
             } catch (e) {
                 showAdminToast("Settings saved!", false);
             }
-            if (btn) btn.innerHTML = `<i class="fa-solid fa-floppy-disk mr-1.5"></i> Save Global Settings & Support URL`;
+            if (btn) btn.innerHTML = `<i class="fa-solid fa-floppy-disk mr-1.5"></i> Save Global Settings, Timers & Support URL`;
         };
 
         // --- TAB 7: BROADCAST ---
